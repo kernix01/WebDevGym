@@ -48,8 +48,8 @@
   body.dark .block:hover { box-shadow: 0 2px 14px rgba(0,0,0,.4); }
   body.dark .block-title { color: #e2e8f0; border-bottom-color: #2d3348; }
   body.dark .block-title:hover { color: var(--accent-light); }
-  body.dark .tab { background: #1a1f2e; border-color: #2d3348; color: #94a3b8; }
-  body.dark .tab:hover:not(.active) { background: var(--accent-bg-dark-alt); color: #e2e8f0; border-color: #3d4461; }
+  body.dark .tab { background: #1e2540; border-color: #3d4a6b; color: #cbd5e1; }
+  body.dark .tab:hover:not(.active) { background: #2a3354; color: #e2e8f0; border-color: #4b5a80; }
   body.dark .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   body.dark .code { background: #070c16; border-color: #1e293b; }
   body.dark .explain { background: #1a1f2e; border-color: #2d3348; color: #cbd5e1; }
@@ -686,16 +686,22 @@
   /* ===== Вкладки ===== */
   .tabs { display: flex; gap: 8px; margin-bottom: 2rem; flex-wrap: wrap; }
   .tab {
-    padding: 9px 18px;
-    border-radius: 8px;
+    padding: 5px 11px;
+    border-radius: 7px;
     border: 1.5px solid #e5e7eb;
     background: #fff;
     color: #6b7280;
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all .2s;
     font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    height: 30px;
+    line-height: 1;
   }
   .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; box-shadow: 0 2px 10px var(--accent-alpha-30); }
   .tab:hover:not(.active) { background: #f3f4f6; color: #374151; border-color: #d1d5db; }
@@ -1567,8 +1573,8 @@
     .tabs::-webkit-scrollbar { display: none; }
     .tab {
       flex-shrink: 0;
-      padding: 8px 13px;
-      font-size: 12.5px;
+      padding: 5px 10px;
+      font-size: 11.5px;
       white-space: nowrap;
     }
     .tab-badge { font-size: 9px; padding: 1px 4px; }
@@ -2797,12 +2803,9 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
+    overflow-x: visible;
   }
-  .tabs-row::-webkit-scrollbar { display: none; }
   .tabs-row-label {
     font-size: 10px;
     font-weight: 800;
@@ -2859,6 +2862,25 @@
   }
   body.dark .prog-dash-section-title { color: #4b5563; }
   body.dark .prog-dash-section-title::after { background: #2d3348; }
+
+  /* ===== Linux, Algo, Perf tabs ===== */
+  .linux-tab.active { background: linear-gradient(135deg, #1a1a1a, #e95420) !important; border-color: #e95420 !important; }
+  .algo-tab.active  { background: linear-gradient(135deg, #1e1b4b, #4338ca) !important; border-color: #6366f1 !important; }
+  .perf-tab.active  { background: linear-gradient(135deg, #064e3b, #059669) !important; border-color: #34d399 !important; }
+
+  #sec-linux .block { border-left: 3px solid #e95420; }
+  #sec-linux .block-title { color: #e95420; }
+  body.dark #sec-linux .block { border-left-color: #e95420; background: #1a1a1a; }
+
+  #sec-algo .block { border-left: 3px solid #6366f1; }
+  #sec-algo .block-title { color: #4338ca; }
+  body.dark #sec-algo .block { border-left-color: #6366f1; background: #1e1b4b; }
+  body.dark #sec-algo .block-title { color: #818cf8; }
+
+  #sec-perf .block { border-left: 3px solid #059669; }
+  #sec-perf .block-title { color: #059669; }
+  body.dark #sec-perf .block { border-left-color: #34d399; background: #064e3b22; }
+  body.dark #sec-perf .block-title { color: #34d399; }
   /* ===== TypeScript ===== */
   #sec-ts .block { border-left: 3px solid #3178c6; }
   #sec-ts .block-title { color: #2563eb; }
@@ -3067,6 +3089,16 @@
       <div class="pdc-bar"><div class="pdc-fill" id="pdc-devops" style="background:#2496ed;width:0%"></div></div>
       <div class="pdc-pct" id="pdcp-devops">0%</div>
     </div>
+    <div class="prog-dash-card" onclick="switchTabByName('linux')" style="cursor:pointer;border-left:3px solid #4b5563;">
+      <div class="pdc-icon" style="font-size:1.6rem;">🐧</div><div class="pdc-name">Linux</div>
+      <div class="pdc-bar"><div class="pdc-fill" id="pdc-linux" style="background:#4b5563;width:0%"></div></div>
+      <div class="pdc-pct" id="pdcp-linux">0%</div>
+    </div>
+    <div class="prog-dash-card" onclick="switchTabByName('vite')" style="cursor:pointer;border-left:3px solid #7c3aed;">
+      <div class="pdc-icon" style="font-size:1.6rem;">⚡</div><div class="pdc-name">Vite</div>
+      <div class="pdc-bar"><div class="pdc-fill" id="pdc-vite" style="background:#7c3aed;width:0%"></div></div>
+      <div class="pdc-pct" id="pdcp-vite">0%</div>
+    </div>
   </div>
   <div class="tabs-nav">
 
@@ -3087,6 +3119,8 @@
       <button class="tab node-tab" onclick="switchTab('node', this)" data-sec="node"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt=""> Node.js <span class="tab-badge" id="badge-node">0/0</span></button>
       <button class="tab sql-tab" onclick="switchTab('sql', this)" data-sec="sql"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt=""> SQL <span class="tab-badge" id="badge-sql">0/0</span></button>
       <button class="tab devops-tab" onclick="switchTab('devops', this)" data-sec="devops"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt=""> Серверы <span class="tab-badge" id="badge-devops">0/0</span></button>
+      <button class="tab" onclick="switchTab('linux', this)" data-sec="linux">🐧 Linux <span class="tab-badge" id="badge-linux">0/0</span></button>
+      <button class="tab" onclick="switchTab('vite', this)" data-sec="vite">⚡ Vite <span class="tab-badge" id="badge-vite">0/0</span></button>
     </div>
 
     <!-- ROW 3: Other -->
@@ -3101,8 +3135,9 @@
       <button class="tab playground-tab" onclick="switchTab('playground', this)" data-sec="playground"><iconify-icon icon="tabler:device-desktop-code" width="15" height="15" style="vertical-align:middle"></iconify-icon> Playground</button>
       <button class="tab cs-tab" onclick="switchTab('cheatsheets', this)" data-sec="cheatsheets"><iconify-icon icon="tabler:notes" width="15" height="15" style="vertical-align:middle"></iconify-icon> Шпаргалки</button>
       <button class="tab gh-tab" onclick="switchTab('github', this)" data-sec="github"><iconify-icon icon="tabler:brand-github" width="15" height="15" style="vertical-align:middle"></iconify-icon> GitHub</button>
-      <button class="tab books-tab" onclick="switchTab('books', this)"><iconify-icon icon="tabler:book-2" width="15" height="15" style="vertical-align:middle"></iconify-icon> Книги</button>
-      <button class="tab fonts-tab" onclick="switchTab('fonts', this)"><iconify-icon icon="tabler:typography" width="15" height="15" style="vertical-align:middle"></iconify-icon> Шрифты</button>
+      <button class="tab linux-tab" onclick="switchTab('linux', this)" data-sec="linux"><iconify-icon icon="tabler:brand-ubuntu" width="15" height="15" style="vertical-align:middle"></iconify-icon> Linux</button>
+      <button class="tab algo-tab" onclick="switchTab('algo', this)" data-sec="algo"><iconify-icon icon="tabler:chart-dots" width="15" height="15" style="vertical-align:middle"></iconify-icon> Алгоритмы</button>
+      <button class="tab perf-tab" onclick="switchTab('perf', this)" data-sec="perf"><iconify-icon icon="tabler:rocket" width="15" height="15" style="vertical-align:middle"></iconify-icon> Перформанс</button>
     </div>
 
   </div>
@@ -6430,6 +6465,897 @@ id = <span class="str">"abc"</span>; <span class="cm">// тоже ок!</span>
         <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Кастомный хук — функция use*, инкапсулирует логику</span></label>
         <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>useFetch — паттерн: data/loading/error</span></label>
         <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Переиспользование хуков между компонентами</span></label>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== LINUX ===================== -->
+  <div class="section" id="sec-linux">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a1a1a 0%, #e95420 60%, #ff6b35 100%);">
+      <div class="lang-section-hero-icon"><iconify-icon icon="tabler:brand-ubuntu" width="52" height="52" style="color:#fff"></iconify-icon></div>
+      <div>
+        <div class="lang-section-hero-title">Linux — операционная система разработчика</div>
+        <div class="lang-section-hero-sub">Linux — это основа серверов, Docker-контейнеров и среды разработки. Каждый фронтендер рано или поздно работает с терминалом.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Терминал</span>
+          <span class="lang-section-hero-badge">Файловая система</span>
+          <span class="lang-section-hero-badge">Права доступа</span>
+          <span class="lang-section-hero-badge">Процессы</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-basics">
+      <div class="block-title" onclick="scrollToBlock('block-linux-basics')">Основные команды терминала <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Терминал — главный инструмент разработчика. Эти команды ты будешь использовать каждый день.</div>
+      <div class="code"><span class="cm"># Навигация</span>
+pwd                    <span class="cm"># где я сейчас?</span>
+ls -la                 <span class="cm"># список файлов с правами</span>
+cd ~/projects          <span class="cm"># перейти в папку</span>
+cd ..                  <span class="cm"># на уровень выше</span>
+
+<span class="cm"># Файлы и папки</span>
+mkdir my-project       <span class="cm"># создать папку</span>
+touch index.html       <span class="cm"># создать файл</span>
+cp file.txt backup.txt <span class="cm"># копировать</span>
+mv old.txt new.txt     <span class="cm"># переименовать/переместить</span>
+rm -rf dist/           <span class="cm"># удалить папку (осторожно!)</span>
+
+<span class="cm"># Просмотр файлов</span>
+cat package.json       <span class="cm"># вывести содержимое</span>
+less large-file.log    <span class="cm"># постраничный просмотр</span>
+grep -r "TODO" src/    <span class="cm"># найти текст рекурсивно</span>
+
+<span class="cm"># Процессы</span>
+ps aux                 <span class="cm"># все процессы</span>
+kill -9 1234           <span class="cm"># убить процесс по PID</span>
+Ctrl+C                 <span class="cm"># остановить текущий процесс</span></div>
+      <div class="explain">
+        <strong>~</strong> — домашняя папка пользователя (/home/username или /Users/username).<br>
+        <strong>ls -la</strong> — l = подробный список, a = включая скрытые файлы (начинаются с .).<br>
+        <strong>rm -rf</strong> — удаляет без подтверждения. Никогда не пиши rm -rf / !<br>
+        <strong>grep -r</strong> — рекурсивный поиск по всем файлам в папке.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>pwd, ls -la, cd — навигация по файловой системе</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>mkdir, touch, cp, mv, rm — работа с файлами</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>cat, less, grep -r — просмотр и поиск в файлах</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ps aux, kill, Ctrl+C — управление процессами</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-permissions">
+      <div class="block-title" onclick="scrollToBlock('block-linux-permissions')">Права доступа и chmod <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># Вывод ls -la показывает права:</span>
+<span class="cm"># -rwxr-xr-- 1 user group 1024 Jan 1 deploy.sh</span>
+<span class="cm">#  |||||||||||</span>
+<span class="cm">#  |└──┘└──┘└── others: r-- (чтение)</span>
+<span class="cm">#  | └──┘└───── group:  r-x (чтение+выполнение)</span>
+<span class="cm">#  └──────────── owner:  rwx (всё)</span>
+
+<span class="cm"># chmod числом (удобнее)</span>
+chmod 755 deploy.sh    <span class="cm"># rwxr-xr-x</span>
+chmod 644 config.env   <span class="cm"># rw-r--r--</span>
+chmod +x script.sh     <span class="cm"># добавить право выполнения</span>
+
+<span class="cm"># Числа: 4=чтение, 2=запись, 1=выполнение</span>
+<span class="cm"># 7 = 4+2+1 = rwx (всё)</span>
+<span class="cm"># 5 = 4+0+1 = r-x (чтение+выполнение)</span>
+<span class="cm"># 4 = 4+0+0 = r-- (только чтение)</span>
+
+<span class="cm"># sudo — выполнить от суперпользователя</span>
+sudo apt install nginx
+sudo systemctl start nginx</div>
+      <div class="explain">
+        <strong>chmod 755</strong> — стандарт для исполняемых файлов и папок.<br>
+        <strong>chmod 644</strong> — стандарт для обычных файлов (конфиги, HTML).<br>
+        <strong>+x</strong> — быстрый способ сделать файл исполняемым.<br>
+        <strong>sudo</strong> — суперпользователь. Используй только когда необходимо.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Чтение прав: rwxr-xr-x, владелец/группа/остальные</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>chmod 755/644 — стандартные права для файлов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>sudo — выполнение от суперпользователя</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-pipes">
+      <div class="block-title" onclick="scrollToBlock('block-linux-pipes')">Пайпы, перенаправление и полезные утилиты <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># | (pipe) — передать вывод в следующую команду</span>
+ls -la | grep ".js"              <span class="cm"># JS файлы в папке</span>
+cat access.log | grep "404"      <span class="cm"># ошибки 404 в логе</span>
+ps aux | grep node               <span class="cm"># найти node процессы</span>
+
+<span class="cm"># > и >> — перенаправление в файл</span>
+echo "Hello" > output.txt        <span class="cm"># перезаписать</span>
+npm run build >> build.log 2>&1  <span class="cm"># append + ошибки тоже</span>
+
+<span class="cm"># Полезные утилиты фронтендера</span>
+which node                       <span class="cm"># где установлен node?</span>
+curl https://api.example.com/v1  <span class="cm"># HTTP запрос</span>
+wget https://example.com/file.zip <span class="cm"># скачать файл</span>
+tar -xzf archive.tar.gz          <span class="cm"># распаковать архив</span>
+df -h                            <span class="cm"># место на диске</span>
+du -sh node_modules/             <span class="cm"># размер папки</span>
+top                              <span class="cm"># мониторинг ресурсов (q — выход)</span></div>
+      <div class="explain">
+        <strong>|</strong> — pipe соединяет команды. Вывод первой = ввод второй.<br>
+        <strong>2>&1</strong> — перенаправить stderr (ошибки) в stdout.<br>
+        <strong>curl</strong> — незаменим для тестирования API прямо из терминала.<br>
+        <strong>du -sh node_modules/</strong> — узнать сколько весит папка.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>| (pipe) — соединение команд</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>> и >> — перенаправление вывода в файл</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>curl, wget, tar, df, du — полезные утилиты</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-ssh">
+      <div class="block-title" onclick="scrollToBlock('block-linux-ssh')">SSH — удалённый доступ к серверу <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># Подключение к серверу</span>
+ssh user@192.168.1.100            <span class="cm"># по IP</span>
+ssh user@myserver.com             <span class="cm"># по домену</span>
+ssh -i ~/.ssh/mykey.pem ubuntu@ec2-... <span class="cm"># с ключом (AWS)</span>
+
+<span class="cm"># Генерация SSH ключей (один раз)</span>
+ssh-keygen -t ed25519 -C "email@mail.com"
+<span class="cm"># Создаёт ~/.ssh/id_ed25519 (приватный) и ~/.ssh/id_ed25519.pub (публичный)</span>
+
+<span class="cm"># Копировать публичный ключ на сервер</span>
+ssh-copy-id user@server.com
+
+<span class="cm"># SCP — копировать файлы через SSH</span>
+scp index.html user@server:/var/www/html/
+scp -r dist/ user@server:/var/www/myapp/
+
+<span class="cm"># ~/.ssh/config — удобные алиасы</span>
+<span class="cm"># Host myserver</span>
+<span class="cm">#   HostName 123.45.67.89</span>
+<span class="cm">#   User ubuntu</span>
+<span class="cm">#   IdentityFile ~/.ssh/mykey.pem</span>
+ssh myserver  <span class="cm"># теперь просто так!</span></div>
+      <div class="explain">
+        <strong>SSH ключи</strong> — безопаснее пароля. Приватный ключ только у тебя, публичный — на серверах.<br>
+        <strong>ed25519</strong> — современный алгоритм, лучше старого rsa.<br>
+        <strong>~/.ssh/config</strong> — настрой один раз, подключайся по имени.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ssh user@host — подключение к серверу</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ssh-keygen — генерация пары ключей</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>scp — копирование файлов через SSH</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>~/.ssh/config — алиасы для серверов</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-bash">
+      <div class="block-title" onclick="scrollToBlock('block-linux-bash')">Bash-скрипты для автоматизации <span class="badge">знать</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">#!/bin/bash</span>
+<span class="cm"># deploy.sh — простой скрипт деплоя</span>
+
+set -e  <span class="cm"># выйти при любой ошибке</span>
+
+echo "🚀 Начинаем деплой..."
+
+<span class="cm"># Переменные</span>
+SERVER="ubuntu@myserver.com"
+BUILD_DIR="./dist"
+
+<span class="cm"># Условия</span>
+if [ ! -d "$BUILD_DIR" ]; then
+  echo "❌ Папка dist не найдена! Запусти npm run build"
+  exit 1
+fi
+
+<span class="cm"># Сборка</span>
+npm run build
+echo "✅ Сборка готова"
+
+<span class="cm"># Деплой</span>
+scp -r $BUILD_DIR/* $SERVER:/var/www/html/
+echo "✅ Файлы загружены на сервер!"
+
+<span class="cm"># Запуск скрипта:</span>
+chmod +x deploy.sh
+./deploy.sh</div>
+      <div class="explain">
+        <strong>#!/bin/bash</strong> — shebang, указывает какой интерпретатор использовать.<br>
+        <strong>set -e</strong> — скрипт остановится если любая команда вернёт ошибку.<br>
+        <strong>[ -d "$dir" ]</strong> — проверка существования папки.<br>
+        Bash-скрипты — мощный инструмент для автоматизации деплоя и рутинных задач.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>#!/bin/bash + set -e — правильное начало скрипта</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Переменные, условия if/else в bash</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Написание скрипта деплоя</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== АЛГОРИТМЫ ===================== -->
+  <div class="section" id="sec-algo">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 60%, #6366f1 100%);">
+      <div class="lang-section-hero-icon"><iconify-icon icon="tabler:chart-dots" width="52" height="52" style="color:#fff"></iconify-icon></div>
+      <div>
+        <div class="lang-section-hero-title">Алгоритмы и структуры данных</div>
+        <div class="lang-section-hero-sub">Базовые алгоритмы спрашивают на собеседованиях. Понимание сложности помогает писать быстрый код в реальных проектах.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Big O</span>
+          <span class="lang-section-hero-badge">Сортировки</span>
+          <span class="lang-section-hero-badge">Поиск</span>
+          <span class="lang-section-hero-badge">Собесы</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-algo-complexity">
+      <div class="block-title" onclick="scrollToBlock('block-algo-complexity')">Big O — сложность алгоритмов <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Big O описывает как растёт время/память алгоритма при росте входных данных. Это главный язык общения о производительности кода.</div>
+      <div class="code"><span class="cm">// O(1) — константное время. Не зависит от размера данных</span>
+<span class="kw">const</span> getFirst = arr => arr[<span class="num">0</span>]; <span class="cm">// всегда 1 операция</span>
+
+<span class="cm">// O(n) — линейное. Растёт пропорционально данным</span>
+<span class="kw">const</span> findMax = arr => {
+  <span class="kw">let</span> max = -Infinity;
+  <span class="kw">for</span> (<span class="kw">const</span> n <span class="kw">of</span> arr) <span class="kw">if</span> (n > max) max = n;
+  <span class="kw">return</span> max;
+}; <span class="cm">// 1000 элем → 1000 операций</span>
+
+<span class="cm">// O(n²) — квадратичное. Два вложенных цикла</span>
+<span class="kw">const</span> hasDuplicate = arr => {
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < arr.length; i++)
+    <span class="kw">for</span> (<span class="kw">let</span> j = i+<span class="num">1</span>; j < arr.length; j++)
+      <span class="kw">if</span> (arr[i] === arr[j]) <span class="kw">return true</span>;
+  <span class="kw">return false</span>;
+}; <span class="cm">// 1000 элем → 1,000,000 операций! ❌</span>
+
+<span class="cm">// O(log n) — логарифмическое. Бинарный поиск</span>
+<span class="cm">// O(n log n) — быстрая сортировка (оптимально)</span>
+
+<span class="cm">// Лучше: O(n) через Set</span>
+<span class="kw">const</span> hasDuplicateFast = arr => arr.length !== <span class="kw">new</span> <span class="fn">Set</span>(arr).size;</div>
+      <div class="explain">
+        <strong>O(1)</strong> — идеально. Доступ к элементу массива, Map.get(), Set.has().<br>
+        <strong>O(n)</strong> — приемлемо. Один проход по массиву.<br>
+        <strong>O(n²)</strong> — плохо для больших данных. Два вложенных цикла — красный флаг.<br>
+        <strong>O(log n)</strong> — отлично. Каждый шаг делит данные пополам.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>O(1), O(n), O(n²) — понимание сложности</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>O(log n) — логарифмическая сложность</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Оптимизация: Set/Map вместо вложенных циклов</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-algo-array">
+      <div class="block-title" onclick="scrollToBlock('block-algo-array')">Алгоритмы на массивах — задачи с собесов <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// 1. Два указателя — разворот массива O(n)</span>
+<span class="kw">function</span> <span class="fn">reverse</span>(arr) {
+  <span class="kw">let</span> l = <span class="num">0</span>, r = arr.length - <span class="num">1</span>;
+  <span class="kw">while</span> (l < r) {
+    [arr[l], arr[r]] = [arr[r], arr[l]]; <span class="cm">// swap</span>
+    l++; r--;
+  }
+  <span class="kw">return</span> arr;
+}
+
+<span class="cm">// 2. Скользящее окно — максимальная сумма подмассива</span>
+<span class="kw">function</span> <span class="fn">maxSubarraySum</span>(arr, k) {
+  <span class="kw">let</span> sum = arr.slice(<span class="num">0</span>, k).<span class="fn">reduce</span>((a,b) => a+b, <span class="num">0</span>);
+  <span class="kw">let</span> max = sum;
+  <span class="kw">for</span> (<span class="kw">let</span> i = k; i < arr.length; i++) {
+    sum += arr[i] - arr[i-k]; <span class="cm">// добавляем новый, убираем старый</span>
+    max = Math.<span class="fn">max</span>(max, sum);
+  }
+  <span class="kw">return</span> max;
+}
+
+<span class="cm">// 3. Анаграммы через сортировку O(n log n)</span>
+<span class="kw">const</span> <span class="fn">isAnagram</span> = (a, b) =>
+  a.<span class="fn">split</span>(<span class="str">''</span>).<span class="fn">sort</span>().<span class="fn">join</span>(<span class="str">''</span>) === b.<span class="fn">split</span>(<span class="str">''</span>).<span class="fn">sort</span>().<span class="fn">join</span>(<span class="str">''</span>);</div>
+      <div class="explain">
+        <strong>Два указателя</strong> — l и r движутся навстречу. Классика для работы с массивами.<br>
+        <strong>Скользящее окно</strong> — вместо пересчёта суммы с нуля, обновляем на одну операцию.<br>
+        <strong>Анаграммы</strong> — отсортированные строки равны? Значит анаграммы.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Два указателя — классический паттерн</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Скользящее окно — эффективная обработка подмассивов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Решение задач на строки (анаграммы, палиндромы)</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-algo-structures">
+      <div class="block-title" onclick="scrollToBlock('block-algo-structures')">Структуры данных: Map, Set, Stack, Queue <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Map — ключ-значение, любой тип ключа, O(1)</span>
+<span class="kw">const</span> freq = <span class="kw">new</span> <span class="fn">Map</span>();
+<span class="kw">for</span> (<span class="kw">const</span> ch <span class="kw">of</span> <span class="str">"hello"</span>)
+  freq.<span class="fn">set</span>(ch, (freq.<span class="fn">get</span>(ch) || <span class="num">0</span>) + <span class="num">1</span>);
+<span class="cm">// Map { h:1, e:1, l:2, o:1 }</span>
+
+<span class="cm">// Set — уникальные значения, O(1) поиск</span>
+<span class="kw">const</span> unique = [...<span class="kw">new</span> <span class="fn">Set</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">2</span>,<span class="num">3</span>])]; <span class="cm">// [1,2,3]</span>
+
+<span class="cm">// Stack (стек) — LIFO через массив</span>
+<span class="kw">const</span> stack = [];
+stack.<span class="fn">push</span>(<span class="str">'a'</span>);  <span class="cm">// добавить</span>
+stack.<span class="fn">pop</span>();     <span class="cm">// убрать последний</span>
+
+<span class="cm">// Queue (очередь) — FIFO</span>
+<span class="kw">const</span> queue = [];
+queue.<span class="fn">push</span>(<span class="str">'task1'</span>); <span class="cm">// добавить в конец</span>
+queue.<span class="fn">shift</span>();       <span class="cm">// убрать из начала (O(n)!)</span>
+<span class="cm">// Для частых операций: двусвязный список или библиотека</span></div>
+      <div class="explain">
+        <strong>Map vs Object</strong> — Map быстрее для частых добавлений/удалений, хранит порядок вставки.<br>
+        <strong>Set</strong> — мгновенная проверка уникальности. set.has() = O(1) vs arr.includes() = O(n).<br>
+        <strong>Stack</strong> — история браузера, отмена (Ctrl+Z), рекурсия под капотом.<br>
+        <strong>Queue</strong> — очередь задач, события в браузере.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Map — подсчёт частоты, кэш, O(1) операции</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Set — уникальность, O(1) поиск</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Stack (LIFO) и Queue (FIFO) — паттерны использования</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-algo-recursion">
+      <div class="block-title" onclick="scrollToBlock('block-algo-recursion')">Рекурсия и динамическое программирование <span class="badge">знать</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Рекурсия — функция вызывает саму себя</span>
+<span class="kw">function</span> <span class="fn">factorial</span>(n) {
+  <span class="kw">if</span> (n <= <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>; <span class="cm">// базовый случай!</span>
+  <span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="num">1</span>);
+}
+
+<span class="cm">// Фибоначчи — наивный O(2ⁿ) — очень медленно!</span>
+<span class="kw">const</span> <span class="fn">fib</span> = n => n <= <span class="num">1</span> ? n : <span class="fn">fib</span>(n-<span class="num">1</span>) + <span class="fn">fib</span>(n-<span class="num">2</span>);
+
+<span class="cm">// Мемоизация — кэшируем результаты O(n)</span>
+<span class="kw">function</span> <span class="fn">fibMemo</span>(n, memo = {}) {
+  <span class="kw">if</span> (n <span class="kw">in</span> memo) <span class="kw">return</span> memo[n];
+  <span class="kw">if</span> (n <= <span class="num">1</span>) <span class="kw">return</span> n;
+  memo[n] = <span class="fn">fibMemo</span>(n-<span class="num">1</span>, memo) + <span class="fn">fibMemo</span>(n-<span class="num">2</span>, memo);
+  <span class="kw">return</span> memo[n];
+}
+
+<span class="cm">// Рекурсивный обход дерева DOM</span>
+<span class="kw">function</span> <span class="fn">countNodes</span>(el) {
+  <span class="kw">let</span> count = <span class="num">1</span>;
+  <span class="kw">for</span> (<span class="kw">const</span> child <span class="kw">of</span> el.children)
+    count += <span class="fn">countNodes</span>(child);
+  <span class="kw">return</span> count;
+}</div>
+      <div class="explain">
+        <strong>Базовый случай</strong> — обязателен! Без него рекурсия уйдёт в бесконечность.<br>
+        <strong>Мемоизация</strong> — кэшируем уже вычисленные значения. Фибоначчи с кэшем: O(n) вместо O(2ⁿ).<br>
+        <strong>В реальном коде</strong> — рекурсия используется для обхода деревьев (DOM, JSON), файловых систем.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Рекурсия — базовый случай + рекурсивный вызов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Мемоизация — кэш для рекурсивных вычислений</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Рекурсивный обход деревьев (DOM, JSON)</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ПЕРФОРМАНС ===================== -->
+  <div class="section" id="sec-perf">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #064e3b 0%, #059669 60%, #34d399 100%);">
+      <div class="lang-section-hero-icon"><iconify-icon icon="tabler:rocket" width="52" height="52" style="color:#fff"></iconify-icon></div>
+      <div>
+        <div class="lang-section-hero-title">Производительность фронтенда</div>
+        <div class="lang-section-hero-sub">Быстрые сайты = больше пользователей. Google ранжирует по Core Web Vitals. Senior-разработчик обязан понимать перформанс.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Core Web Vitals</span>
+          <span class="lang-section-hero-badge">Lighthouse</span>
+          <span class="lang-section-hero-badge">Оптимизация</span>
+          <span class="lang-section-hero-badge">SEO</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-perf-metrics">
+      <div class="block-title" onclick="scrollToBlock('block-perf-metrics')">Core Web Vitals — метрики Google <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Core Web Vitals — три метрики которые Google учитывает при ранжировании. Плохие CWV = ниже в поиске.</div>
+      <div class="code"><span class="cm">// LCP — Largest Contentful Paint (загрузка)</span>
+<span class="cm">// Время до отображения самого большого элемента</span>
+<span class="cm">// ✅ Хорошо: < 2.5s  ⚠️ Нужно улучшить: < 4s  ❌ Плохо: > 4s</span>
+<span class="cm">// Как улучшить: оптимизировать изображения, preload критичных ресурсов</span>
+
+<span class="cm">// FID / INP — Interaction to Next Paint (интерактивность)</span>
+<span class="cm">// Время отклика на первое взаимодействие пользователя</span>
+<span class="cm">// ✅ INP < 200ms  ⚠️ < 500ms  ❌ > 500ms</span>
+<span class="cm">// Как улучшить: разбить тяжёлый JS, использовать Web Workers</span>
+
+<span class="cm">// CLS — Cumulative Layout Shift (стабильность)</span>
+<span class="cm">// Насколько элементы прыгают при загрузке</span>
+<span class="cm">// ✅ < 0.1  ⚠️ < 0.25  ❌ > 0.25</span>
+<span class="cm">// Как улучшить: всегда указывать width/height у img</span>
+
+<span class="cm">// Измерение через Performance API</span>
+<span class="kw">const</span> observer = <span class="kw">new</span> <span class="fn">PerformanceObserver</span>((list) => {
+  <span class="kw">for</span> (<span class="kw">const</span> entry <span class="kw">of</span> list.<span class="fn">getEntries</span>()) {
+    console.<span class="fn">log</span>(<span class="str">'LCP:'</span>, entry.startTime);
+  }
+});
+observer.<span class="fn">observe</span>({ entryTypes: [<span class="str">'largest-contentful-paint'</span>] });</div>
+      <div class="explain">
+        <strong>LCP</strong> — обычно виновато большое изображение-герой без оптимизации.<br>
+        <strong>INP</strong> — заменил FID в 2024. Измеряет все взаимодействия, не только первое.<br>
+        <strong>CLS</strong> — частая причина: шрифты подгружаются и смещают текст, картинки без размеров.<br>
+        Проверь свой сайт: <strong>PageSpeed Insights</strong> или Chrome DevTools → Lighthouse.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>LCP — Largest Contentful Paint, цель < 2.5s</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>INP — Interaction to Next Paint, цель < 200ms</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>CLS — Cumulative Layout Shift, цель < 0.1</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-perf-images">
+      <div class="block-title" onclick="scrollToBlock('block-perf-images')">Оптимизация изображений <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">&lt;!-- Современный формат WebP --&gt;</span>
+&lt;picture&gt;
+  &lt;source srcset="hero.webp" type="image/webp"&gt;
+  &lt;img src="hero.jpg" alt="Hero" width="1200" height="600"&gt;
+&lt;/picture&gt;
+
+<span class="cm">&lt;!-- loading="lazy" — не грузить пока не видно --&gt;</span>
+&lt;img src="product.webp" loading="lazy" alt="Product"&gt;
+
+<span class="cm">&lt;!-- fetchpriority для LCP-изображения --&gt;</span>
+&lt;img src="hero.webp" fetchpriority="high" alt="Hero"&gt;
+
+<span class="cm">&lt;!-- srcset — разные размеры для разных экранов --&gt;</span>
+&lt;img
+  src="photo-800.webp"
+  srcset="photo-400.webp 400w, photo-800.webp 800w, photo-1200.webp 1200w"
+  sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
+  alt="Photo"
+&gt;</div>
+      <div class="explain">
+        <strong>WebP</strong> — на 25-35% меньше JPG при том же качестве. Поддерживается всеми браузерами.<br>
+        <strong>loading="lazy"</strong> — не загружает картинки вне viewport. Экономит трафик.<br>
+        <strong>width + height</strong> — всегда указывай! Браузер резервирует место и CLS = 0.<br>
+        <strong>fetchpriority="high"</strong> — для главного изображения, улучшает LCP.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>WebP формат — меньше размер при том же качестве</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>loading="lazy" — ленивая загрузка изображений</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>width+height у img — предотвращает CLS</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>srcset — адаптивные изображения для разных экранов</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-perf-js">
+      <div class="block-title" onclick="scrollToBlock('block-perf-js')">Оптимизация JavaScript <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Code splitting — загружать только нужное</span>
+<span class="cm">// В React (lazy loading компонентов)</span>
+<span class="kw">const</span> HeavyChart = React.<span class="fn">lazy</span>(() => <span class="kw">import</span>(<span class="str">'./HeavyChart'</span>));
+
+<span class="cm">// Debounce — не вызывать слишком часто</span>
+<span class="kw">function</span> <span class="fn">debounce</span>(fn, delay) {
+  <span class="kw">let</span> timer;
+  <span class="kw">return</span> (...args) => {
+    <span class="fn">clearTimeout</span>(timer);
+    timer = <span class="fn">setTimeout</span>(() => <span class="fn">fn</span>(...args), delay);
+  };
+}
+<span class="cm">// Поиск запустится только через 300ms после остановки печати</span>
+<span class="kw">const</span> debouncedSearch = <span class="fn">debounce</span>(search, <span class="num">300</span>);
+input.<span class="fn">addEventListener</span>(<span class="str">'input'</span>, debouncedSearch);
+
+<span class="cm">// requestAnimationFrame для анимаций</span>
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  el.style.transform = <span class="str">`translateX(${x}px)`</span>;
+  <span class="fn">requestAnimationFrame</span>(animate); <span class="cm">// синхронно с 60fps</span>
+}
+
+<span class="cm">// Web Worker — тяжёлые вычисления в фоне</span>
+<span class="kw">const</span> worker = <span class="kw">new</span> <span class="fn">Worker</span>(<span class="str">'heavy.js'</span>);
+worker.<span class="fn">postMessage</span>({ data: bigArray });</div>
+      <div class="explain">
+        <strong>Code splitting</strong> — разбивает бандл на чанки, загружает только нужное.<br>
+        <strong>Debounce</strong> — незаменим для поиска, resize, scroll обработчиков.<br>
+        <strong>rAF</strong> — анимации через JS должны использовать requestAnimationFrame, не setTimeout.<br>
+        <strong>Web Worker</strong> — не блокирует UI поток при тяжёлых вычислениях.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Code splitting — загрузка по требованию</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Debounce и throttle — ограничение частоты вызовов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>requestAnimationFrame — анимации без тормозов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Web Worker — тяжёлые вычисления в фоне</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-perf-network">
+      <div class="block-title" onclick="scrollToBlock('block-perf-network')">Сетевая оптимизация и кэширование <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">&lt;!-- Preload критичных ресурсов --&gt;</span>
+&lt;link rel="preload" href="critical.css" as="style"&gt;
+&lt;link rel="preload" href="hero.webp" as="image"&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+
+<span class="cm">&lt;!-- HTTP кэширование через заголовки --&gt;</span>
+<span class="cm">Cache-Control: max-age=31536000, immutable  <!-- статика с хэшем --></span>
+<span class="cm">Cache-Control: no-cache                     <!-- HTML страницы --></span>
+
+<span class="cm">// Service Worker — кэш для офлайн работы</span>
+<span class="kw">if</span> (<span class="str">'serviceWorker'</span> <span class="kw">in</span> navigator) {
+  navigator.serviceWorker.<span class="fn">register</span>(<span class="str">'/sw.js'</span>);
+}
+
+<span class="cm">// Gzip/Brotli — сжатие на сервере (Nginx config)</span>
+<span class="cm">// gzip on;  brotli on;</span>
+<span class="cm">// Уменьшает HTML/CSS/JS на 60-80%!</span>
+
+<span class="cm">// Bundle analyzer — найди что весит лишнее</span>
+<span class="cm">// npx vite-bundle-analyzer</span>
+<span class="cm">// npx webpack-bundle-analyzer stats.json</span></div>
+      <div class="explain">
+        <strong>preload</strong> — браузер загружает ресурс заранее, до того как встретит его в HTML.<br>
+        <strong>preconnect</strong> — заранее устанавливает TCP-соединение с внешним доменом.<br>
+        <strong>Cache-Control: immutable</strong> — для файлов с хэшем в имени (main.a3f9b2.js). Кэш навсегда.<br>
+        <strong>Brotli</strong> — лучше Gzip на 15-20%. Поддерживается всеми современными браузерами.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>preload и preconnect — приоритизация загрузки</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Cache-Control заголовки — стратегии кэширования</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Gzip/Brotli — сжатие статики на сервере</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Bundle analyzer — поиск лишнего веса в бандле</span></label>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== LINUX & TERMINAL ===================== -->
+  <div class="section" id="sec-linux">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+      <div class="lang-section-hero-icon" style="font-size:2.5rem;">🐧</div>
+      <div>
+        <div class="lang-section-hero-title">Linux & Terminal — сила командной строки</div>
+        <div class="lang-section-hero-sub">Каждый разработчик работает с терминалом. Linux — основа серверов, CI/CD, Docker. Знание bash ускоряет работу в разы и открывает путь к DevOps.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">bash</span>
+          <span class="lang-section-hero-badge">CLI</span>
+          <span class="lang-section-hero-badge">SSH</span>
+          <span class="lang-section-hero-badge">процессы</span>
+          <span class="lang-section-hero-badge">DevOps-основа</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-basics">
+      <div class="block-title" onclick="scrollToBlock('block-linux-basics')">Базовые команды терминала <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Терминал — это текстовый интерфейс к системе. Работает быстрее мыши для большинства задач разработчика.</div>
+      <div class="code"><span class="cm"># Навигация</span>
+<span class="kw">pwd</span>              <span class="cm"># где я сейчас?</span>
+<span class="kw">ls</span> -la           <span class="cm"># список файлов (с скрытыми)</span>
+<span class="kw">cd</span> projects      <span class="cm"># перейти в папку</span>
+<span class="kw">cd</span> ..            <span class="cm"># на уровень выше</span>
+<span class="kw">cd</span> ~             <span class="cm"># домашняя папка</span>
+
+<span class="cm"># Файлы и папки</span>
+<span class="kw">mkdir</span> my-app     <span class="cm"># создать папку</span>
+<span class="kw">touch</span> index.html  <span class="cm"># создать файл</span>
+<span class="kw">cp</span> file.txt copy.txt   <span class="cm"># копировать</span>
+<span class="kw">mv</span> old.txt new.txt     <span class="cm"># переименовать/переместить</span>
+<span class="kw">rm</span> file.txt      <span class="cm"># удалить файл</span>
+<span class="kw">rm</span> -rf folder/   <span class="cm"># удалить папку (осторожно!)</span>
+
+<span class="cm"># Просмотр файлов</span>
+<span class="kw">cat</span> file.txt     <span class="cm"># вывести содержимое</span>
+<span class="kw">less</span> file.txt    <span class="cm"># постраничный просмотр (q — выход)</span>
+<span class="kw">head</span> -20 file.txt <span class="cm"># первые 20 строк</span>
+<span class="kw">tail</span> -f log.txt  <span class="cm"># следить за файлом в реальном времени</span></div>
+      <div class="explain">
+        <strong>pwd</strong> — Print Working Directory. Всегда знай где находишься.<br>
+        <strong>ls -la</strong> — показывает скрытые файлы (начинаются с .) и права доступа.<br>
+        <strong>rm -rf</strong> — опасная команда! Удаляет всё без подтверждения и без корзины.<br>
+        <strong>tail -f</strong> — незаменим для просмотра логов в реальном времени.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>pwd, ls, cd — навигация по файловой системе</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>mkdir, touch, cp, mv, rm — управление файлами</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>cat, less, head, tail — просмотр содержимого</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-permissions">
+      <div class="block-title" onclick="scrollToBlock('block-linux-permissions')">Права доступа и пользователи <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># chmod — изменить права</span>
+<span class="kw">chmod</span> 755 script.sh  <span class="cm"># rwxr-xr-x</span>
+<span class="kw">chmod</span> +x script.sh   <span class="cm"># добавить право выполнения</span>
+<span class="kw">chmod</span> 644 file.txt   <span class="cm"># rw-r--r-- (типично для файлов)</span>
+
+<span class="cm"># Расшифровка прав: rwxrwxrwx</span>
+<span class="cm"># r=4 w=2 x=1 | владелец | группа | остальные</span>
+<span class="cm"># 755 = 7(rwx) 5(r-x) 5(r-x)</span>
+
+<span class="cm"># sudo — выполнить от имени root</span>
+<span class="kw">sudo</span> apt install nginx
+<span class="kw">sudo</span> systemctl start nginx
+
+<span class="cm"># Смена владельца</span>
+<span class="kw">chown</span> user:group file.txt
+
+<span class="cm"># Текущий пользователь</span>
+<span class="kw">whoami</span>
+<span class="kw">id</span></div>
+      <div class="explain">
+        <strong>chmod 755</strong> — владелец может всё (7=rwx), остальные только читать и запускать (5=r-x).<br>
+        <strong>chmod +x</strong> — быстро добавить право запуска скрипту.<br>
+        <strong>sudo</strong> — Superuser DO. Нужен для системных операций. Не злоупотребляй.<br>
+        <strong>644</strong> — стандартные права для файлов. 755 — для папок и скриптов.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>chmod — изменение прав (числовой и буквенный формат)</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>sudo — выполнение от root, apt install</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Расшифровка rwx: r=4, w=2, x=1</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-processes">
+      <div class="block-title" onclick="scrollToBlock('block-linux-processes')">Процессы и системный мониторинг <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># Просмотр процессов</span>
+<span class="kw">ps</span> aux            <span class="cm"># все процессы</span>
+<span class="kw">ps</span> aux | <span class="kw">grep</span> node <span class="cm"># найти Node процессы</span>
+<span class="kw">top</span>               <span class="cm"># мониторинг в реальном времени</span>
+<span class="kw">htop</span>              <span class="cm"># удобная версия top (нужно установить)</span>
+
+<span class="cm"># Управление процессами</span>
+<span class="kw">kill</span> 1234          <span class="cm"># завершить процесс по PID</span>
+<span class="kw">kill</span> -9 1234       <span class="cm"># принудительно убить</span>
+<span class="kw">pkill</span> node         <span class="cm"># убить по имени</span>
+Ctrl+C             <span class="cm"># прервать текущий процесс</span>
+Ctrl+Z             <span class="cm"># приостановить (bg/fg для управления)</span>
+
+<span class="cm"># Фоновый запуск</span>
+<span class="kw">npm</span> start &amp;       <span class="cm"># запустить в фоне</span>
+<span class="kw">nohup</span> node app.js &amp; <span class="cm"># запустить и отвязать от терминала</span>
+
+<span class="cm"># Порты</span>
+<span class="kw">lsof</span> -i :3000     <span class="cm"># что слушает порт 3000?</span>
+<span class="kw">netstat</span> -tulpn    <span class="cm"># все открытые порты</span></div>
+      <div class="explain">
+        <strong>ps aux | grep node</strong> — pipe (|) передаёт вывод одной команды в другую. Ключевой паттерн bash.<br>
+        <strong>kill -9</strong> — SIGKILL, нельзя перехватить. Используй только если обычный kill не помогает.<br>
+        <strong>lsof -i :3000</strong> — спасение когда «порт уже занят» при запуске dev-сервера.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ps aux, top — просмотр и мониторинг процессов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>kill, pkill — завершение процессов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>lsof -i — проверка занятых портов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Pipe (|) — передача вывода между командами</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-ssh">
+      <div class="block-title" onclick="scrollToBlock('block-linux-ssh')">SSH — подключение к серверам <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># Подключение по SSH</span>
+<span class="kw">ssh</span> user@server.com
+<span class="kw">ssh</span> -p 2222 user@server.com  <span class="cm"># нестандартный порт</span>
+<span class="kw">ssh</span> -i ~/.ssh/id_rsa user@server.com  <span class="cm"># с ключом</span>
+
+<span class="cm"># Генерация SSH ключей</span>
+<span class="kw">ssh-keygen</span> -t ed25519 -C "email@example.com"
+<span class="cm"># Приватный: ~/.ssh/id_ed25519 (НИКОМУ!)</span>
+<span class="cm"># Публичный: ~/.ssh/id_ed25519.pub (на сервер)</span>
+
+<span class="cm"># Копирование ключа на сервер</span>
+<span class="kw">ssh-copy-id</span> user@server.com
+
+<span class="cm"># Копирование файлов</span>
+<span class="kw">scp</span> file.txt user@server:/home/user/
+<span class="kw">scp</span> -r folder/ user@server:/home/user/
+
+<span class="cm"># ~/.ssh/config — сохраняем настройки</span>
+Host myserver
+  HostName 192.168.1.1
+  User ubuntu
+  IdentityFile ~/.ssh/id_ed25519</div>
+      <div class="explain">
+        <strong>ed25519</strong> — современный алгоритм ключей. Лучше чем rsa.<br>
+        <strong>Приватный ключ</strong> — никогда не передавай! Публичный (.pub) — можно везде.<br>
+        <strong>~/.ssh/config</strong> — после настройки можно подключаться просто: <code>ssh myserver</code>.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ssh user@host — подключение к удалённому серверу</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ssh-keygen — генерация пары ключей ed25519</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>scp — копирование файлов по SSH</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>~/.ssh/config — сохранение настроек подключений</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-bash">
+      <div class="block-title" onclick="scrollToBlock('block-linux-bash')">Bash-скрипты и автоматизация <span class="badge">знать</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">#!/bin/bash</span>
+<span class="cm"># Переменные</span>
+<span class="kw">NAME</span>=<span class="str">"World"</span>
+<span class="kw">echo</span> <span class="str">"Hello, $NAME!"</span>
+
+<span class="cm"># Условия</span>
+<span class="kw">if</span> [ -f "package.json" ]; <span class="kw">then</span>
+  <span class="kw">echo</span> "Node проект найден"
+<span class="kw">else</span>
+  <span class="kw">echo</span> "package.json не найден"
+<span class="kw">fi</span>
+
+<span class="cm"># Цикл</span>
+<span class="kw">for</span> file <span class="kw">in</span> *.html; <span class="kw">do</span>
+  <span class="kw">echo</span> "Файл: $file"
+<span class="kw">done</span>
+
+<span class="cm"># Полезные алиасы в ~/.bashrc или ~/.zshrc</span>
+<span class="kw">alias</span> gs=<span class="str">"git status"</span>
+<span class="kw">alias</span> gp=<span class="str">"git push"</span>
+<span class="kw">alias</span> ll=<span class="str">"ls -la"</span>
+<span class="kw">alias</span> dev=<span class="str">"npm run dev"</span></div>
+      <div class="explain">
+        <strong>#!/bin/bash</strong> — shebang. Первая строка говорит системе чем выполнять скрипт.<br>
+        <strong>[ -f file ]</strong> — проверка существования файла. [ -d ] — папки.<br>
+        <strong>alias</strong> — сокращения для частых команд. Сохрани в ~/.bashrc или ~/.zshrc и применяй: <code>source ~/.bashrc</code>.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>#!/bin/bash — shebang и запуск скриптов</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>if/for в bash — условия и циклы</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>alias — сокращения команд в ~/.bashrc</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-linux-packagemanagers">
+      <div class="block-title" onclick="scrollToBlock('block-linux-packagemanagers')">Пакетные менеджеры и npm-инструменты <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># apt (Debian/Ubuntu)</span>
+<span class="kw">sudo apt update</span>        <span class="cm"># обновить список пакетов</span>
+<span class="kw">sudo apt install</span> curl git
+<span class="kw">sudo apt remove</span> nginx
+
+<span class="cm"># brew (macOS)</span>
+<span class="kw">brew install</span> node
+<span class="kw">brew update && brew upgrade</span>
+
+<span class="cm"># npm глобальные пакеты</span>
+<span class="kw">npm install -g</span> typescript
+<span class="kw">npm install -g</span> vite create-react-app
+<span class="kw">npm list -g --depth=0</span>  <span class="cm"># список установленных</span>
+
+<span class="cm"># nvm — менеджер версий Node</span>
+<span class="kw">nvm install</span> 20
+<span class="kw">nvm use</span> 20
+<span class="kw">nvm ls</span>               <span class="cm"># список версий</span></div>
+      <div class="explain">
+        <strong>apt update</strong> — всегда запускай перед install, иначе поставишь устаревшую версию.<br>
+        <strong>nvm</strong> — Node Version Manager. Позволяет иметь несколько версий Node одновременно.<br>
+        Разные проекты могут требовать разные версии Node — nvm решает эту проблему.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>apt/brew — системные пакетные менеджеры</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>npm install -g — глобальные npm пакеты</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>nvm — управление версиями Node.js</span></label>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===================== VITE & TOOLING ===================== -->
+  <div class="section" id="sec-vite">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a0533 0%, #4c1d95 50%, #7c3aed 100%);">
+      <div class="lang-section-hero-icon" style="font-size:2.5rem;">⚡</div>
+      <div>
+        <div class="lang-section-hero-title">Vite & Build Tools — сборка проектов</div>
+        <div class="lang-section-hero-sub">Vite — стандарт de facto для новых проектов. Заменил Webpack для большинства фронтенд-задач. Знание инструментов сборки обязательно для работы в команде.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Vite</span>
+          <span class="lang-section-hero-badge">npm scripts</span>
+          <span class="lang-section-hero-badge">ESLint</span>
+          <span class="lang-section-hero-badge">Prettier</span>
+          <span class="lang-section-hero-badge">env</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-vite-basics">
+      <div class="block-title" onclick="scrollToBlock('block-vite-basics')">Vite — быстрый dev-сервер и сборка <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Vite — инструмент сборки нового поколения. Dev-сервер запускается мгновенно, HMR обновляет модули без перезагрузки страницы.</div>
+      <div class="code"><span class="cm"># Создать новый проект</span>
+<span class="kw">npm create vite@latest</span> my-app
+<span class="cm"># Выбрать: React / Vue / Vanilla + TypeScript</span>
+
+<span class="kw">cd</span> my-app
+<span class="kw">npm install</span>
+<span class="kw">npm run dev</span>     <span class="cm"># dev-сервер на http://localhost:5173</span>
+<span class="kw">npm run build</span>   <span class="cm"># сборка в папку dist/</span>
+<span class="kw">npm run preview</span> <span class="cm"># превью production-сборки</span>
+
+<span class="cm">// vite.config.ts</span>
+<span class="kw">import</span> { defineConfig } <span class="kw">from</span> <span class="str">'vite'</span>
+<span class="kw">import</span> react <span class="kw">from</span> <span class="str">'@vitejs/plugin-react'</span>
+
+<span class="kw">export default</span> <span class="fn">defineConfig</span>({
+  plugins: [<span class="fn">react</span>()],
+  server: { port: <span class="num">3000</span> },
+  build: { outDir: <span class="str">'dist'</span> }
+})</div>
+      <div class="explain">
+        <strong>HMR</strong> — Hot Module Replacement. Изменил файл — браузер обновляет только этот модуль, не перезагружая страницу.<br>
+        <strong>npm run build</strong> — минифицирует, разбивает на чанки, оптимизирует. Готово для деплоя.<br>
+        <strong>dist/</strong> — именно эту папку загружаешь на хостинг или GitHub Pages.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>npm create vite@latest — создание проекта с шаблоном</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>dev/build/preview — три ключевых команды Vite</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>vite.config.ts — настройка плагинов и сервера</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-vite-eslint">
+      <div class="block-title" onclick="scrollToBlock('block-vite-eslint')">ESLint + Prettier — качество кода <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># Установка</span>
+<span class="kw">npm install -D eslint prettier</span>
+<span class="kw">npm install -D eslint-config-prettier</span>
+<span class="kw">npm install -D @typescript-eslint/eslint-plugin</span>
+
+<span class="cm">// .eslintrc.json</span>
+{
+  <span class="str">"extends"</span>: [<span class="str">"eslint:recommended"</span>, <span class="str">"prettier"</span>],
+  <span class="str">"rules"</span>: {
+    <span class="str">"no-unused-vars"</span>: <span class="str">"warn"</span>,
+    <span class="str">"no-console"</span>: <span class="str">"off"</span>
+  }
+}
+
+<span class="cm">// .prettierrc</span>
+{
+  <span class="str">"semi"</span>: <span class="kw">true</span>,
+  <span class="str">"singleQuote"</span>: <span class="kw">true</span>,
+  <span class="str">"tabWidth"</span>: <span class="num">2</span>,
+  <span class="str">"printWidth"</span>: <span class="num">100</span>
+}
+
+<span class="cm"># package.json scripts</span>
+<span class="str">"lint"</span>: <span class="str">"eslint src --ext .ts,.tsx"</span>,
+<span class="str">"format"</span>: <span class="str">"prettier --write src/"</span></div>
+      <div class="explain">
+        <strong>ESLint</strong> — находит ошибки и антипаттерны в коде. Можно настроить под команду.<br>
+        <strong>Prettier</strong> — автоформатирование. Конец споров о табах и запятых в команде.<br>
+        <strong>-D</strong> — devDependency. Эти пакеты нужны только при разработке, не в продакшне.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>ESLint — линтер, находит ошибки и антипаттерны</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Prettier — автоформатирование, .prettierrc конфиг</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>npm scripts — lint и format в package.json</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-vite-env">
+      <div class="block-title" onclick="scrollToBlock('block-vite-env')">Переменные окружения (.env) <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm"># .env файл (в корне проекта)</span>
+VITE_API_URL=https://api.example.com
+VITE_APP_NAME=MyApp
+<span class="cm"># Всё что начинается с VITE_ — доступно в браузере</span>
+
+<span class="cm"># .env.local — для локальных секретов (добавь в .gitignore!)</span>
+VITE_API_KEY=super_secret_key
+
+<span class="cm">// Использование в коде</span>
+<span class="kw">const</span> apiUrl = import.meta.env.VITE_API_URL;
+<span class="kw">const</span> isDev = import.meta.env.DEV;   <span class="cm">// true в dev режиме</span>
+<span class="kw">const</span> isProd = import.meta.env.PROD; <span class="cm">// true в production</span>
+
+<span class="cm"># .gitignore — обязательно исключи!</span>
+.env.local
+.env.*.local
+node_modules/
+dist/</div>
+      <div class="explain">
+        <strong>VITE_</strong> — префикс обязателен! Без него переменная не попадёт в браузерный код.<br>
+        <strong>.env.local</strong> — никогда не коммить в git! Здесь хранятся API-ключи и токены.<br>
+        <strong>import.meta.env</strong> — специфика Vite. В CRA это было <code>process.env.REACT_APP_</code>.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>VITE_ префикс — только такие переменные попадают в браузер</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>import.meta.env — доступ к env переменным в Vite</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>.env.local в .gitignore — защита секретов</span></label>
       </div>
     </div>
   </div>
@@ -10042,7 +10968,7 @@ function resetProgress() {
 
 // ===== TAB BADGES =====
 function updateTabBadges() {
-  ['html','css','js','ts','react','git','node','sql','devops'].forEach(lang => {
+  ['html','css','js','ts','react','git','node','sql','devops','linux','vite'].forEach(lang => {
     const sec = document.getElementById('sec-' + lang);
     if (!sec) return;
     const all = sec.querySelectorAll('.prog-cb:not([disabled])');
@@ -10126,7 +11052,7 @@ function updateProgress(cb) {
 
 // ===== ПРОГРЕСС DASHBOARD BARS =====
 function updatePdcBars() {
-  ['html','css','js','ts','react','git','node','sql','devops'].forEach(lang => {
+  ['html','css','js','ts','react','git','node','sql','devops','linux','vite'].forEach(lang => {
     const sec = document.getElementById('sec-' + lang);
     if (!sec) return;
     const all = sec.querySelectorAll('.prog-cb:not([disabled])');
@@ -16329,7 +17255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const done = document.querySelectorAll('.prog-cb:not([disabled]):checked');
   const pct = allUnlocked.length ? Math.round(done.length / allUnlocked.length * 100) : 0;
   document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${allUnlocked.length} тем изучено (${pct}%) · v8`;
+  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${allUnlocked.length} тем изучено (${pct}%) · v10`;
   updateTabBadges();
   updatePdcBars();
 
