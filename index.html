@@ -6,7 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;700&family=Onest:wght@400;500;700&family=Rubik:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700&family=Lexend:wght@400;500;700&family=Work+Sans:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&family=Mulish:wght@400;500;700&family=Cabin:wght@400;500;700&family=Karla:wght@400;500;700&family=Quicksand:wght@400;500;700&family=Mukta:wght@400;500;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;500;700&family=Cormorant+Garamond:wght@400;500;700&family=Crimson+Pro:wght@400;500;700&family=PT+Serif:wght@400;700&family=EB+Garamond:wght@400;500;700&family=Libre+Baskerville:wght@400;700&family=Bitter:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&family=Spectral:wght@400;500;700&family=Bebas+Neue:wght@400&family=Anton:wght@400&family=Oswald:wght@400;500;700&family=Archivo+Black:wght@400&family=Righteous:wght@400&family=Abril+Fatface:wght@400&family=Fjalla+One:wght@400&family=Russo+One:wght@400&family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500&family=Source+Code+Pro:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Caveat:wght@400;500;700&family=Pacifico:wght@400&family=Dancing+Script:wght@400;500;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
-<title>Frontend Roadmap v29</title>
+<title>Frontend Roadmap v30</title>
 <style>
   /* ===== АКЦЕНТНЫЕ ЦВЕТА (настраиваются конструктором) ===== */
   :root {
@@ -3451,6 +3451,7 @@
       <button class="tab" onclick="switchTab('career', this)">💼 Карьера</button>
       <button class="tab" onclick="switchTab('links', this)">🔗 Ссылки</button>
       <button class="tab" onclick="switchTab('algo', this)">🧮 Алгоритмы</button>
+      <button class="tab" onclick="switchTab('ai', this)">✨ ИИ</button>
     </div>
 
   </div>
@@ -7481,6 +7482,106 @@ Todo / погода / новости / фильмы
 
 
   <!-- ===================== ПОЛЕЗНЫЕ ССЫЛКИ ===================== -->
+  <!-- ===================== ИИ НАСТРОЙКИ ===================== -->
+  <div class="section" id="sec-ai">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a0533 0%, #4c1d95 50%, #7c3aed 100%);">
+      <div class="lang-section-hero-icon" style="font-size:2.5rem;">✨</div>
+      <div>
+        <div class="lang-section-hero-title">ИИ-помощник — настройки</div>
+        <div class="lang-section-hero-sub">По умолчанию используется бесплатная модель Llama 3.3 70B. Если хочешь использовать свою модель — укажи свой API ключ. Он хранится только в твоём браузере.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Свой API ключ</span>
+          <span class="lang-section-hero-badge">localStorage</span>
+          <span class="lang-section-hero-badge">OpenAI-совместимый</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-ai-default">
+      <div class="block-title">По умолчанию: Llama 3.3 70B <span class="badge must">встроено</span></div>
+      <div class="tip">Без какой-либо настройки ИИ-помощник уже работает на бесплатной модели Llama 3.3 70B (через Groq). Просто открой чат кнопкой 💬 в правом нижнем углу или выдели текст на странице.</div>
+    </div>
+
+    <div class="block" id="block-ai-custom">
+      <div class="block-title" onclick="scrollToBlock('block-ai-custom')">⚙ Своя модель и API ключ <span class="badge good">опционально</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Поддерживаются любые OpenAI-совместимые провайдеры: <b>Groq</b>, <b>OpenRouter</b>, <b>OpenAI</b>, <b>Together.ai</b>, <b>Mistral</b> и другие. Ключ хранится локально в твоём браузере (localStorage) и никуда не отправляется кроме выбранного провайдера.</div>
+
+      <div style="background:#0d1117;border-radius:12px;padding:20px;margin-top:12px;border:1px solid #30363d;">
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🔌 Провайдер</label>
+          <select id="ai-provider" onchange="aiProviderPreset()" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;cursor:pointer;">
+            <option value="https://api.groq.com/openai/v1">Groq</option>
+            <option value="https://openrouter.ai/api/v1">OpenRouter</option>
+            <option value="https://api.openai.com/v1">OpenAI</option>
+            <option value="https://api.together.xyz/v1">Together.ai</option>
+            <option value="https://api.mistral.ai/v1">Mistral</option>
+            <option value="custom">Другой (укажу URL вручную)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:12px;" id="ai-baseurl-wrap" >
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🌐 Base URL</label>
+          <input id="ai-baseurl" type="text" placeholder="https://api.groq.com/openai/v1" value="https://api.groq.com/openai/v1"
+            style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🔑 API ключ</label>
+          <input id="ai-apikey" type="password" placeholder="sk-... / gsk_... / sk-or-v1-..."
+            style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🤖 Название модели</label>
+          <input id="ai-modelname" type="text" placeholder="например: llama-3.3-70b-versatile, gpt-4o-mini, deepseek/deepseek-r1:free"
+            style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+          <div style="font-size:11px;color:#6e7681;margin-top:4px;">Точное имя модели как требует выбранный провайдер (смотри его документацию)</div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="aiSaveCustomConfig()" style="flex:1;padding:11px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            💾 Сохранить
+          </button>
+          <button onclick="aiClearCustomConfig()" style="padding:11px 16px;background:#30363d;color:#e6edf3;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;" onmouseover="this.style.background='#3d444d'" onmouseout="this.style.background='#30363d'">
+            🗑 Очистить
+          </button>
+        </div>
+
+        <div id="ai-config-status" style="margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;"></div>
+      </div>
+    </div>
+
+    <div class="block" id="block-ai-examples">
+      <div class="block-title" onclick="scrollToBlock('block-ai-examples')">Примеры настроек по провайдерам <span class="badge">справка</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Groq — бесплатно, очень быстро</span>
+Base URL: https://api.groq.com/openai/v1
+Модель:   llama-3.3-70b-versatile
+Ключ:     console.groq.com/keys
+
+<span class="cm">// OpenRouter — много моделей, есть бесплатные</span>
+Base URL: https://openrouter.ai/api/v1
+Модель:   deepseek/deepseek-r1:free
+Ключ:     openrouter.ai/keys
+
+<span class="cm">// OpenAI — платно</span>
+Base URL: https://api.openai.com/v1
+Модель:   gpt-4o-mini
+Ключ:     platform.openai.com/api-keys
+
+<span class="cm">// Mistral — есть бесплатный тариф</span>
+Base URL: https://api.mistral.ai/v1
+Модель:   mistral-small-latest
+Ключ:     console.mistral.ai/api-keys</span></div>
+      <div class="explain">
+        <strong>Где взять ключ:</strong> зарегистрируйся у провайдера → раздел API Keys → создай новый ключ.<br>
+        <strong>Безопасность:</strong> ключ хранится в localStorage только твоего браузера. Никому не передаётся кроме выбранного провайдера напрямую.<br>
+        <strong>После сохранения</strong> выбери «⚙ Своя модель» в выпадающем списке в окне чата.
+      </div>
+    </div>
+  </div>
+
+
   <div class="section" id="sec-links">
     <div class="lang-section-hero" style="background: linear-gradient(135deg, #0c1a2e 0%, #1e3a5f 50%, #1d4ed8 100%);">
       <div class="lang-section-hero-icon" style="font-size:2.5rem;">🔗</div>
@@ -10663,26 +10764,26 @@ model Post {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
             <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">👤 GitHub Username</label>
-            <input id="gh-username" type="text" placeholder="your-username" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+            <input id="gh-username" type="text" placeholder="your-username" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" oninput="ghSaveField('gh-username', this.value)">
           </div>
           <div>
             <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">📁 Repository Name</label>
-            <input id="gh-repo" type="text" placeholder="your-repo-name" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+            <input id="gh-repo" type="text" placeholder="your-repo-name" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" oninput="ghSaveField('gh-repo', this.value)">
           </div>
         </div>
         <div style="margin-bottom:12px;">
           <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🔑 Personal Access Token <a href="https://github.com/settings/tokens/new?scopes=repo&description=Roadmap+Uploader" target="_blank" style="color:#58a6ff;text-decoration:none;margin-left:8px;font-weight:400;">→ Создать токен</a></label>
-          <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+          <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" oninput="ghSaveField('gh-token', this.value)">
           <div style="font-size:11px;color:#6e7681;margin-top:4px;">🔒 Токен не сохраняется — только в памяти вкладки</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div>
             <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">📄 Путь к файлу в репо</label>
-            <input id="gh-filepath" type="text" placeholder="index.html" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+            <input id="gh-filepath" type="text" placeholder="index.html" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" oninput="ghSaveField('gh-filepath', this.value)">
           </div>
           <div>
             <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🌿 Ветка</label>
-            <input id="gh-branch" type="text" placeholder="main" value="main" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+            <input id="gh-branch" type="text" placeholder="main" value="main" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" oninput="ghSaveField('gh-branch', this.value)">
           </div>
         </div>
         <div style="margin-bottom:12px;">
@@ -11950,30 +12051,11 @@ model Post {
     <div class="ai-chat-head-icon">✨</div>
     <div class="ai-chat-head-title">
       <div>ИИ-помощник</div>
-      <div id="aiModelLabel">Выбери модель →</div>
+      <div id="aiModelLabel">Llama 3.3 70B</div>
     </div>
     <select class="ai-model-select" id="aiModelSelect" onchange="aiOnModelChange()">
-      <optgroup label="⚡ Groq (самый быстрый)">
-        <option value="groq:llama-3.3-70b-versatile" selected>Llama 3.3 70B ✓</option>
-        <option value="groq:llama3-8b-8192">Llama 3 8B (молния)</option>
-        <option value="groq:gemma2-9b-it">Gemma 2 9B</option>
-      </optgroup>
-      <optgroup label="🌐 OpenRouter — бесплатные">
-        <option value="or:deepseek/deepseek-r1:free">DeepSeek R1 🔥</option>
-        <option value="or:deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
-        <option value="or:meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
-        <option value="or:qwen/qwen3-235b-a22b:free">Qwen3 235B</option>
-        <option value="or:microsoft/phi-4-reasoning:free">Phi-4 Reasoning</option>
-        <option value="or:openrouter/optimus-alpha:free">Owl Alpha 🦉</option>
-        <option value="or:nvidia/llama-3.1-nemotron-ultra-253b-v1:free">Nemotron Ultra 253B</option>
-        <option value="or:poolside/poolside-mf-v1:free">Poolside Lagoona M.1</option>
-        <option value="or:google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp</option>
-      </optgroup>
-      <optgroup label="💎 Gemini">
-        <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
-        <option value="gemini:gemini-1.5-flash">Gemini 1.5 Flash</option>
-        <option value="gemini:gemini-1.5-pro">Gemini 1.5 Pro</option>
-      </optgroup>
+      <option value="default" selected>Llama 3.3 70B ✓</option>
+      <option value="custom">⚙ Своя модель (API ключ)</option>
     </select>
     <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
   </div>
@@ -12115,7 +12197,7 @@ function updateProgress(cb) {
   const done = document.querySelectorAll('.prog-cb:not([disabled]):checked');
   const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
   document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${all.length} тем изучено (${pct}%) · v29`;
+  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${all.length} тем изучено (${pct}%) · v30`;
   updateTabBadges();
   updatePdcBars();
 }
@@ -19429,9 +19511,7 @@ function _pgDownload(filename, content) {
 
 // ===== AI CHAT =====
 const AI_KEYS = {
-  groq:       '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',
-  gemini:     'AIzaSyAb8RN6KqpDUmTdA_ksZh7p-328Mj6u6us4v__Go7Tb15neGOYQ',
-  openrouter: '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'
+  groq: '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' // встроенный ключ для модели по умолчанию (Llama 3.3 70B)
 };
 
 let aiHistory = [];
@@ -19461,8 +19541,20 @@ function aiOnModelChange() {
   const sel = document.getElementById('aiModelSelect');
   const lbl = document.getElementById('aiModelLabel');
   if (!sel || !lbl) return;
-  const label = sel.selectedOptions[0]?.text || '';
-  lbl.textContent = label;
+
+  if (sel.value === 'custom') {
+    const cfg = aiGetCustomConfig();
+    if (!cfg || !cfg.apiKey || !cfg.model) {
+      lbl.textContent = '⚠ Настрой во вкладке «ИИ»';
+      // Открываем вкладку настроек ИИ
+      const aiTab = document.querySelector('[onclick*="switchTab(\'ai\'"]');
+      if (aiTab) { switchTab('ai', aiTab); toggleAiChat(); }
+    } else {
+      lbl.textContent = '🔧 ' + cfg.model;
+    }
+  } else {
+    lbl.textContent = 'Llama 3.3 70B';
+  }
 }
 // aiOnModelChange called on first open
 
@@ -19553,7 +19645,6 @@ async function aiSend() {
   aiAddMsg('user', text);
   aiHistory.push({ role: 'user', content: text });
 
-  // Typing indicator
   const typingId = 'aiTyping_' + Date.now();
   const typEl = document.createElement('div');
   typEl.className = 'ai-msg bot';
@@ -19565,43 +19656,40 @@ async function aiSend() {
   aiLoading = true;
   document.getElementById('aiSendBtn').disabled = true;
 
-  const selEl = document.getElementById('aiModelSelect');
-  const modelVal = selEl ? selEl.value : 'groq:llama-3.3-70b-versatile';
-  const [provider, modelId] = modelVal.split(':');
-
   const systemPrompt = `Ты — дружелюбный наставник по веб-разработке. Отвечаешь строго на русском языке.
 Помогаешь изучать HTML, CSS, JavaScript, TypeScript, React, Git, Node.js, PostgreSQL, Linux и связанные технологии.
 Объясняй кратко, понятно, как старший разработчик junior-у. Используй примеры кода когда нужно.
 Код оформляй в тройные обратные кавычки с названием языка.`;
 
+  const modelChoice = document.getElementById('aiModelSelect')?.value || 'default';
+  const customCfg = aiGetCustomConfig();
+
   try {
     let reply = '';
 
-    if (provider === 'or') {
-      // OpenRouter — совместим с OpenAI API
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    if (modelChoice === 'custom' && customCfg && customCfg.apiKey && customCfg.model) {
+      // ===== ПОЛЬЗОВАТЕЛЬСКИЙ API (OpenAI-совместимый формат) =====
+      const baseUrl = customCfg.baseUrl || 'https://api.groq.com/openai/v1';
+      const res = await fetch(baseUrl.replace(/\/$/, '') + '/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + AI_KEYS.openrouter,
-          'HTTP-Referer': window.location.href,
-          'X-Title': 'Frontend Roadmap'
+          'Authorization': 'Bearer ' + customCfg.apiKey,
+          ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'Frontend Roadmap' } : {})
         },
         body: JSON.stringify({
-          model: modelId,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...aiHistory
-          ],
+          model: customCfg.model,
+          messages: [{ role: 'system', content: systemPrompt }, ...aiHistory],
           max_tokens: 1024,
           temperature: 0.7
         })
       });
       const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
       reply = data.choices?.[0]?.message?.content || 'Нет ответа';
 
-    } else if (provider === 'groq') {
+    } else {
+      // ===== ДЕФОЛТНАЯ МОДЕЛЬ (Llama 3.3 70B через Groq) =====
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -19609,45 +19697,15 @@ async function aiSend() {
           'Authorization': 'Bearer ' + AI_KEYS.groq
         },
         body: JSON.stringify({
-          model: modelId,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...aiHistory
-          ],
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'system', content: systemPrompt }, ...aiHistory],
           max_tokens: 1024,
           temperature: 0.7
         })
       });
       const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
       reply = data.choices?.[0]?.message?.content || 'Нет ответа';
-
-    } else if (provider === 'gemini') {
-      // Конвертируем историю в формат Gemini
-      const geminiHistory = aiHistory.slice(0, -1).map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }]
-      }));
-      // Gemini 2.0+ использует v1beta, старые — v1
-      const geminiVersion = modelId.includes('2.0') ? 'v1beta' : 'v1beta';
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/${geminiVersion}/models/${modelId}:generateContent?key=${AI_KEYS.gemini}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [
-              ...geminiHistory,
-              { role: 'user', parts: [{ text: text }] }
-            ],
-            generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
-          })
-        }
-      );
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Нет ответа';
     }
 
     document.getElementById(typingId)?.remove();
@@ -19657,14 +19715,14 @@ async function aiSend() {
   } catch (err) {
     document.getElementById(typingId)?.remove();
     let errMsg = `❌ Ошибка: ${err.message}`;
-    if (err.message.includes('401') || err.message.includes('API key') || err.message.includes('credentials')) {
-      errMsg += '\n\n🔑 Проблема с API ключом. Проверь ключ в коде.';
-    } else if (err.message.includes('404') || err.message.includes('not found') || err.message.includes('No endpoints')) {
-      errMsg += '\n\n🤖 Модель не найдена или недоступна. Попробуй другую модель.';
-    } else if (err.message.includes('429') || err.message.includes('rate') || err.message.includes('limit')) {
-      errMsg += '\n\n⏱ Превышен лимит запросов. Подожди немного.';
-    } else if (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed')) {
-      errMsg += '\n\n🌐 Проблема с сетью. Проверь интернет.';
+    if (err.message.includes('401') || err.message.toLowerCase().includes('api key') || err.message.toLowerCase().includes('credentials') || err.message.toLowerCase().includes('invalid')) {
+      errMsg += '\n\n🔑 Неверный API ключ. Проверь его во вкладке «ИИ» в разделе Other.';
+    } else if (err.message.includes('404') || err.message.toLowerCase().includes('not found') || err.message.includes('No endpoints')) {
+      errMsg += '\n\n🤖 Модель не найдена. Проверь название модели во вкладке «ИИ».';
+    } else if (err.message.includes('429') || err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
+      errMsg += '\n\n⏱ Превышен лимит запросов. Подожди немного или укажи свой API ключ во вкладке «ИИ».';
+    } else if (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network') || err.message.toLowerCase().includes('failed')) {
+      errMsg += '\n\n🌐 Проблема с сетью или CORS. Если используешь свой ключ — попробуй модель Groq/OpenRouter.';
     }
     aiAddMsg('bot', errMsg);
   }
@@ -19672,6 +19730,14 @@ async function aiSend() {
   aiLoading = false;
   document.getElementById('aiSendBtn').disabled = false;
   document.getElementById('aiInp').focus();
+}
+
+// ---- Кастомная конфигурация ИИ (localStorage) ----
+function aiGetCustomConfig() {
+  try {
+    const raw = localStorage.getItem('ai_custom_config');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
 }
 
 function aiAddMsg(role, text) {
@@ -19704,6 +19770,126 @@ function aiScrollBottom() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && aiChatOpen) toggleAiChat();
 });
+
+
+// ===== AI CUSTOM CONFIG (localStorage) =====
+const AI_PROVIDER_PRESETS = {
+  'https://api.groq.com/openai/v1':   { model: 'llama-3.3-70b-versatile' },
+  'https://openrouter.ai/api/v1':     { model: 'deepseek/deepseek-r1:free' },
+  'https://api.openai.com/v1':        { model: 'gpt-4o-mini' },
+  'https://api.together.xyz/v1':      { model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo' },
+  'https://api.mistral.ai/v1':        { model: 'mistral-small-latest' }
+};
+
+function aiProviderPreset() {
+  const sel = document.getElementById('ai-provider');
+  const baseUrlInp = document.getElementById('ai-baseurl');
+  const modelInp = document.getElementById('ai-modelname');
+  const wrap = document.getElementById('ai-baseurl-wrap');
+
+  if (sel.value === 'custom') {
+    baseUrlInp.value = '';
+    baseUrlInp.placeholder = 'https://...';
+    wrap.style.display = 'block';
+  } else {
+    baseUrlInp.value = sel.value;
+    wrap.style.display = 'block';
+    const preset = AI_PROVIDER_PRESETS[sel.value];
+    if (preset && !modelInp.value) modelInp.value = preset.model;
+  }
+}
+
+function aiSaveCustomConfig() {
+  const baseUrl = document.getElementById('ai-baseurl').value.trim();
+  const apiKey  = document.getElementById('ai-apikey').value.trim();
+  const model   = document.getElementById('ai-modelname').value.trim();
+  const statusEl = document.getElementById('ai-config-status');
+
+  const show = (msg, ok) => {
+    statusEl.style.display = 'block';
+    statusEl.style.background = ok ? '#0d2d1a' : '#2d0d0d';
+    statusEl.style.border = '1px solid ' + (ok ? '#238636' : '#da3633');
+    statusEl.style.color = ok ? '#3fb950' : '#f85149';
+    statusEl.innerHTML = msg;
+  };
+
+  if (!baseUrl || !apiKey || !model) {
+    return show('❌ Заполни Base URL, API ключ и название модели', false);
+  }
+
+  try {
+    localStorage.setItem('ai_custom_config', JSON.stringify({ baseUrl, apiKey, model }));
+    show('✅ Сохранено! Теперь выбери «⚙ Своя модель» в окне чата.', true);
+
+    // Обновляем select в чате если он есть
+    const sel = document.getElementById('aiModelSelect');
+    if (sel) {
+      sel.value = 'custom';
+      aiOnModelChange();
+    }
+  } catch(e) {
+    show('❌ Не удалось сохранить: ' + e.message, false);
+  }
+}
+
+function aiClearCustomConfig() {
+  localStorage.removeItem('ai_custom_config');
+  document.getElementById('ai-apikey').value = '';
+  document.getElementById('ai-modelname').value = '';
+  const statusEl = document.getElementById('ai-config-status');
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#1a1f2e';
+  statusEl.style.border = '1px solid #2d3348';
+  statusEl.style.color = '#94a3b8';
+  statusEl.innerHTML = '🗑 Настройки удалены';
+
+  const sel = document.getElementById('aiModelSelect');
+  if (sel) {
+    sel.value = 'default';
+    aiOnModelChange();
+  }
+}
+
+// Восстанавливаем сохранённый конфиг при загрузке вкладки ИИ
+function aiRestoreConfigUI() {
+  const cfg = aiGetCustomConfig();
+  if (!cfg) return;
+  const baseUrlInp = document.getElementById('ai-baseurl');
+  const modelInp = document.getElementById('ai-modelname');
+  const providerSel = document.getElementById('ai-provider');
+  if (baseUrlInp) baseUrlInp.value = cfg.baseUrl || '';
+  if (modelInp) modelInp.value = cfg.model || '';
+  if (providerSel) {
+    const match = Array.from(providerSel.options).find(o => o.value === cfg.baseUrl);
+    providerSel.value = match ? cfg.baseUrl : 'custom';
+  }
+  // API ключ не восстанавливаем в поле видимо — оставляем placeholder
+  const apiKeyInp = document.getElementById('ai-apikey');
+  if (apiKeyInp && cfg.apiKey) apiKeyInp.placeholder = '••••••••••••••••' + cfg.apiKey.slice(-4);
+}
+
+
+// ===== GITHUB FIELDS — localStorage persistence =====
+const GH_STORAGE_PREFIX = 'gh_field_';
+const GH_FIELDS = ['gh-username', 'gh-repo', 'gh-token', 'gh-filepath', 'gh-branch'];
+
+function ghSaveField(id, value) {
+  try {
+    if (value) localStorage.setItem(GH_STORAGE_PREFIX + id, value);
+    else localStorage.removeItem(GH_STORAGE_PREFIX + id);
+  } catch(e) {}
+}
+
+function ghRestoreFields() {
+  GH_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    try {
+      const saved = localStorage.getItem(GH_STORAGE_PREFIX + id);
+      if (saved !== null && !el.value) el.value = saved;
+    } catch(e) {}
+  });
+}
 
 </script>
 </body>
