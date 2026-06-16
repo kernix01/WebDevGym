@@ -6,7 +6,7 @@ Live Demo
 
 Open on GitHub Pages after you deploy it — the URL will be:
 ```
-https://your-username.github.io/your-repo-name/
+https://kernix01.github.io/roadmap/
 ```
 
 What's inside
