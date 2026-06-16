@@ -6,7 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;700&family=Onest:wght@400;500;700&family=Rubik:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700&family=Lexend:wght@400;500;700&family=Work+Sans:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&family=Mulish:wght@400;500;700&family=Cabin:wght@400;500;700&family=Karla:wght@400;500;700&family=Quicksand:wght@400;500;700&family=Mukta:wght@400;500;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;500;700&family=Cormorant+Garamond:wght@400;500;700&family=Crimson+Pro:wght@400;500;700&family=PT+Serif:wght@400;700&family=EB+Garamond:wght@400;500;700&family=Libre+Baskerville:wght@400;700&family=Bitter:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&family=Spectral:wght@400;500;700&family=Bebas+Neue:wght@400&family=Anton:wght@400&family=Oswald:wght@400;500;700&family=Archivo+Black:wght@400&family=Righteous:wght@400&family=Abril+Fatface:wght@400&family=Fjalla+One:wght@400&family=Russo+One:wght@400&family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500&family=Source+Code+Pro:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Caveat:wght@400;500;700&family=Pacifico:wght@400&family=Dancing+Script:wght@400;500;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
-<title>Frontend Roadmap v30</title>
+<title>Frontend Roadmap v32</title>
 <style>
   /* ===== АКЦЕНТНЫЕ ЦВЕТА (настраиваются конструктором) ===== */
   :root {
@@ -660,7 +660,7 @@
 
   /* ===== SCROLL TO TOP ===== */
   .scroll-top {
-    position: fixed; bottom: 24px; right: 24px;
+    position: fixed; bottom: 188px; left: 18px;
     width: 42px; height: 42px;
     background: var(--accent); color: #fff;
     border: none; border-radius: 50%;
@@ -3425,7 +3425,7 @@
     <div class="tabs-row">
       <span class="tabs-row-label be">⚙ Backend</span>
       <button class="tab git-tab" onclick="switchTab('git', this)" data-sec="git"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt=""> Git <span class="tab-badge" id="badge-git">0/0</span></button>
-      <button class="tab node-tab" onclick="switchTab('node', this)" data-sec="node"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt=""> Node.js <span class="tab-badge" id="badge-node">0/0</span></button>
+      <button class="tab node-tab" onclick="switchTab('node', this)" data-sec="node"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt=""> Node.js + Next <span class="tab-badge" id="badge-node">0/0</span></button>
       <button class="tab sql-tab" onclick="switchTab('sql', this)" data-sec="sql"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt=""> SQL <span class="tab-badge" id="badge-sql">0/0</span></button>
       <button class="tab devops-tab" onclick="switchTab('devops', this)" data-sec="devops"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt=""> Серверы <span class="tab-badge" id="badge-devops">0/0</span></button>
       <button class="tab" onclick="switchTab('linux', this)" data-sec="linux">🐧 Linux <span class="tab-badge" id="badge-linux">0/0</span></button>
@@ -3452,6 +3452,7 @@
       <button class="tab" onclick="switchTab('links', this)">🔗 Ссылки</button>
       <button class="tab" onclick="switchTab('algo', this)">🧮 Алгоритмы</button>
       <button class="tab" onclick="switchTab('ai', this)">✨ ИИ</button>
+      <button class="tab" onclick="switchTab('refactor', this)">🔧 Рефакторинг</button>
     </div>
 
   </div>
@@ -7582,6 +7583,204 @@ Base URL: https://api.mistral.ai/v1
   </div>
 
 
+  <!-- ===================== РЕФАКТОРИНГ ===================== -->
+  <div class="section" id="sec-refactor">
+    <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+      <div class="lang-section-hero-icon" style="font-size:2.5rem;">🔧</div>
+      <div>
+        <div class="lang-section-hero-title">Рефакторинг — улучшение кода без изменения поведения</div>
+        <div class="lang-section-hero-sub">Рефакторинг — это изменение структуры кода без изменения того, что он делает. Грязный код работает, но рефакторинг делает его понятным, поддерживаемым и расширяемым.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">Code Smells</span>
+          <span class="lang-section-hero-badge">SOLID</span>
+          <span class="lang-section-hero-badge">DRY</span>
+          <span class="lang-section-hero-badge">Паттерны</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-refactor-smells">
+      <div class="block-title" onclick="scrollToBlock('block-refactor-smells')">Code Smells — признаки что пора рефакторить <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Code Smell — не баг, код работает. Но это сигнал что структура плохая и в будущем создаст проблемы.</div>
+      <div class="code"><span class="cm">// 1. Long Method — слишком длинная функция</span>
+<span class="kw">function</span> <span class="fn">processOrder</span>(order) {
+  <span class="cm">// 80 строк кода делающих validation + calculation + saving + email...</span>
+} <span class="cm">// ❌ Слишком много обязанностей</span>
+
+<span class="cm">// 2. Duplicate Code — повторяющийся код</span>
+<span class="kw">function</span> <span class="fn">getUserName</span>(u) { <span class="kw">return</span> u.first + <span class="str">' '</span> + u.last; }
+<span class="kw">function</span> <span class="fn">getFullName</span>(u)  { <span class="kw">return</span> u.first + <span class="str">' '</span> + u.last; } <span class="cm">// ❌ Дубликат</span>
+
+<span class="cm">// 3. Magic Numbers — числа без объяснения</span>
+<span class="kw">if</span> (user.age > <span class="num">17</span>) { <span class="cm">/* ... */</span> } <span class="cm">// ❌ Что значит 17?</span>
+<span class="kw">if</span> (user.age >= ADULT_AGE) { <span class="cm">/* ... */</span> } <span class="cm">// ✅ Понятно</span>
+
+<span class="cm">// 4. Large Class — класс делает слишком много</span>
+<span class="kw">class</span> <span class="fn">User</span> { <span class="cm">/* auth + profile + orders + notifications + ... */</span> }
+
+<span class="cm">// 5. Long Parameter List</span>
+<span class="kw">function</span> <span class="fn">createUser</span>(name, email, age, city, country, phone, role) {} <span class="cm">// ❌</span>
+<span class="kw">function</span> <span class="fn">createUser</span>(userData) {} <span class="cm">// ✅ Передавай объект</span></div>
+      <div class="explain">
+        <strong>Long Method</strong> — если функция не помещается на экран, скорее всего делает слишком много. Раздели на части.<br>
+        <strong>Magic Numbers</strong> — выноси в именованные константы. Код должен объяснять сам себя.<br>
+        <strong>Long Parameter List</strong> — больше 3 параметров — повод передавать объект.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Long Method — слишком длинные функции делающие много всего</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Duplicate Code — повторяющийся код в разных местах</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Magic Numbers — числа без объяснения, нужны константы</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-refactor-dry-kiss">
+      <div class="block-title" onclick="scrollToBlock('block-refactor-dry-kiss')">DRY, KISS, YAGNI — главные принципы <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// DRY — Don't Repeat Yourself</span>
+<span class="cm">// ❌ До</span>
+<span class="kw">const</span> tax1 = price1 * <span class="num">0.2</span>;
+<span class="kw">const</span> tax2 = price2 * <span class="num">0.2</span>;
+
+<span class="cm">// ✅ После</span>
+<span class="kw">const</span> calculateTax = price =&gt; price * TAX_RATE;
+
+<span class="cm">// KISS — Keep It Simple, Stupid</span>
+<span class="cm">// ❌ Слишком умно</span>
+<span class="kw">const</span> isEven = n =&gt; !(n & <span class="num">1</span>);
+
+<span class="cm">// ✅ Просто и понятно</span>
+<span class="kw">const</span> isEven = n =&gt; n % <span class="num">2</span> === <span class="num">0</span>;
+
+<span class="cm">// YAGNI — You Aren't Gonna Need It</span>
+<span class="cm">// ❌ "А вдруг понадобится в будущем"</span>
+<span class="kw">function</span> <span class="fn">processData</span>(data, options = {}) {
+  <span class="kw">const</span> { format, validate, transform, cache, retry, timeout, logger } = options;
+  <span class="cm">// 7 опций, используется только format</span>
+}
+
+<span class="cm">// ✅ Добавляй сложность когда она РЕАЛЬНО нужна</span>
+<span class="kw">function</span> <span class="fn">processData</span>(data, format) { <span class="cm">/* ... */</span> }</div>
+      <div class="explain">
+        <strong>DRY</strong> — если копируешь код больше одного раза, выноси в функцию.<br>
+        <strong>KISS</strong> — пиши код для людей, не для компьютера. Читаемость важнее "крутости".<br>
+        <strong>YAGNI</strong> — не добавляй функциональность "на будущее". Когда понадобится — добавишь.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>DRY — не повторяй один и тот же код</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>KISS — простой код лучше "умного"</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>YAGNI — не пиши код "на будущее" заранее</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-refactor-extract">
+      <div class="block-title" onclick="scrollToBlock('block-refactor-extract')">Extract Function и Extract Variable <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// ❌ До рефакторинга</span>
+<span class="kw">function</span> <span class="fn">printInvoice</span>(order) {
+  console.<span class="fn">log</span>(<span class="str">`Заказ #${order.id}`</span>);
+  <span class="kw">let</span> total = <span class="num">0</span>;
+  <span class="kw">for</span> (<span class="kw">const</span> item <span class="kw">of</span> order.items) {
+    total += item.price * item.qty * (<span class="num">1</span> - item.discount);
+  }
+  console.<span class="fn">log</span>(<span class="str">`Итого: ${total}`</span>);
+}
+
+<span class="cm">// ✅ После — Extract Function + Extract Variable</span>
+<span class="kw">function</span> <span class="fn">calculateItemTotal</span>(item) {
+  <span class="kw">const</span> discountMultiplier = <span class="num">1</span> - item.discount; <span class="cm">// Extract Variable</span>
+  <span class="kw">return</span> item.price * item.qty * discountMultiplier;
+}
+
+<span class="kw">function</span> <span class="fn">calculateOrderTotal</span>(order) { <span class="cm">// Extract Function</span>
+  <span class="kw">return</span> order.items.<span class="fn">reduce</span>((sum, item) =&gt; sum + <span class="fn">calculateItemTotal</span>(item), <span class="num">0</span>);
+}
+
+<span class="kw">function</span> <span class="fn">printInvoice</span>(order) {
+  console.<span class="fn">log</span>(<span class="str">`Заказ #${order.id}`</span>);
+  console.<span class="fn">log</span>(<span class="str">`Итого: ${calculateOrderTotal(order)}`</span>);
+} <span class="cm">// Теперь каждая функция делает ровно одну вещь</span></div>
+      <div class="explain">
+        <strong>Extract Function</strong> — выноси кусок логики в отдельную функцию с понятным именем.<br>
+        <strong>Extract Variable</strong> — давай имя сложному выражению, чтобы было понятно что оно значит.<br>
+        <strong>Результат</strong> — каждая функция читается как предложение и легко тестируется отдельно.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Extract Function — выделение логики в отдельную функцию</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Extract Variable — именование сложных выражений</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Каждая функция делает одну вещь (Single Responsibility)</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-refactor-conditionals">
+      <div class="block-title" onclick="scrollToBlock('block-refactor-conditionals')">Рефакторинг условий <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// ❌ Вложенные if — сложно читать</span>
+<span class="kw">function</span> <span class="fn">getDiscount</span>(user) {
+  <span class="kw">if</span> (user.isPremium) {
+    <span class="kw">if</span> (user.years > <span class="num">2</span>) {
+      <span class="kw">return</span> <span class="num">0.3</span>;
+    } <span class="kw">else</span> {
+      <span class="kw">return</span> <span class="num">0.2</span>;
+    }
+  } <span class="kw">else</span> {
+    <span class="kw">return</span> <span class="num">0</span>;
+  }
+}
+
+<span class="cm">// ✅ Early Return — выходим сразу, без вложенности</span>
+<span class="kw">function</span> <span class="fn">getDiscount</span>(user) {
+  <span class="kw">if</span> (!user.isPremium) <span class="kw">return</span> <span class="num">0</span>;
+  <span class="kw">if</span> (user.years > <span class="num">2</span>) <span class="kw">return</span> <span class="num">0.3</span>;
+  <span class="kw">return</span> <span class="num">0.2</span>;
+}
+
+<span class="cm">// ✅ Replace Conditional with Polymorphism (когда условий много)</span>
+<span class="kw">const</span> discountStrategies = {
+  premium2years: () =&gt; <span class="num">0.3</span>,
+  premium: () =&gt; <span class="num">0.2</span>,
+  regular: () =&gt; <span class="num">0</span>
+};</div>
+      <div class="explain">
+        <strong>Early Return</strong> — избавляет от вложенных if-else. Код становится плоским и читаемым.<br>
+        <strong>Guard Clauses</strong> — проверки в начале функции, которые сразу выходят если условие не выполнено.<br>
+        <strong>Полиморфизм вместо if/switch</strong> — когда условий становится много (5+), таблица/объект чище.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Early Return — убираем вложенность через ранний выход</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Guard Clauses — проверки в начале функции</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Замена больших if/switch на объект-словарь</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-refactor-when">
+      <div class="block-title" onclick="scrollToBlock('block-refactor-when')">Когда рефакторить (и когда не стоит) <span class="badge">знать</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// ✅ Хорошее время для рефакторинга:</span>
+- Перед добавлением новой фичи в грязный код
+- Когда видишь Code Smell дважды (Rule of Three)
+- После того как тесты зелёные (рефактори с уверенностью)
+- Code review — коллега указал на проблему
+
+<span class="cm">// ❌ Плохое время для рефакторинга:</span>
+- Прямо перед дедлайном
+- Когда нет тестов и нельзя проверить что не сломал
+- "Просто потому что не нравится стиль" без причины
+- Если код работает и трогать его не нужно (legacy без изменений)
+
+<span class="cm">// Правило трёх (Rule of Three)</span>
+<span class="cm">// 1-й раз: просто напиши код</span>
+<span class="cm">// 2-й раз: скопировал похожее — это ОК, отметь дубликат</span>
+<span class="cm">// 3-й раз: повторилось → теперь рефактори в общую функцию</span></div>
+      <div class="explain">
+        <strong>Rule of Three</strong> — не торопись абстрагировать с первого повторения. На третий раз — точно рефактори.<br>
+        <strong>Маленькие шаги</strong> — рефактори небольшими безопасными изменениями, тестируя после каждого.<br>
+        <strong>Тесты — твоя защита</strong> — без тестов рефакторинг превращается в русскую рулетку.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Rule of Three — рефактори после третьего повторения</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю когда НЕ стоит рефакторить</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Рефакторю маленькими шагами с проверкой</span></label>
+      </div>
+    </div>
+  </div>
+
+
   <div class="section" id="sec-links">
     <div class="lang-section-hero" style="background: linear-gradient(135deg, #0c1a2e 0%, #1e3a5f 50%, #1d4ed8 100%);">
       <div class="lang-section-hero-icon" style="font-size:2.5rem;">🔗</div>
@@ -8924,6 +9123,7 @@ Next.js → Node.js
             <button class="pg-run-btn" onclick="runPlayground()">▶ Запустить</button>
         <button class="pg-run-btn" style="background:#3b82f6;margin-left:4px;" onclick="downloadPlayground('html')" title="Скачать HTML">⬇ HTML</button>
         <button class="pg-run-btn" style="background:#8b5cf6;margin-left:4px;" onclick="downloadPlayground('all')" title="Скачать все файлы">⬇ ZIP</button>
+        <button class="pg-run-btn" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);margin-left:4px;" onclick="aiHelpWithPlayground()" title="ИИ поможет с этим кодом">✨ ИИ</button>
           </div>
         </div>
         <!-- MOBILE KEYBOARD TOOLBAR (only visible on phones) -->
@@ -9865,6 +10065,156 @@ node_modules/</div>
         <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>path.join — безопасная сборка путей</span></label>
       </div>
     </div>
+
+    <div class="block" id="block-node-nextjs-intro">
+      <div class="block-title" onclick="scrollToBlock('block-node-nextjs-intro')">Next.js + Node.js — почему вместе лучше <span class="badge must">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Next.js — фреймворк поверх React, который сам является Node.js приложением. Понимание Node.js — обязательное условие чтобы по-настоящему понимать Next.js, а не просто копировать код.</div>
+      <div class="code"><span class="cm">// Чистый React (CRA/Vite) — только клиент</span>
+Браузер запрашивает index.html
+  → загружает пустой div#root
+  → JS скачивается и рендерит всё на клиенте (CSR)
+  → SEO страдает, первая загрузка медленнее
+
+<span class="cm">// Next.js — Node.js сервер рендерит React</span>
+Браузер запрашивает страницу
+  → Next.js (запущен на Node.js!) рендерит React в HTML на сервере
+  → Браузер получает готовый HTML с контентом (SSR)
+  → JS подгружается и "оживляет" страницу (hydration)
+  → SEO работает из коробки, первая загрузка быстрее
+
+<span class="cm">// Структура Next.js проекта (App Router)</span>
+app/
+  page.tsx        <span class="cm">→ главная страница ("/")</span>
+  layout.tsx       <span class="cm">→ общий layout для всех страниц</span>
+  api/
+    users/route.ts <span class="cm">→ это Node.js backend! Без Express</span>
+  blog/[slug]/
+    page.tsx        <span class="cm">→ динамический маршрут /blog/my-post</span></div>
+      <div class="explain">
+        <strong>Next.js = React + Node.js сервер в одном фреймворке.</strong> Без Node.js под капотом Next.js просто не существовал бы — рендеринг на сервере, API routes, middleware — всё это выполняется в Node.js окружении.<br>
+        <strong>Зачем учить раздельно?</strong> Если ты понимаешь чистый Node.js (как работает сервер, event loop, модули), то код Next.js перестаёт быть "магией" — ты понимаешь что происходит при каждом запросе.<br>
+        <strong>API Routes в Next.js</strong> — это полноценный Node.js backend без необходимости поднимать отдельный Express-сервер. Один проект — и фронтенд, и бэкенд.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю что Next.js работает на Node.js сервере</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>SSR (Server-Side Rendering) — рендер React на сервере</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю разницу CSR vs SSR и зачем нужен SSR</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-nextjs-routing">
+      <div class="block-title" onclick="scrollToBlock('block-nextjs-routing')">App Router — файловая система как роутинг <span class="badge must">основа</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Создание проекта</span>
+<span class="kw">npx create-next-app@latest</span> my-app
+<span class="kw">cd</span> my-app && <span class="kw">npm run dev</span>
+
+<span class="cm">// app/page.tsx — главная страница</span>
+<span class="kw">export default function</span> <span class="fn">Home</span>() {
+  <span class="kw">return</span> &lt;<span class="tag">h1</span>&gt;Главная страница&lt;/<span class="tag">h1</span>&gt;;
+}
+
+<span class="cm">// app/about/page.tsx → доступна на /about</span>
+<span class="kw">export default function</span> <span class="fn">About</span>() {
+  <span class="kw">return</span> &lt;<span class="tag">h1</span>&gt;О нас&lt;/<span class="tag">h1</span>&gt;;
+}
+
+<span class="cm">// app/blog/[slug]/page.tsx → динамический маршрут</span>
+<span class="kw">export default function</span> <span class="fn">BlogPost</span>({ params }: { params: { slug: <span class="str">string</span> } }) {
+  <span class="kw">return</span> &lt;<span class="tag">h1</span>&gt;Пост: {params.slug}&lt;/<span class="tag">h1</span>&gt;;
+}
+<span class="cm">// /blog/hello-world → params.slug = "hello-world"</span>
+
+<span class="cm">// app/layout.tsx — общий каркас (header, footer)</span>
+<span class="kw">export default function</span> <span class="fn">RootLayout</span>({ children }) {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">html</span>&gt;&lt;<span class="tag">body</span>&gt;
+      &lt;<span class="fn">Header</span> /&gt;
+      {children}
+      &lt;<span class="fn">Footer</span> /&gt;
+    &lt;/<span class="tag">body</span>&gt;&lt;/<span class="tag">html</span>&gt;
+  );
+}</div>
+      <div class="explain">
+        <strong>Файл = маршрут.</strong> Папка <code>app/about/page.tsx</code> автоматически становится страницей <code>/about</code>. Никакого ручного роутера.<br>
+        <strong>[slug]</strong> — квадратные скобки создают динамический параметр URL.<br>
+        <strong>layout.tsx</strong> — оборачивает все вложенные страницы, не перерендеривается при навигации между ними.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>app/page.tsx — файловый роутинг Next.js</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>[slug] — динамические маршруты</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>layout.tsx — общий каркас страниц</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-nextjs-api">
+      <div class="block-title" onclick="scrollToBlock('block-nextjs-api')">API Routes — Node.js backend внутри Next.js <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// app/api/users/route.ts — это Node.js! Без Express</span>
+<span class="kw">import</span> { NextResponse } <span class="kw">from</span> <span class="str">'next/server'</span>;
+
+<span class="kw">export async function</span> <span class="fn">GET</span>() {
+  <span class="kw">const</span> users = <span class="kw">await</span> db.user.<span class="fn">findMany</span>();
+  <span class="kw">return</span> NextResponse.<span class="fn">json</span>(users);
+}
+
+<span class="kw">export async function</span> <span class="fn">POST</span>(request: Request) {
+  <span class="kw">const</span> body = <span class="kw">await</span> request.<span class="fn">json</span>();
+  <span class="kw">const</span> user = <span class="kw">await</span> db.user.<span class="fn">create</span>({ data: body });
+  <span class="kw">return</span> NextResponse.<span class="fn">json</span>(user, { status: <span class="num">201</span> });
+}
+
+<span class="cm">// Вызов с клиента — обычный fetch на свой же домен</span>
+<span class="kw">const</span> res = <span class="kw">await fetch</span>(<span class="str">'/api/users'</span>);
+<span class="kw">const</span> users = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+<span class="cm">// Server Actions — ещё проще, без route.ts вообще</span>
+<span class="str">'use server'</span>;
+<span class="kw">export async function</span> <span class="fn">createUser</span>(formData: FormData) {
+  <span class="kw">await</span> db.user.<span class="fn">create</span>({ data: { name: formData.<span class="fn">get</span>(<span class="str">'name'</span>) } });
+}</div>
+      <div class="explain">
+        <strong>route.ts</strong> — каждый экспорт (GET, POST, PUT, DELETE) это отдельный HTTP handler. Это полноценный Node.js код.<br>
+        <strong>Server Actions</strong> — новый способ в Next.js вызывать серверный код прямо из формы, без ручного fetch.<br>
+        <strong>Один проект, один деплой</strong> — фронтенд и бэкенд живут вместе, не нужно поднимать Express отдельно.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>API Routes — GET/POST в route.ts</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Server Actions — серверные функции без route.ts</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю что не нужен отдельный Express для простых API</span></label>
+      </div>
+    </div>
+
+    <div class="block" id="block-nextjs-data">
+      <div class="block-title" onclick="scrollToBlock('block-nextjs-data')">Server Components и загрузка данных <span class="badge good">важно</span><span class="anchor-icon">🔗</span></div>
+      <div class="code"><span class="cm">// Server Component (по умолчанию в App Router!)</span>
+<span class="cm">// Выполняется на Node.js сервере, НЕ попадает в JS bundle браузера</span>
+<span class="kw">export default async function</span> <span class="fn">ProductList</span>() {
+  <span class="kw">const</span> products = <span class="kw">await</span> db.product.<span class="fn">findMany</span>(); <span class="cm">// прямой доступ к БД!</span>
+  <span class="kw">return</span> (
+    &lt;<span class="tag">ul</span>&gt;
+      {products.<span class="fn">map</span>(p =&gt; &lt;<span class="tag">li</span> <span class="attr">key</span>={p.id}&gt;{p.name}&lt;/<span class="tag">li</span>&gt;)}
+    &lt;/<span class="tag">ul</span>&gt;
+  );
+}
+
+<span class="cm">// Client Component — нужен для интерактивности</span>
+<span class="str">'use client'</span>; <span class="cm">// обязательная директива!</span>
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default function</span> <span class="fn">LikeButton</span>() {
+  <span class="kw">const</span> [liked, setLiked] = <span class="fn">useState</span>(<span class="kw">false</span>);
+  <span class="kw">return</span> &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">setLiked</span>(!liked)}&gt;{liked ? <span class="str">'❤️'</span> : <span class="str">'🤍'</span>}&lt;/<span class="tag">button</span>&gt;;
+}</div>
+      <div class="explain">
+        <strong>Server Component</strong> — может напрямую общаться с БД, читать файлы, использовать секретные ключи. Код никогда не попадает в браузер.<br>
+        <strong>'use client'</strong> — нужен только когда требуется useState, useEffect, onClick и другая интерактивность.<br>
+        <strong>Главное правило</strong> — по умолчанию всё Server Component. Добавляй 'use client' только когда реально нужно.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Server Components — выполняются на сервере, прямой доступ к БД</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>'use client' — когда нужна интерактивность (useState, onClick)</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю что Server Components не увеличивают размер JS bundle</span></label>
+      </div>
+    </div>
 </div><!-- /sec-node -->
 
   <!-- ===================== SQL ===================== -->
@@ -10754,6 +11104,61 @@ model Post {
       <!-- Results -->
       <div class="gh-results" id="ghResults"></div>
 
+    </div>
+
+
+    <div class="block" id="block-git-github-create">
+      <div class="block-title" onclick="scrollToBlock('block-git-github-create')">🆕 Создать новый репозиторий <span class="badge good">практика</span><span class="anchor-icon">🔗</span></div>
+      <div class="tip">Создай репозиторий прямо отсюда — без перехода на GitHub. Используй тот же токен что и для загрузки файлов (нужен scope <code>repo</code>).</div>
+
+      <div style="background:#0d1117;border-radius:12px;padding:20px;margin-top:12px;border:1px solid #30363d;">
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">🔑 Personal Access Token <a href="https://github.com/settings/tokens/new?scopes=repo&description=Roadmap+Uploader" target="_blank" style="color:#58a6ff;text-decoration:none;margin-left:8px;font-weight:400;">→ Создать токен</a></label>
+          <input id="ghc-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" oninput="ghSaveField('ghc-token', this.value)"
+            style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+          <div style="font-size:11px;color:#6e7681;margin-top:4px;">🔒 Тот же токен можно использовать ниже для загрузки файлов</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">📁 Имя репозитория</label>
+            <input id="ghc-name" type="text" placeholder="my-awesome-project" oninput="ghSaveField('ghc-name', this.value)"
+              style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">👁 Видимость</label>
+            <select id="ghc-visibility" oninput="ghSaveField('ghc-visibility', this.value)" style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;cursor:pointer;">
+              <option value="false">🌍 Публичный (Public)</option>
+              <option value="true">🔒 Приватный (Private)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;color:#8b949e;margin-bottom:5px;font-weight:600;">📝 Описание (необязательно)</label>
+          <input id="ghc-desc" type="text" placeholder="Краткое описание проекта" oninput="ghSaveField('ghc-desc', this.value)"
+            style="width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;">
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:#c9d1d9;cursor:pointer;">
+          <input type="checkbox" id="ghc-readme" checked style="width:16px;height:16px;cursor:pointer;accent-color:#238636;">
+          Создать с README.md (рекомендуется)
+        </label>
+
+        <button onclick="githubCreateRepo()"
+          style="width:100%;padding:11px;background:linear-gradient(135deg,#238636,#2ea043);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s;"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          🆕 Создать репозиторий
+        </button>
+
+        <div id="ghc-status" style="margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;"></div>
+      </div>
+
+      <div class="items" style="margin-top:14px;">
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Создал новый репозиторий через API</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" onchange="updateProgress(this)"><span>Понимаю разницу между публичным и приватным репо</span></label>
+      </div>
     </div>
 
     <div class="block" id="block-git-github-upload">
@@ -12197,7 +12602,7 @@ function updateProgress(cb) {
   const done = document.querySelectorAll('.prog-cb:not([disabled]):checked');
   const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
   document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${all.length} тем изучено (${pct}%) · v30`;
+  document.getElementById('prog-label').textContent = `Прогресс: ${done.length} / ${all.length} тем изучено (${pct}%) · v32`;
   updateTabBadges();
   updatePdcBars();
 }
@@ -16863,7 +17268,7 @@ function loadTemplate(name) {
     // Full document — inject <link> into <head> and <script src> before </body>
     indexContent = t.html;
     if (hasCSS) {
-      const linkTag = '';
+      const linkTag = '<link rel="stylesheet" href="style.css">';
       if (/<\/head>/i.test(indexContent)) {
         indexContent = indexContent.replace(/<\/head>/i, '  ' + linkTag + '\n</head>');
       } else if (/<head[^>]*>/i.test(indexContent)) {
@@ -16881,7 +17286,7 @@ function loadTemplate(name) {
   } else {
     // Fragment — wrap in skeleton with link and script tags
     indexContent  = '<!DOCTYPE html>\n<html lang="ru">\n<head>\n  <meta charset="UTF-8">\n  <title>Превью</title>\n';
-    if (hasCSS) indexContent += '  \n';
+    if (hasCSS) indexContent += '  <link rel="stylesheet" href="style.css">\n';
     indexContent += '</head>\n<body>\n' + t.html + '\n';
     if (hasJS)  indexContent += '  <scr' + 'ipt src="script.js"></scr' + 'ipt>\n';
     indexContent += '</body>\n</html>';
@@ -19711,6 +20116,7 @@ async function aiSend() {
     document.getElementById(typingId)?.remove();
     aiHistory.push({ role: 'assistant', content: reply });
     aiAddMsg('bot', reply);
+    setTimeout(aiAddInsertButtons, 50);
 
   } catch (err) {
     document.getElementById(typingId)?.remove();
@@ -19871,7 +20277,7 @@ function aiRestoreConfigUI() {
 
 // ===== GITHUB FIELDS — localStorage persistence =====
 const GH_STORAGE_PREFIX = 'gh_field_';
-const GH_FIELDS = ['gh-username', 'gh-repo', 'gh-token', 'gh-filepath', 'gh-branch'];
+const GH_FIELDS = ['gh-username', 'gh-repo', 'gh-token', 'gh-filepath', 'gh-branch', 'ghc-token', 'ghc-name', 'ghc-visibility', 'ghc-desc'];
 
 function ghSaveField(id, value) {
   try {
@@ -19888,6 +20294,162 @@ function ghRestoreFields() {
       const saved = localStorage.getItem(GH_STORAGE_PREFIX + id);
       if (saved !== null && !el.value) el.value = saved;
     } catch(e) {}
+  });
+}
+
+
+// ===== GITHUB CREATE REPO =====
+async function githubCreateRepo() {
+  const token   = document.getElementById('ghc-token').value.trim();
+  const name    = document.getElementById('ghc-name').value.trim();
+  const isPriv  = document.getElementById('ghc-visibility').value === 'true';
+  const desc    = document.getElementById('ghc-desc').value.trim();
+  const addReadme = document.getElementById('ghc-readme').checked;
+  const statusEl = document.getElementById('ghc-status');
+
+  const show = (msg, ok) => {
+    statusEl.style.display = 'block';
+    statusEl.style.background = ok ? '#0d2d1a' : '#2d0d0d';
+    statusEl.style.border = '1px solid ' + (ok ? '#238636' : '#da3633');
+    statusEl.style.color = ok ? '#3fb950' : '#f85149';
+    statusEl.innerHTML = msg;
+  };
+
+  if (!token) return show('❌ Укажи Personal Access Token', false);
+  if (!name)  return show('❌ Укажи имя репозитория', false);
+  if (!/^[\w.\-]+$/.test(name)) return show('❌ Имя может содержать только буквы, цифры, - _ .', false);
+
+  show('⏳ Создаём репозиторий...', true);
+
+  try {
+    const res = await fetch('https://api.github.com/user/repos', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: JSON.stringify({
+        name,
+        description: desc || undefined,
+        private: isPriv,
+        auto_init: addReadme
+      })
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      const repoUrl = result.html_url;
+      const pagesUrl = `https://${result.owner.login}.github.io/${result.name}/`;
+      show(`✅ Репозиторий создан! <a href="${repoUrl}" target="_blank" style="color:#58a6ff">${result.full_name}</a><br>
+            🌐 После загрузки index.html, GitHub Pages: <a href="${pagesUrl}" target="_blank" style="color:#58a6ff">${pagesUrl}</a>`, true);
+
+      // Автозаполняем поля загрузки файла ниже
+      const ghUsername = document.getElementById('gh-username');
+      const ghRepo = document.getElementById('gh-repo');
+      const ghToken = document.getElementById('gh-token');
+      if (ghUsername) { ghUsername.value = result.owner.login; ghSaveField('gh-username', result.owner.login); }
+      if (ghRepo)     { ghRepo.value = result.name; ghSaveField('gh-repo', result.name); }
+      if (ghToken && !ghToken.value) { ghToken.value = token; ghSaveField('gh-token', token); }
+
+    } else {
+      const msg = result.message || '';
+      if (msg.includes('Bad credentials')) {
+        show('❌ Неверный токен. Нужен scope <b>repo</b>', false);
+      } else if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('name already exists')) {
+        show(`❌ Репозиторий <b>${name}</b> уже существует на твоём аккаунте`, false);
+      } else {
+        show('❌ Ошибка: ' + msg, false);
+      }
+    }
+  } catch(err) {
+    show('❌ Сетевая ошибка: ' + err.message, false);
+  }
+}
+
+
+// ===== AI HELP WITH PLAYGROUND =====
+function aiHelpWithPlayground() {
+  // Сохраняем текущий контент активного файла
+  if (pgActiveFile) {
+    const f = pgFindFile(pgActiveFile);
+    if (f) f.content = document.getElementById('pg-editor').value;
+  }
+
+  const activeFile = pgFindFile(pgActiveFile);
+  if (!activeFile) return;
+
+  const code = activeFile.content || '';
+  const lang = pgFileType(pgActiveFile);
+
+  // Открываем чат
+  if (!aiChatOpen) toggleAiChat();
+
+  // Контекст
+  const ctx = document.getElementById('aiCtx');
+  const ctxTxt = document.getElementById('aiCtxText');
+  ctx.style.display = 'block';
+  const preview = code.length > 300 ? code.slice(0, 300) + '...' : code;
+  ctxTxt.innerHTML = `<b>${activeFile.name}</b><br><code style="font-size:10px;white-space:pre-wrap;">${preview.replace(/</g,'&lt;')}</code>`;
+
+  // Сохраняем код в переменную для возможной вставки обратно
+  aiPgContext = { fileName: activeFile.name, lang, code };
+
+  // Показываем быстрые действия для playground
+  const quickRow = document.getElementById('aiQuickRow');
+  quickRow.style.display = 'flex';
+  quickRow.innerHTML = `
+    <button class="ai-qbtn" onclick="aiPgQuick('Найди и исправь ошибки в этом коде')">🐛 Найди ошибки</button>
+    <button class="ai-qbtn" onclick="aiPgQuick('Улучши и оптимизируй этот код')">✨ Улучшить код</button>
+    <button class="ai-qbtn" onclick="aiPgQuick('Объясни как работает этот код')">💡 Объясни код</button>
+    <button class="ai-qbtn" onclick="aiPgQuick('Добавь комментарии к этому коду')">📝 Добавь комментарии</button>
+  `;
+
+  document.getElementById('aiInp').placeholder = `Спроси про ${activeFile.name}...`;
+  document.getElementById('aiInp').focus();
+}
+
+let aiPgContext = null;
+
+function aiPgQuick(action) {
+  const ctx = aiPgContext;
+  if (!ctx) return;
+  const q = `${action}. Вот код файла ${ctx.fileName} (${ctx.lang}):\n\n\`\`\`${ctx.lang}\n${ctx.code}\n\`\`\`\n\nВ ответе дай исправленный/улучшенный код целиком в одном блоке кода, и кратко объясни что изменил.`;
+  document.getElementById('aiInp').value = q;
+  aiSend();
+}
+
+// Добавляем кнопку "вставить в редактор" к code-блокам в ответах ИИ,
+// если последний запрос был связан с playground
+function aiAddInsertButtons() {
+  if (!aiPgContext) return;
+  const msgs = document.getElementById('aiMsgs');
+  const lastBot = msgs.querySelectorAll('.ai-msg.bot');
+  const last = lastBot[lastBot.length - 1];
+  if (!last) return;
+
+  const pres = last.querySelectorAll('pre code');
+  pres.forEach(codeEl => {
+    if (codeEl.dataset.insertBtnAdded) return;
+    codeEl.dataset.insertBtnAdded = '1';
+
+    const btn = document.createElement('button');
+    btn.textContent = '↩ Вставить в редактор';
+    btn.style.cssText = 'display:block;margin-top:6px;padding:4px 10px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;';
+    btn.onclick = () => {
+      const editor = document.getElementById('pg-editor');
+      if (editor && aiPgContext) {
+        editor.value = codeEl.textContent;
+        const f = pgFindFile(aiPgContext.fileName);
+        if (f) f.content = codeEl.textContent;
+        runPlayground();
+        btn.textContent = '✅ Вставлено!';
+        setTimeout(() => { btn.textContent = '↩ Вставить в редактор'; }, 1500);
+      }
+    };
+    codeEl.parentElement.after(btn);
   });
 }
 
