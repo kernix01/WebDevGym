@@ -13849,6 +13849,7 @@ model Post {
     </div>
     <select class="ai-model-select" id="aiModelSelect" onchange="aiOnModelChange()">
       <option value="default" selected>Llama 3.3 70B ✓</option>
+      <option value="groq-vision">Llama 4 Scout Vision</option>
       <option value="custom">⚙ Своя модель (API ключ)</option>
     </select>
     <button class="ai-chat-clear" onclick="aiClearHistory()" title="Очистить историю чата">🧹</button>
@@ -21599,6 +21600,8 @@ function aiOnModelChange() {
     localStorage.setItem('ai_active_custom_model_id', id);
     const model = aiGetCustomModels().find(m => m.id === id);
     lbl.textContent = model ? '🔧 ' + model.model : '⚠ Модель не найдена';
+  } else if (val === 'groq-vision') {
+    lbl.textContent = 'Llama 4 Scout Vision';
   } else {
     lbl.textContent = 'Llama 3.3 70B';
   }
@@ -22044,15 +22047,19 @@ async function aiSend() {
   if (aiLoading) return;
   const inp = document.getElementById('aiInp');
   const text = inp.value.trim();
-  if (!text) return;
+  if (!text && !aiAttachments.length) return;
+  const sentAttachments = aiAttachments.slice();
+  const visibleText = aiBuildVisibleUserText(text, sentAttachments);
+  const userContent = aiBuildCurrentUserContent(text, sentAttachments);
 
   inp.value = '';
   inp.style.height = 'auto';
   document.getElementById('aiQuickRow').style.display = 'none';
 
-  aiAddMsg('user', text);
-  aiHistory.push({ role: 'user', content: text });
+  aiAddMsg('user', visibleText);
+  aiHistory.push({ role: 'user', content: userContent, display: visibleText });
   aiSaveHistory();
+  aiClearAttachments();
 
   const typingId = 'aiTyping_' + Date.now();
   const typEl = document.createElement('div');
@@ -22096,6 +22103,7 @@ Live Playground:
   const customCfg = modelChoice.startsWith('custom:')
     ? aiGetCustomModels().find(m => m.id === modelChoice.slice(7))
     : null;
+  const canTryVision = Boolean(customCfg && customCfg.apiKey && customCfg.model);
 
   try {
     let reply = '';
@@ -22112,7 +22120,26 @@ Live Playground:
         },
         body: JSON.stringify({
           model: customCfg.model,
-          messages: [{ role: 'system', content: systemPrompt }, ...aiHistory],
+          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, canTryVision),
+          max_tokens: 1024,
+          temperature: 0.7
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+      reply = data.choices?.[0]?.message?.content || 'Нет ответа';
+
+    } else if (modelChoice === 'groq-vision') {
+      // ===== ВСТРОЕННАЯ VISION-МОДЕЛЬ (фото + текст через Groq) =====
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + AI_KEYS.groq
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, true),
           max_tokens: 1024,
           temperature: 0.7
         })
@@ -22131,7 +22158,7 @@ Live Playground:
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'system', content: systemPrompt }, ...aiHistory],
+          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, false),
           max_tokens: 1024,
           temperature: 0.7
         })
@@ -22158,6 +22185,8 @@ Live Playground:
       errMsg += '\n\n🤖 Модель не найдена. Проверь название модели во вкладке «ИИ».';
     } else if (err.message.includes('429') || err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
       errMsg += '\n\n⏱ Превышен лимит запросов. Подожди немного или укажи свой API ключ во вкладке «ИИ».';
+    } else if (err.message.toLowerCase().includes('image') || err.message.toLowerCase().includes('vision') || err.message.toLowerCase().includes('content type') || err.message.toLowerCase().includes('invalid content')) {
+      errMsg += '\n\n🖼 Фото отправилось в API, но выбранная модель, похоже, не умеет анализировать изображения. Выбери vision-модель в своей модели/OpenRouter или отправь текстовое описание картинки.';
     } else if (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network') || err.message.toLowerCase().includes('failed')) {
       errMsg += '\n\n🌐 Проблема с сетью или CORS. Если используешь свой ключ — попробуй модель Groq/OpenRouter.';
     }
@@ -22400,7 +22429,10 @@ function aiRebuildModelSelect() {
   const models = aiGetCustomModels();
   const activeId = localStorage.getItem('ai_active_custom_model_id');
 
-  let html = `<option value="default">Llama 3.3 70B</option>`;
+  let html = `
+    <option value="default">Llama 3.3 70B</option>
+    <option value="groq-vision">Llama 4 Scout Vision</option>
+  `;
   models.forEach(m => {
     html += `<option value="custom:${m.id}">🔧 ${m.model}</option>`;
   });
