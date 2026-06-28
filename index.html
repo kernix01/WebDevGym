@@ -3156,6 +3156,7 @@
   }
   body:not(.dark) .ai-model-select { background: #f1f5f9; border-color: #e2e8f0; color: #6366f1; }
 
+  .ai-chat-clear,
   .ai-chat-close {
     width: 26px; height: 26px;
     background: #1e2536;
@@ -3166,8 +3167,12 @@
     transition: background .15s;
     flex-shrink: 0;
   }
+  .ai-chat-clear { font-size: 13px; }
+  .ai-chat-clear:hover,
   .ai-chat-close:hover { background: #2d3348; color: #fff; }
+  body:not(.dark) .ai-chat-clear,
   body:not(.dark) .ai-chat-close { background: #f1f5f9; color: #94a3b8; }
+  body:not(.dark) .ai-chat-clear:hover,
   body:not(.dark) .ai-chat-close:hover { background: #e2e8f0; }
 
   /* Context pill */
@@ -13766,6 +13771,7 @@ model Post {
       <option value="default" selected>Llama 3.3 70B ✓</option>
       <option value="custom">⚙ Своя модель (API ключ)</option>
     </select>
+    <button class="ai-chat-clear" onclick="aiClearHistory()" title="Очистить историю чата">🧹</button>
     <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
   </div>
 
@@ -13924,7 +13930,11 @@ function getProgressSnapshot() {
     exportedAt: new Date().toISOString(),
     progress,
     quizzes,
-    darkMode: localStorage.getItem('darkMode') || '0'
+    darkMode: localStorage.getItem('darkMode') || '0',
+    aiChatHistory: (() => {
+      try { return JSON.parse(localStorage.getItem('webdevgym_ai_chat_history_v1') || '[]'); }
+      catch (e) { return []; }
+    })()
   };
 }
 
@@ -13964,6 +13974,10 @@ function importProgressJson() {
           if (value === '1') localStorage.setItem('quiz_passed_' + quizId, '1');
         });
         if (data.darkMode === '1' || data.darkMode === '0') localStorage.setItem('darkMode', data.darkMode);
+        if (Array.isArray(data.aiChatHistory)) {
+          localStorage.setItem('webdevgym_ai_chat_history_v1', JSON.stringify(data.aiChatHistory.slice(-40)));
+          if (typeof aiLoadHistory === 'function') aiLoadHistory();
+        }
 
         restoreProgressCheckboxes();
         showToast('Прогресс импортирован');
@@ -21454,6 +21468,8 @@ let aiHistory = [];
 let aiLoading = false;
 let aiSelText  = '';
 let aiChatOpen = false;
+const AI_HISTORY_KEY = 'webdevgym_ai_chat_history_v1';
+const AI_HISTORY_LIMIT = 40;
 
 // ---- FAB toggle ----
 function toggleAiChat() {
@@ -21499,6 +21515,71 @@ function aiOnModelChange() {
   });
 }
 // aiOnModelChange called on first open
+
+function aiNormalizeHistory(history) {
+  if (!Array.isArray(history)) return [];
+  return history
+    .filter(msg => msg && (msg.role === 'user' || msg.role === 'assistant') && typeof msg.content === 'string')
+    .map(msg => ({ role: msg.role, content: msg.content.slice(0, 8000) }))
+    .slice(-AI_HISTORY_LIMIT);
+}
+
+function aiSaveHistory() {
+  try {
+    aiHistory = aiNormalizeHistory(aiHistory);
+    localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(aiHistory));
+  } catch (e) {}
+}
+
+function aiLoadHistory() {
+  try {
+    aiHistory = aiNormalizeHistory(JSON.parse(localStorage.getItem(AI_HISTORY_KEY) || '[]'));
+  } catch (e) {
+    aiHistory = [];
+  }
+  aiRenderHistory();
+}
+
+function aiRenderWelcome() {
+  const container = document.getElementById('aiMsgs');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="ai-msg bot">
+      <div class="ai-msg-av">✨</div>
+      <div class="ai-msg-bbl">
+        Привет! Я ИИ-помощник по веб-разработке 👋<br><br>
+        Выдели любой текст на странице и нажми <b>«Спросить ИИ»</b> — я объясню именно эту тему.<br><br>
+        Или просто напиши свой вопрос ниже.
+      </div>
+    </div>
+  `;
+}
+
+function aiRenderHistory() {
+  const container = document.getElementById('aiMsgs');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!aiHistory.length) {
+    aiRenderWelcome();
+    const quick = document.getElementById('aiQuickRow');
+    if (quick) quick.style.display = 'flex';
+    return;
+  }
+  aiHistory.forEach(msg => aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.content));
+  const quick = document.getElementById('aiQuickRow');
+  if (quick) quick.style.display = 'none';
+  aiScrollBottom();
+}
+
+function aiClearHistory() {
+  if (!confirm('Очистить историю ИИ-чата?')) return;
+  aiHistory = [];
+  try { localStorage.removeItem(AI_HISTORY_KEY); } catch (e) {}
+  const ctx = document.getElementById('aiCtx');
+  if (ctx) ctx.style.display = 'none';
+  aiRenderHistory();
+  if (typeof showToast === 'function') showToast('История ИИ-чата очищена');
+}
 
 // ---- Text selection popup ----
 document.addEventListener('mouseup', (e) => {
@@ -21693,6 +21774,7 @@ async function aiSend() {
 
   aiAddMsg('user', text);
   aiHistory.push({ role: 'user', content: text });
+  aiSaveHistory();
 
   const typingId = 'aiTyping_' + Date.now();
   const typEl = document.createElement('div');
@@ -21785,6 +21867,7 @@ Live Playground:
     const toolReply = aiHandlePlaygroundToolCall(reply);
     if (toolReply) reply = toolReply;
     aiHistory.push({ role: 'assistant', content: reply });
+    aiSaveHistory();
     aiAddMsg('bot', reply);
     if (!toolReply) setTimeout(aiAddInsertButtons, 50);
 
@@ -21808,15 +21891,25 @@ Live Playground:
   document.getElementById('aiInp').focus();
 }
 
+function aiEscapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function aiAddMsg(role, text) {
   const container = document.getElementById('aiMsgs');
   const el = document.createElement('div');
   el.className = `ai-msg ${role}`;
 
   // Форматирование: код, жирный, переносы
-  const fmt = text
+  const safeText = aiEscapeHtml(text);
+  const fmt = safeText
     .replace(/```([\w]*)?\n?([\s\S]*?)```/g, (_, lang, code) =>
-      `<pre><code>${code.replace(/</g,'&lt;').replace(/>/g,'&gt;').trim()}</code></pre>`)
+      `<pre><code>${code.trim()}</code></pre>`)
     .replace(/`([^`\n]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>');
@@ -21833,6 +21926,8 @@ function aiScrollBottom() {
   const c = document.getElementById('aiMsgs');
   if (c) c.scrollTop = c.scrollHeight;
 }
+
+aiLoadHistory();
 
 // Закрытие по Escape
 document.addEventListener('keydown', e => {
