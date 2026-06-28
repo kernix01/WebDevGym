@@ -3281,6 +3281,71 @@
   .ai-qbtn:hover { background: #6366f1; border-color: #6366f1; color: #fff; }
   body:not(.dark) .ai-qbtn { background: #f1f5f9; border-color: #e2e8f0; color: #64748b; }
 
+  .ai-attach-list {
+    display: none;
+    gap: 7px;
+    padding: 7px 12px 0;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    max-height: 112px;
+    overflow-y: auto;
+  }
+  .ai-attach-list.has-files { display: flex; }
+  .ai-attach-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: #1a1f2e;
+    border: 1px solid #2d3348;
+    color: #cbd5e1;
+    font-size: 11px;
+  }
+  body:not(.dark) .ai-attach-chip { background: #f8fafc; border-color: #e2e8f0; color: #334155; }
+  .ai-attach-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    object-fit: cover;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,.12);
+    flex-shrink: 0;
+  }
+  .ai-attach-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99,102,241,.18);
+    color: #a5b4fc;
+    flex-shrink: 0;
+  }
+  .ai-attach-meta { min-width: 0; }
+  .ai-attach-name {
+    display: block;
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  .ai-attach-size { display: block; color: #94a3b8; margin-top: 1px; }
+  .ai-attach-remove {
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 6px;
+    background: rgba(148,163,184,.14);
+    color: #94a3b8;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .ai-attach-remove:hover { background: rgba(239,68,68,.18); color: #fca5a5; }
+
   /* Input row */
   .ai-inp-row {
     display: flex; gap: 7px; padding: 10px 12px 12px;
@@ -3315,6 +3380,21 @@
   }
   .ai-send:hover { opacity: .85; }
   .ai-send:disabled { opacity: .35; cursor: not-allowed; }
+  .ai-attach-btn {
+    width: 36px; height: 36px;
+    background: #1a1f2e;
+    border: 1.5px solid #2d3348;
+    border-radius: 10px;
+    color: #a5b4fc;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+  .ai-attach-btn:hover { border-color: #6366f1; color: #fff; }
+  body:not(.dark) .ai-attach-btn { background: #f8fafc; border-color: #e2e8f0; color: #6366f1; }
 
   /* Selection popup */
   .ai-sel-popup { position: fixed; z-index: 9999; display: none; }
@@ -13798,7 +13878,11 @@ model Post {
     <button class="ai-qbtn" onclick="aiQuick('Как работает flexbox?')">Flexbox</button>
   </div>
 
+  <div class="ai-attach-list" id="aiAttachList"></div>
+
   <div class="ai-inp-row">
+    <input type="file" id="aiFileInput" multiple hidden onchange="aiHandleFiles(this.files); this.value=''">
+    <button class="ai-attach-btn" onclick="document.getElementById('aiFileInput').click()" title="Прикрепить фото или файл">📎</button>
     <textarea class="ai-inp" id="aiInp" placeholder="Задай вопрос..." rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
@@ -21470,6 +21554,17 @@ let aiSelText  = '';
 let aiChatOpen = false;
 const AI_HISTORY_KEY = 'webdevgym_ai_chat_history_v1';
 const AI_HISTORY_LIMIT = 40;
+const AI_ATTACH_TEXT_LIMIT = 12000;
+const AI_ATTACH_TOTAL_TEXT_LIMIT = 30000;
+const AI_ATTACH_VISION_MAX_BYTES = 4 * 1024 * 1024;
+const AI_ATTACH_MAX_FILES = 8;
+let aiAttachments = [];
+
+const AI_TEXT_EXTENSIONS = new Set([
+  'txt','md','markdown','html','htm','css','scss','sass','less','js','jsx','ts','tsx','json','jsonl','xml','svg',
+  'csv','tsv','yml','yaml','toml','ini','env','gitignore','sql','php','py','java','c','cpp','cs','go','rs','rb',
+  'vue','svelte','astro','log','config','lock'
+]);
 
 // ---- FAB toggle ----
 function toggleAiChat() {
@@ -21520,7 +21615,11 @@ function aiNormalizeHistory(history) {
   if (!Array.isArray(history)) return [];
   return history
     .filter(msg => msg && (msg.role === 'user' || msg.role === 'assistant') && typeof msg.content === 'string')
-    .map(msg => ({ role: msg.role, content: msg.content.slice(0, 8000) }))
+    .map(msg => ({
+      role: msg.role,
+      content: msg.content.slice(0, 8000),
+      display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined
+    }))
     .slice(-AI_HISTORY_LIMIT);
 }
 
@@ -21565,7 +21664,7 @@ function aiRenderHistory() {
     if (quick) quick.style.display = 'flex';
     return;
   }
-  aiHistory.forEach(msg => aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.content));
+  aiHistory.forEach(msg => aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.display || msg.content));
   const quick = document.getElementById('aiQuickRow');
   if (quick) quick.style.display = 'none';
   aiScrollBottom();
@@ -21579,6 +21678,185 @@ function aiClearHistory() {
   if (ctx) ctx.style.display = 'none';
   aiRenderHistory();
   if (typeof showToast === 'function') showToast('История ИИ-чата очищена');
+}
+
+function aiFormatBytes(bytes) {
+  const size = Number(bytes) || 0;
+  if (size < 1024) return size + ' Б';
+  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' КБ';
+  return (size / (1024 * 1024)).toFixed(1) + ' МБ';
+}
+
+function aiFileExt(name) {
+  const clean = String(name || '').toLowerCase();
+  const idx = clean.lastIndexOf('.');
+  return idx === -1 ? '' : clean.slice(idx + 1);
+}
+
+function aiCanReadAsText(file) {
+  const type = String(file.type || '').toLowerCase();
+  const ext = aiFileExt(file.name);
+  return type.startsWith('text/') || AI_TEXT_EXTENSIONS.has(ext);
+}
+
+function aiReadAsText(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    const limit = Math.min(file.size, AI_ATTACH_TEXT_LIMIT);
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => resolve('');
+    reader.readAsText(file.slice(0, limit));
+  });
+}
+
+function aiReadAsDataUrl(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+async function aiHandleFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
+
+  const slots = Math.max(0, AI_ATTACH_MAX_FILES - aiAttachments.length);
+  const selected = files.slice(0, slots);
+  if (files.length > selected.length && typeof showToast === 'function') {
+    showToast('Можно прикрепить до ' + AI_ATTACH_MAX_FILES + ' файлов за раз');
+  }
+
+  for (const file of selected) {
+    const isImage = String(file.type || '').startsWith('image/');
+    const att = {
+      id: 'att_' + Date.now() + '_' + Math.random().toString(36).slice(2),
+      name: file.name || 'file',
+      type: file.type || 'unknown',
+      size: file.size || 0,
+      ext: aiFileExt(file.name),
+      isImage,
+      previewUrl: isImage ? URL.createObjectURL(file) : '',
+      dataUrl: '',
+      text: '',
+      textTruncated: false
+    };
+
+    if (isImage && file.size <= AI_ATTACH_VISION_MAX_BYTES) {
+      att.dataUrl = await aiReadAsDataUrl(file);
+    }
+
+    if (aiCanReadAsText(file)) {
+      att.text = await aiReadAsText(file);
+      att.textTruncated = file.size > AI_ATTACH_TEXT_LIMIT;
+    }
+
+    aiAttachments.push(att);
+  }
+
+  aiRenderAttachments();
+}
+
+function aiRenderAttachments() {
+  const wrap = document.getElementById('aiAttachList');
+  if (!wrap) return;
+  wrap.classList.toggle('has-files', aiAttachments.length > 0);
+  wrap.innerHTML = aiAttachments.map(att => {
+    const visual = att.isImage
+      ? `<img class="ai-attach-thumb" src="${att.previewUrl}" alt="">`
+      : `<span class="ai-attach-icon">📄</span>`;
+    const typeLabel = att.isImage ? 'фото' : (att.ext ? att.ext.toUpperCase() : 'файл');
+    return `
+      <div class="ai-attach-chip">
+        ${visual}
+        <span class="ai-attach-meta">
+          <span class="ai-attach-name">${aiEscapeHtml(att.name)}</span>
+          <span class="ai-attach-size">${typeLabel} • ${aiFormatBytes(att.size)}</span>
+        </span>
+        <button class="ai-attach-remove" onclick="aiRemoveAttachment('${att.id}')" title="Убрать файл">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function aiRemoveAttachment(id) {
+  const att = aiAttachments.find(item => item.id === id);
+  if (att && att.previewUrl) URL.revokeObjectURL(att.previewUrl);
+  aiAttachments = aiAttachments.filter(item => item.id !== id);
+  aiRenderAttachments();
+}
+
+function aiClearAttachments() {
+  aiAttachments.forEach(att => {
+    if (att.previewUrl) URL.revokeObjectURL(att.previewUrl);
+  });
+  aiAttachments = [];
+  aiRenderAttachments();
+}
+
+function aiBuildAttachmentContext(attachments) {
+  if (!attachments.length) return '';
+  let used = 0;
+  const lines = ['\n\n[Прикреплённые файлы]'];
+
+  attachments.forEach((att, index) => {
+    lines.push(`${index + 1}. ${att.name} (${att.type || 'unknown'}, ${aiFormatBytes(att.size)})`);
+
+    if (att.text) {
+      const left = Math.max(0, AI_ATTACH_TOTAL_TEXT_LIMIT - used);
+      const part = att.text.slice(0, left);
+      used += part.length;
+      lines.push('Содержимое файла:');
+      lines.push('```' + (att.ext || 'txt'));
+      lines.push(part);
+      lines.push('```');
+      if (att.textTruncated || part.length < att.text.length) {
+        lines.push('[Файл обрезан, потому что он слишком большой для одного сообщения]');
+      }
+    } else if (att.isImage) {
+      lines.push(att.dataUrl
+        ? '[Изображение прикреплено. Если выбранная модель поддерживает vision, проанализируй картинку. Если не поддерживает, попроси пользователя кратко описать её.]'
+        : '[Изображение слишком большое для vision-отправки, доступно только имя/тип/размер.]');
+    } else {
+      lines.push('[Бинарный или неподдерживаемый для чтения файл: содержимое не прочитано, доступно только имя/тип/размер.]');
+    }
+  });
+
+  return lines.join('\n');
+}
+
+function aiBuildVisibleUserText(text, attachments) {
+  if (!attachments.length) return text;
+  const names = attachments.map(att => att.name).join(', ');
+  const base = text || 'Проанализируй прикреплённые файлы.';
+  return base + '\n\n📎 Прикреплено: ' + names;
+}
+
+function aiBuildCurrentUserContent(text, attachments) {
+  const base = text || 'Проанализируй прикреплённые файлы.';
+  return base + aiBuildAttachmentContext(attachments);
+}
+
+function aiBuildUserApiContent(textContent, attachments, allowVision) {
+  const imageParts = allowVision
+    ? attachments
+        .filter(att => att.isImage && att.dataUrl)
+        .map(att => ({ type: 'image_url', image_url: { url: att.dataUrl } }))
+    : [];
+  if (!imageParts.length) return textContent;
+  return [{ type: 'text', text: textContent }, ...imageParts];
+}
+
+function aiBuildMessagesForApi(systemPrompt, currentContent, currentAttachments, allowVision) {
+  const previous = aiHistory
+    .slice(0, -1)
+    .map(msg => ({ role: msg.role, content: msg.content }));
+  return [
+    { role: 'system', content: systemPrompt },
+    ...previous,
+    { role: 'user', content: aiBuildUserApiContent(currentContent, currentAttachments, allowVision) }
+  ];
 }
 
 // ---- Text selection popup ----
