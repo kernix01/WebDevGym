@@ -3562,6 +3562,218 @@
   .typing-target { font-family:'Consolas',monospace; font-size:18px; font-weight:800; color:var(--accent); margin-bottom:8px; }
   .typing-stats { font-size:12px; color:#6b7280; margin-top:8px; }
   @media (max-width: 640px) { .eventloop-board { grid-template-columns:1fr; } }
+
+  /* ===== WEBDEVGYM CALENDAR ===== */
+  #sec-calendar .block { border-left: 3px solid #14b8a6; }
+  #sec-calendar .block-title { color: #0f766e; }
+  body.dark #sec-calendar .block { border-left-color: #2dd4bf; background: #1a1f2e; }
+  body.dark #sec-calendar .block-title { color: #5eead4; }
+  #sec-calendar .block:hover { box-shadow: 0 2px 14px rgba(20,184,166,.12), -1px 0 0 #14b8a6; }
+  .calendar-tab.active {
+    background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+    border-color: #14b8a6 !important;
+    box-shadow: 0 2px 14px rgba(20,184,166,.35) !important;
+  }
+  .wdg-cal-hero {
+    display: grid;
+    grid-template-columns: minmax(0,1.25fr) minmax(260px,.75fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .wdg-cal-card {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    padding: 16px;
+  }
+  body.dark .wdg-cal-card { background:#101625; border-color:#2d3348; }
+  .wdg-cal-kicker {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #0f766e;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  body.dark .wdg-cal-kicker { color:#5eead4; }
+  .wdg-cal-title {
+    margin: 0 0 8px;
+    color: #111827;
+    font-size: clamp(24px,4vw,44px);
+    line-height: 1.05;
+    font-weight: 900;
+  }
+  body.dark .wdg-cal-title { color:#f8fafc; }
+  .wdg-cal-desc { margin: 0; color:#64748b; line-height:1.6; font-size:14px; }
+  body.dark .wdg-cal-desc { color:#cbd5e1; }
+  .wdg-cal-stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .wdg-cal-stat {
+    padding: 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+  }
+  body.dark .wdg-cal-stat { background:#0f1117; border-color:#2d3348; }
+  .wdg-cal-stat strong { display:block; font-size:24px; color:#0f766e; line-height:1; }
+  body.dark .wdg-cal-stat strong { color:#5eead4; }
+  .wdg-cal-stat span { display:block; margin-top:5px; color:#64748b; font-size:11px; font-weight:800; }
+  body.dark .wdg-cal-stat span { color:#94a3b8; }
+  .wdg-cal-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0 0 14px;
+  }
+  .wdg-cal-btn {
+    min-height: 34px;
+    padding: 7px 11px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, transform .15s, border-color .15s;
+  }
+  .wdg-cal-btn:hover { transform: translateY(-1px); border-color:#14b8a6; background:#f0fdfa; }
+  .wdg-cal-btn.primary { border-color:#14b8a6; background:#14b8a6; color:#fff; }
+  .wdg-cal-btn.danger { border-color:#fecaca; background:#fff1f2; color:#dc2626; }
+  body.dark .wdg-cal-btn { background:#1a1f2e; border-color:#2d3348; color:#cbd5e1; }
+  body.dark .wdg-cal-btn:hover { background:#0f2f2d; border-color:#14b8a6; color:#fff; }
+  body.dark .wdg-cal-btn.primary { background:#0f766e; border-color:#14b8a6; color:#fff; }
+  body.dark .wdg-cal-btn.danger { background:#2b1116; border-color:#7f1d1d; color:#fecaca; }
+  .wdg-cal-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(300px,.75fr);
+    gap: 16px;
+  }
+  .wdg-cal-month-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .wdg-cal-month-head h3 { margin:0; font-size:18px; color:#111827; }
+  body.dark .wdg-cal-month-head h3 { color:#f8fafc; }
+  .wdg-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7,minmax(0,1fr));
+    gap: 7px;
+  }
+  .wdg-cal-weekday {
+    color:#94a3b8;
+    font-size: 11px;
+    font-weight: 900;
+    text-align: center;
+    padding: 0 0 4px;
+  }
+  .wdg-cal-day {
+    min-height: 86px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    color:#111827;
+    font-family: inherit;
+  }
+  .wdg-cal-day:hover { border-color:#14b8a6; box-shadow:0 3px 12px rgba(20,184,166,.12); }
+  .wdg-cal-day.empty { visibility:hidden; pointer-events:none; }
+  .wdg-cal-day.today { border-color:#f59e0b; box-shadow:0 0 0 2px rgba(245,158,11,.16); }
+  .wdg-cal-day.selected { border-color:#14b8a6; background:#f0fdfa; }
+  .wdg-cal-day.done { background:#f0fdf4; }
+  body.dark .wdg-cal-day { background:#0f1117; border-color:#2d3348; color:#e2e8f0; }
+  body.dark .wdg-cal-day.selected { background:#0f2f2d; }
+  body.dark .wdg-cal-day.done { background:#10251b; }
+  .wdg-cal-day-num { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:900; margin-bottom:6px; }
+  .wdg-cal-day-label { display:block; color:#64748b; font-size:11px; line-height:1.35; }
+  body.dark .wdg-cal-day-label { color:#94a3b8; }
+  .wdg-cal-pill {
+    display:inline-flex;
+    align-items:center;
+    max-width:100%;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background:#eef2ff;
+    color:#4338ca;
+    font-size: 10px;
+    font-weight: 900;
+  }
+  .wdg-cal-pill.practice { background:#fef3c7; color:#a16207; }
+  .wdg-cal-pill.project { background:#dcfce7; color:#15803d; }
+  .wdg-cal-pill.repeat { background:#fce7f3; color:#be185d; }
+  .wdg-cal-pill.rest { background:#e2e8f0; color:#475569; }
+  body.dark .wdg-cal-pill { background:#1e1b4b; color:#c4b5fd; }
+  body.dark .wdg-cal-pill.practice { background:#3a2a0a; color:#fde68a; }
+  body.dark .wdg-cal-pill.project { background:#10351f; color:#86efac; }
+  body.dark .wdg-cal-pill.repeat { background:#3b1028; color:#f9a8d4; }
+  body.dark .wdg-cal-pill.rest { background:#243047; color:#cbd5e1; }
+  .wdg-cal-task-list { display:grid; gap:10px; }
+  .wdg-cal-task {
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    gap:10px;
+    align-items:start;
+    padding:12px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    background:#f8fafc;
+  }
+  body.dark .wdg-cal-task { background:#0f1117; border-color:#2d3348; }
+  .wdg-cal-task input[type="checkbox"] { width:20px; height:20px; accent-color:#14b8a6; margin-top:2px; }
+  .wdg-cal-task.done { opacity:.62; }
+  .wdg-cal-task.done .wdg-cal-task-title { text-decoration:line-through; }
+  .wdg-cal-task-title { margin:0 0 5px; font-weight:900; color:#111827; }
+  body.dark .wdg-cal-task-title { color:#f8fafc; }
+  .wdg-cal-task-desc { margin:0 0 8px; color:#64748b; font-size:13px; line-height:1.45; }
+  body.dark .wdg-cal-task-desc { color:#cbd5e1; }
+  .wdg-cal-route { display:grid; gap:8px; max-height:520px; overflow:auto; padding-right:3px; }
+  .wdg-cal-route-item {
+    display:grid;
+    grid-template-columns:78px minmax(0,1fr);
+    gap:10px;
+    padding:10px;
+    border-radius:10px;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+  }
+  body.dark .wdg-cal-route-item { background:#0f1117; border-color:#2d3348; }
+  .wdg-cal-date { color:#0f766e; font-size:12px; font-weight:900; }
+  body.dark .wdg-cal-date { color:#5eead4; }
+  .wdg-cal-note {
+    width:100%;
+    min-height:86px;
+    resize:vertical;
+    padding:10px 12px;
+    border:1.5px solid #e5e7eb;
+    border-radius:10px;
+    background:#fff;
+    color:#111827;
+    outline:3px solid transparent;
+    font-family:inherit;
+  }
+  .wdg-cal-note:focus { border-color:#14b8a6; box-shadow:0 0 0 3px rgba(20,184,166,.14); }
+  body.dark .wdg-cal-note { background:#0f1117; border-color:#2d3348; color:#e2e8f0; }
+  @media (max-width: 900px) {
+    .wdg-cal-hero, .wdg-cal-layout { grid-template-columns:1fr; }
+    .wdg-cal-stats { grid-template-columns:1fr; }
+  }
+  @media (max-width: 640px) {
+    .wdg-cal-grid { gap:4px; }
+    .wdg-cal-day { min-height:74px; padding:6px; }
+    .wdg-cal-task { grid-template-columns:auto minmax(0,1fr); }
+    .wdg-cal-task .wdg-cal-btn { grid-column:2; width:max-content; }
+  }
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
@@ -3719,6 +3931,7 @@
       <button class="tab" onclick="switchTab('mistakes', this)">Ошибки</button>
       <button class="tab" onclick="switchTab('resources', this)">Ресурсы</button>
       <button class="tab" onclick="switchTab('roadmap', this)">Путь развития</button>
+      <button class="tab calendar-tab" onclick="switchTab('calendar', this)" data-sec="calendar">📅 Календарь</button>
       <button class="tab figma-tab" onclick="switchTab('figma', this)"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" style="width:13px;height:13px;object-fit:contain;flex-shrink:0"> Figma</button>
     </div>
     <div class="tabs-row">
@@ -3737,6 +3950,90 @@
       <button class="tab" onclick="switchTab('fonts', this)">🔤 Шрифты</button>
     </div>
 
+  </div>
+
+  <!-- ===================== CALENDAR ===================== -->
+  <div class="section" id="sec-calendar">
+    <div class="lang-section-hero" style="border-left-color:#14b8a6;">
+      <div class="lang-section-hero-icon" style="background:linear-gradient(135deg,#0f766e,#14b8a6);">📅</div>
+      <div>
+        <div class="lang-section-hero-title">Календарь развития до 31 декабря</div>
+        <div class="lang-section-hero-sub">Режим: 1 час учебы, потом 3 дня отдыха. План можно менять, отмечать, экспортировать и импортировать вместе с прогрессом WebDevGym.</div>
+        <div class="lang-section-hero-badges">
+          <span class="lang-section-hero-badge">1 час</span>
+          <span class="lang-section-hero-badge">3 дня отдыха</span>
+          <span class="lang-section-hero-badge">localStorage</span>
+          <span class="lang-section-hero-badge">JSON</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-calendar-main">
+      <div class="block-title" onclick="scrollToBlock('block-calendar-main')">План обучения <span class="badge good">до 31.12.2026</span><span class="anchor-icon">🔗</span></div>
+
+      <div class="wdg-cal-toolbar">
+        <button class="wdg-cal-btn" onclick="wdgCalMoveDay(-1)">← День</button>
+        <button class="wdg-cal-btn primary" onclick="wdgCalGoToday()">Сегодня</button>
+        <button class="wdg-cal-btn" onclick="wdgCalMoveDay(1)">День →</button>
+        <button class="wdg-cal-btn" onclick="wdgCalAddTask()">Добавить</button>
+        <button class="wdg-cal-btn" onclick="wdgCalExport()">Экспорт календаря</button>
+        <button class="wdg-cal-btn" onclick="wdgCalImport()">Импорт календаря</button>
+        <button class="wdg-cal-btn danger" onclick="wdgCalResetPlan()">Сбросить календарь</button>
+      </div>
+
+      <div class="wdg-cal-hero">
+        <div class="wdg-cal-card">
+          <p class="wdg-cal-kicker" id="wdgCalDateLabel">Сегодня</p>
+          <h2 class="wdg-cal-title" id="wdgCalTodayTitle">Загрузка...</h2>
+          <p class="wdg-cal-desc" id="wdgCalTodayDesc">Календарь готовит следующий шаг.</p>
+          <div class="wdg-cal-stats">
+            <div class="wdg-cal-stat"><strong id="wdgCalDoneLessons">0</strong><span>учебных дней закрыто</span></div>
+            <div class="wdg-cal-stat"><strong id="wdgCalDaysLeft">0</strong><span>дней до 31 декабря</span></div>
+            <div class="wdg-cal-stat"><strong id="wdgCalNextLessons">0</strong><span>тем впереди</span></div>
+          </div>
+        </div>
+        <div class="wdg-cal-card">
+          <p class="wdg-cal-kicker">Заметка</p>
+          <textarea class="wdg-cal-note" id="wdgCalNote" placeholder="Что важно помнить по учебе, Kwork или проектам?"></textarea>
+        </div>
+      </div>
+
+      <div class="wdg-cal-layout">
+        <div class="wdg-cal-card">
+          <div class="wdg-cal-month-head">
+            <button class="wdg-cal-btn" onclick="wdgCalMoveMonth(-1)">←</button>
+            <h3 id="wdgCalMonthTitle">Месяц</h3>
+            <button class="wdg-cal-btn" onclick="wdgCalMoveMonth(1)">→</button>
+          </div>
+          <div class="wdg-cal-grid" style="margin-bottom:7px;">
+            <div class="wdg-cal-weekday">Пн</div>
+            <div class="wdg-cal-weekday">Вт</div>
+            <div class="wdg-cal-weekday">Ср</div>
+            <div class="wdg-cal-weekday">Чт</div>
+            <div class="wdg-cal-weekday">Пт</div>
+            <div class="wdg-cal-weekday">Сб</div>
+            <div class="wdg-cal-weekday">Вс</div>
+          </div>
+          <div class="wdg-cal-grid" id="wdgCalGrid"></div>
+        </div>
+
+        <div class="wdg-cal-card">
+          <div class="wdg-cal-month-head">
+            <h3>Задачи дня</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+              <span class="wdg-cal-pill" id="wdgCalDayType">План</span>
+              <button class="wdg-cal-btn primary" id="wdgCalCompleteDayBtn" onclick="wdgCalToggleSelectedDay()">Засчитать день</button>
+            </div>
+          </div>
+          <div class="wdg-cal-task-list" id="wdgCalTaskList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="block-calendar-route">
+      <div class="block-title" onclick="scrollToBlock('block-calendar-route')">Ближайший маршрут <span class="badge good">следующие шаги</span><span class="anchor-icon">🔗</span></div>
+      <div class="wdg-cal-route" id="wdgCalRoute"></div>
+    </div>
   </div>
 
   <!-- ===================== HTML ===================== -->
@@ -14016,6 +14313,7 @@ function getProgressSnapshot() {
     progress,
     quizzes,
     darkMode: localStorage.getItem('darkMode') || '0',
+    calendar: (typeof wdgCalGetSnapshot === 'function') ? wdgCalGetSnapshot() : null,
     aiChatHistory: (() => {
       try { return JSON.parse(localStorage.getItem('webdevgym_ai_chat_history_v1') || '[]'); }
       catch (e) { return []; }
@@ -14059,6 +14357,9 @@ function importProgressJson() {
           if (value === '1') localStorage.setItem('quiz_passed_' + quizId, '1');
         });
         if (data.darkMode === '1' || data.darkMode === '0') localStorage.setItem('darkMode', data.darkMode);
+        if (data.calendar && typeof wdgCalApplySnapshot === 'function') {
+          wdgCalApplySnapshot(data.calendar);
+        }
         if (Array.isArray(data.aiChatHistory)) {
           localStorage.setItem('webdevgym_ai_chat_history_v1', JSON.stringify(data.aiChatHistory.slice(-40)));
           if (typeof aiLoadHistory === 'function') aiLoadHistory();
@@ -14074,6 +14375,473 @@ function importProgressJson() {
   };
   input.click();
 }
+
+// ===== WEBDEVGYM CALENDAR =====
+const WDG_CAL_STORAGE = 'webdevgym_calendar_v2';
+const WDG_CAL_NOTE_STORAGE = 'webdevgym_calendar_note_v2';
+const WDG_CAL_START = '2026-07-01';
+const WDG_CAL_END = '2026-12-31';
+
+const WDG_CAL_TYPES = {
+  theory: 'Теория',
+  practice: 'Практика',
+  project: 'Мини-проект',
+  repeat: 'Повторение',
+  kwork: 'Kwork',
+  rest: 'Отдых'
+};
+
+let wdgCalState = { tasks: [] };
+let wdgCalSelectedDate = wdgCalClampDate(wdgCalTodayISO());
+let wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
+
+function wdgCalTopics() {
+  return [
+    ['DOM: повтор счетчика', 'practice', 'За 1 час заново собрать счетчик без копирования. Цель: state, render, click.'],
+    ['DOM: темная тема', 'practice', 'Одна кнопка, classList.toggle на body, смена иконки, сохранение в localStorage.'],
+    ['События: click, input, submit', 'practice', 'Форма заметки: ввод, счетчик символов, submit добавляет карточку.'],
+    ['Массивы + DOM', 'project', 'Вывести карточки из массива и удалить одну карточку по кнопке.'],
+    ['Условия в интерфейсе', 'practice', 'Проверка формы: пусто, мало символов, нормально. Разные сообщения пользователю.'],
+    ['Функции в DOM-коде', 'repeat', 'Разнести код на updateUI, validateForm, resetState.'],
+    ['CSS: position и z-index', 'theory', 'Разобрать relative, absolute, fixed, sticky и сделать плавающую кнопку.'],
+    ['Мини-проект: FAQ', 'project', 'Клик открывает ответ. Усложнение: открытым остается только один вопрос.'],
+    ['localStorage', 'practice', 'Сохранить тему, заметки или список карточек после перезагрузки.'],
+    ['Мини-проект: вкладки', 'project', 'Tabs через data-id: активная кнопка, активный контент, аккуратный CSS.'],
+    ['Формы HTML/CSS/JS', 'practice', 'Сделать форму заявки с базовой проверкой имени, телефона и сообщения.'],
+    ['Мини-проект: бургер-меню', 'project', 'Открытие, закрытие, закрытие по ссылке и по Escape.'],
+    ['CSS: адаптивность', 'practice', 'Один блок привести в порядок на телефоне: media query, flex/grid, отступы.'],
+    ['Мини-проект: фильтр карточек', 'project', 'Категории фильтруют карточки из массива.'],
+    ['Fetch: первые запросы', 'theory', 'Получить данные из тестового API и вывести 5 элементов.'],
+    ['Async/await и try/catch', 'practice', 'Добавить loading, обработку ошибки и пустое состояние.'],
+    ['Объекты', 'practice', 'Объект пользователя и функция renderProfile(user).'],
+    ['Повтор JS базы', 'repeat', 'Переписать переменные, if/else, цикл, массив, функцию без подсказок.'],
+    ['Мини-проект: калькулятор', 'project', 'Калькулятор стоимости услуги или заказа с несколькими полями.'],
+    ['Git: базовый цикл', 'theory', 'init, add, commit, status, log. Сделать README для мини-проекта.'],
+    ['Kwork: демо для портфолио', 'kwork', 'Собрать один красивый демо-блок: форма, табы, калькулятор или FAQ.'],
+    ['TypeScript: зачем нужен', 'theory', 'Понять string, number, boolean, array, object. Без глубокого погружения.'],
+    ['TypeScript: функции и типы', 'practice', 'Типизировать параметры и результат простых функций.'],
+    ['React: компоненты и JSX', 'theory', 'Понять компонент как функцию, props как входные данные.'],
+    ['React: useState', 'practice', 'Повторить счетчик как React-компонент.'],
+    ['React: списки через map', 'practice', 'Вывести карточки из массива, не забыть key.'],
+    ['React: controlled input', 'practice', 'value + onChange + state. Мини-форма заметки.'],
+    ['React: useEffect', 'theory', 'Понять эффект после рендера и зависимости.'],
+    ['React: мини Todo', 'project', 'Добавление, удаление, done, фильтр и сохранение в localStorage.'],
+    ['React Router', 'practice', '2-3 страницы: главная, проекты, контакты. Навигация без перезагрузки.'],
+    ['Vite: проект с нуля', 'theory', 'Создать Vite-проект, понять src, main, package.json.'],
+    ['CSS архитектура', 'practice', 'Разложить стили по блокам, убрать хаос и повторения.'],
+    ['Рефакторинг старого проекта', 'repeat', 'Взять старый мини-проект и сделать код чище.'],
+    ['Портфолио: карточка проекта', 'kwork', 'Описать задачу, стек, результат и сделать скрин.'],
+    ['API + UI проект', 'project', 'Поиск/список через API: loading, error, карточки.'],
+    ['Валидация формы глубже', 'practice', 'Проверка email/phone, сообщения ошибок, disabled submit.'],
+    ['Компонентный подход без React', 'practice', 'Функции createCard, createButton, renderList в чистом JS.'],
+    ['Паттерн render()', 'repeat', 'Все изменения идут через state, потом render обновляет экран.'],
+    ['Мини-проект: календарь/планер', 'project', 'Свой маленький планер с localStorage и редактированием.'],
+    ['Тестирование руками', 'theory', 'Чек-лист: desktop, mobile, пустые поля, ошибки, перезагрузка.'],
+    ['Подготовка к заказам', 'kwork', 'Составить шаблон ответа клиенту и список уточняющих вопросов.'],
+    ['React: кастомный хук', 'practice', 'Вынести localStorage или form state в простой custom hook.'],
+    ['React: useMemo/useCallback обзор', 'theory', 'Понять идею оптимизации без фанатизма.'],
+    ['TypeScript + React обзор', 'theory', 'Тип props, тип state, тип event для input.'],
+    ['Финальный проект 2026', 'project', 'Выбрать один проект и довести до состояния “можно показать клиенту”.'],
+    ['Ревизия навыков', 'repeat', 'Отметить слабые темы, повторить 3 мини-проекта без подсказок.']
+  ];
+}
+
+function wdgCalCreatePlan() {
+  const start = wdgCalFromISO(WDG_CAL_START);
+  const end = wdgCalFromISO(WDG_CAL_END);
+  const topics = wdgCalTopics();
+  const restText = [
+    'Полный отдых от новой темы. Можно только 10 минут посмотреть старый код.',
+    'Мозг переваривает материал. Без новой темы, без давления.',
+    'Последний день паузы. Посмотри, какая тема будет следующей.'
+  ];
+  const tasks = [];
+  let topicIndex = 0;
+
+  for (let day = new Date(start), offset = 0; day <= end; day = wdgCalAddDays(day, 1), offset++) {
+    const iso = wdgCalToISO(day);
+    const phase = offset % 4;
+    if (phase === 0) {
+      const topic = topics[topicIndex] || ['Повтор и практика', 'repeat', 'Повтори слабую тему и сделай маленький проект.'];
+      tasks.push({
+        id: `wdg-cal-${iso}-lesson`,
+        date: iso,
+        title: topic[0],
+        type: topic[1],
+        description: `1 час обучения. ${topic[2]}`,
+        done: false
+      });
+      topicIndex++;
+    } else {
+      tasks.push({
+        id: `wdg-cal-${iso}-rest`,
+        date: iso,
+        title: `Отдых ${phase}/3`,
+        type: 'rest',
+        description: restText[phase - 1],
+        done: false
+      });
+    }
+  }
+
+  return { version: 2, tasks };
+}
+
+function wdgCalLoadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(WDG_CAL_STORAGE) || 'null');
+    if (saved && Array.isArray(saved.tasks)) {
+      wdgCalState = saved;
+      return;
+    }
+  } catch (e) {}
+  wdgCalState = wdgCalCreatePlan();
+  wdgCalSaveState();
+}
+
+function wdgCalSaveState() {
+  try { localStorage.setItem(WDG_CAL_STORAGE, JSON.stringify(wdgCalState)); } catch (e) {}
+}
+
+function wdgCalGetSnapshot() {
+  return {
+    app: 'WebDevGymCalendar',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    selectedDate: wdgCalSelectedDate,
+    note: localStorage.getItem(WDG_CAL_NOTE_STORAGE) || '',
+    tasks: wdgCalState.tasks || []
+  };
+}
+
+function wdgCalApplySnapshot(snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.tasks)) return;
+  wdgCalState = { version: 2, tasks: snapshot.tasks };
+  wdgCalSelectedDate = wdgCalClampDate(snapshot.selectedDate || wdgCalSelectedDate);
+  wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
+  if (typeof snapshot.note === 'string') localStorage.setItem(WDG_CAL_NOTE_STORAGE, snapshot.note);
+  wdgCalSaveState();
+  wdgCalRender();
+}
+
+function wdgCalRender() {
+  if (!document.getElementById('sec-calendar')) return;
+  wdgCalRenderToday();
+  wdgCalRenderTasks();
+  wdgCalRenderMonth();
+  wdgCalRenderRoute();
+  wdgCalRenderStats();
+}
+
+function wdgCalRenderToday() {
+  const tasks = wdgCalTasksForDate(wdgCalSelectedDate);
+  const task = tasks[0] || wdgCalNextLesson();
+  const label = document.getElementById('wdgCalDateLabel');
+  const title = document.getElementById('wdgCalTodayTitle');
+  const desc = document.getElementById('wdgCalTodayDesc');
+  const dayType = document.getElementById('wdgCalDayType');
+  if (label) label.textContent = wdgCalFormatFull(wdgCalFromISO(wdgCalSelectedDate));
+  if (title) title.textContent = task ? task.title : 'План пуст';
+  if (desc) desc.textContent = task ? task.description : 'Добавь задачу, чтобы продолжить маршрут.';
+  if (dayType && task) {
+    dayType.textContent = WDG_CAL_TYPES[task.type] || task.type;
+    dayType.className = `wdg-cal-pill ${task.type}`;
+  }
+}
+
+function wdgCalRenderStats() {
+  const lessons = wdgCalState.tasks.filter(task => task.type !== 'rest');
+  const doneLessons = lessons.filter(task => task.done).length;
+  const today = wdgCalFromISO(wdgCalTodayISO());
+  const end = wdgCalFromISO(WDG_CAL_END);
+  const daysLeft = Math.max(0, Math.ceil((end - today) / 86400000));
+  const nextLessons = lessons.filter(task => !task.done && task.date >= wdgCalTodayISO()).length;
+  const doneEl = document.getElementById('wdgCalDoneLessons');
+  const leftEl = document.getElementById('wdgCalDaysLeft');
+  const nextEl = document.getElementById('wdgCalNextLessons');
+  if (doneEl) doneEl.textContent = doneLessons;
+  if (leftEl) leftEl.textContent = daysLeft;
+  if (nextEl) nextEl.textContent = nextLessons;
+}
+
+function wdgCalRenderTasks() {
+  const list = document.getElementById('wdgCalTaskList');
+  const completeBtn = document.getElementById('wdgCalCompleteDayBtn');
+  if (!list) return;
+  const tasks = wdgCalTasksForDate(wdgCalSelectedDate);
+  if (!tasks.length) {
+    list.innerHTML = '<p class="wdg-cal-task-desc">На этот день задач нет.</p>';
+    if (completeBtn) {
+      completeBtn.disabled = true;
+      completeBtn.textContent = 'Нет задач';
+    }
+    return;
+  }
+  const allDone = tasks.every(task => task.done);
+  if (completeBtn) {
+    completeBtn.disabled = false;
+    completeBtn.textContent = allDone ? 'Снять отметку' : 'Засчитать день';
+    completeBtn.classList.toggle('danger', allDone);
+  }
+  list.innerHTML = tasks.map(task => `
+    <article class="wdg-cal-task ${task.done ? 'done' : ''}">
+      <input type="checkbox" ${task.done ? 'checked' : ''} onchange="wdgCalToggle('${task.id}', this.checked)" aria-label="Отметить задачу">
+      <div>
+        <p class="wdg-cal-task-title">${wdgCalEscape(task.title)}</p>
+        <p class="wdg-cal-task-desc">${wdgCalEscape(task.description || '')}</p>
+        <span class="wdg-cal-pill ${task.type}">${WDG_CAL_TYPES[task.type] || task.type}</span>
+      </div>
+      <button class="wdg-cal-btn" onclick="wdgCalEdit('${task.id}')">Править</button>
+    </article>
+  `).join('');
+}
+
+function wdgCalRenderMonth() {
+  const grid = document.getElementById('wdgCalGrid');
+  const title = document.getElementById('wdgCalMonthTitle');
+  if (!grid || !title) return;
+  const year = wdgCalMonthCursor.getFullYear();
+  const month = wdgCalMonthCursor.getMonth();
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const firstOffset = (start.getDay() + 6) % 7;
+  const cells = [];
+  title.textContent = start.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+  for (let i = 0; i < firstOffset; i++) cells.push('<button class="wdg-cal-day empty"></button>');
+  for (let day = 1; day <= end.getDate(); day++) {
+    const iso = wdgCalToISO(new Date(year, month, day));
+    const task = wdgCalTasksForDate(iso)[0];
+    const cls = [
+      'wdg-cal-day',
+      iso === wdgCalTodayISO() ? 'today' : '',
+      iso === wdgCalSelectedDate ? 'selected' : '',
+      task && task.done ? 'done' : ''
+    ].filter(Boolean).join(' ');
+    cells.push(`
+      <button class="${cls}" onclick="wdgCalSelectDate('${iso}')">
+        <span class="wdg-cal-day-num">${day}<span class="wdg-cal-pill ${task ? task.type : ''}">${task ? (task.type === 'rest' ? 'Пауза' : '1ч') : ''}</span></span>
+        <span class="wdg-cal-day-label">${task ? wdgCalEscape(task.title) : ''}</span>
+      </button>
+    `);
+  }
+  grid.innerHTML = cells.join('');
+}
+
+function wdgCalRenderRoute() {
+  const route = document.getElementById('wdgCalRoute');
+  if (!route) return;
+  const list = [...wdgCalState.tasks]
+    .filter(task => task.date >= wdgCalSelectedDate)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 18);
+  route.innerHTML = list.map(task => `
+    <div class="wdg-cal-route-item">
+      <div class="wdg-cal-date">${wdgCalFormatShort(wdgCalFromISO(task.date))}</div>
+      <div>
+        <div class="wdg-cal-task-title" style="font-size:13px;margin-bottom:4px;">${wdgCalEscape(task.title)}</div>
+        <span class="wdg-cal-pill ${task.type}">${task.done ? 'Готово' : (WDG_CAL_TYPES[task.type] || task.type)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function wdgCalToggle(id, checked) {
+  const task = wdgCalState.tasks.find(item => item.id === id);
+  if (!task) return;
+  task.done = checked;
+  wdgCalSaveState();
+  wdgCalRender();
+}
+
+function wdgCalToggleSelectedDay() {
+  const tasks = wdgCalTasksForDate(wdgCalSelectedDate);
+  if (!tasks.length) return;
+  const shouldMarkDone = tasks.some(task => !task.done);
+  tasks.forEach(task => {
+    task.done = shouldMarkDone;
+  });
+  wdgCalSaveState();
+  wdgCalRender();
+  showToast(shouldMarkDone ? 'День засчитан' : 'Отметка дня снята');
+}
+
+function wdgCalEdit(id) {
+  const task = wdgCalState.tasks.find(item => item.id === id);
+  if (!task) return;
+  const title = prompt('Название задачи:', task.title);
+  if (title === null) return;
+  const description = prompt('Описание:', task.description || '');
+  if (description === null) return;
+  const date = prompt('Дата в формате YYYY-MM-DD:', task.date);
+  if (date === null) return;
+  task.title = title.trim() || task.title;
+  task.description = description.trim();
+  task.date = /^\d{4}-\d{2}-\d{2}$/.test(date) ? wdgCalClampDate(date) : task.date;
+  wdgCalSelectedDate = task.date;
+  wdgCalMonthCursor = wdgCalFromISO(task.date);
+  wdgCalSaveState();
+  wdgCalRender();
+}
+
+function wdgCalAddTask() {
+  const title = prompt('Название новой задачи:');
+  if (!title || !title.trim()) return;
+  const description = prompt('Описание:', 'Дополнительная задача к плану.') || '';
+  const date = prompt('Дата в формате YYYY-MM-DD:', wdgCalSelectedDate) || wdgCalSelectedDate;
+  const type = prompt('Тип: theory, practice, project, repeat, kwork, rest', 'practice') || 'practice';
+  const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? wdgCalClampDate(date) : wdgCalSelectedDate;
+  const safeType = WDG_CAL_TYPES[type] ? type : 'practice';
+  wdgCalState.tasks.push({
+    id: `wdg-cal-custom-${Date.now()}`,
+    date: safeDate,
+    title: title.trim(),
+    type: safeType,
+    description: description.trim(),
+    done: false
+  });
+  wdgCalSelectedDate = safeDate;
+  wdgCalMonthCursor = wdgCalFromISO(safeDate);
+  wdgCalSaveState();
+  wdgCalRender();
+}
+
+function wdgCalMoveDay(amount) {
+  wdgCalSelectedDate = wdgCalClampDate(wdgCalToISO(wdgCalAddDays(wdgCalFromISO(wdgCalSelectedDate), amount)));
+  wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
+  wdgCalRender();
+}
+
+function wdgCalMoveMonth(amount) {
+  wdgCalMonthCursor = new Date(wdgCalMonthCursor.getFullYear(), wdgCalMonthCursor.getMonth() + amount, 1);
+  wdgCalRenderMonth();
+}
+
+function wdgCalSelectDate(date) {
+  wdgCalSelectedDate = wdgCalClampDate(date);
+  wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
+  wdgCalRender();
+}
+
+function wdgCalGoToday() {
+  wdgCalSelectedDate = wdgCalClampDate(wdgCalTodayISO());
+  wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
+  wdgCalRender();
+}
+
+function wdgCalResetPlan() {
+  if (!confirm('Сбросить календарь к плану 1 час учебы + 3 дня отдыха до 31 декабря?')) return;
+  wdgCalState = wdgCalCreatePlan();
+  wdgCalSaveState();
+  wdgCalGoToday();
+  showToast('Календарь сброшен');
+}
+
+function wdgCalExport() {
+  const blob = new Blob([JSON.stringify(wdgCalGetSnapshot(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'webdevgym-calendar-2026.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Календарь скачан в JSON');
+}
+
+function wdgCalImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json,.json';
+  input.onchange = () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result || '{}'));
+        if (!Array.isArray(data.tasks)) throw new Error('bad calendar');
+        wdgCalApplySnapshot(data);
+        showToast('Календарь импортирован');
+      } catch (e) {
+        showToast('Не получилось импортировать календарь');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function wdgCalTasksForDate(date) {
+  return wdgCalState.tasks
+    .filter(task => task.date === date)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function wdgCalNextLesson() {
+  return [...wdgCalState.tasks]
+    .filter(task => task.type !== 'rest' && !task.done && task.date >= wdgCalTodayISO())
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+}
+
+function wdgCalInit() {
+  wdgCalLoadState();
+  const note = document.getElementById('wdgCalNote');
+  if (note) {
+    note.value = localStorage.getItem(WDG_CAL_NOTE_STORAGE) || '';
+    note.addEventListener('input', () => {
+      localStorage.setItem(WDG_CAL_NOTE_STORAGE, note.value);
+    });
+  }
+  wdgCalRender();
+}
+
+function wdgCalClampDate(date) {
+  if (date < WDG_CAL_START) return WDG_CAL_START;
+  if (date > WDG_CAL_END) return WDG_CAL_END;
+  return date;
+}
+
+function wdgCalTodayISO() {
+  return wdgCalToISO(new Date());
+}
+
+function wdgCalToISO(date) {
+  const copy = new Date(date);
+  copy.setMinutes(copy.getMinutes() - copy.getTimezoneOffset());
+  return copy.toISOString().slice(0, 10);
+}
+
+function wdgCalFromISO(date) {
+  return new Date(`${date}T00:00:00`);
+}
+
+function wdgCalAddDays(date, amount) {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + amount);
+  return copy;
+}
+
+function wdgCalFormatFull(date) {
+  return date.toLocaleDateString('ru-RU', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function wdgCalFormatShort(date) {
+  return date.toLocaleDateString('ru-RU', { day:'2-digit', month:'short' });
+}
+
+function wdgCalEscape(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  wdgCalInit();
+});
 
 // ===== RESET PROGRESS =====
 function resetProgress() {
@@ -14178,6 +14946,9 @@ function switchTab(id, btn) {
   }
   if (id === 'github' && typeof ghRestoreFields === 'function') {
     setTimeout(ghRestoreFields, 50);
+  }
+  if (id === 'calendar' && typeof wdgCalRender === 'function') {
+    setTimeout(wdgCalRender, 50);
   }
   // Сбрасываем выбор языка перевода при уходе со вкладки
   currentTranslateTabId = id;
@@ -20266,7 +21037,7 @@ function buildSearchIndex() {
     'sec-ts': 'TypeScript', 'sec-react': 'React',
     'sec-practice': 'Практика',
     'sec-mistakes': 'Ошибки', 'sec-resources': 'Ресурсы',
-    'sec-roadmap': 'Roadmap', 'sec-figma': 'Figma',
+    'sec-roadmap': 'Roadmap', 'sec-calendar': 'Календарь', 'sec-figma': 'Figma',
     'sec-playground': 'Песочница',
     'sec-git': 'Git', 'sec-cheatsheets': 'Шпаргалки',
     'sec-github': 'GitHub', 'sec-books': 'Книги',
@@ -20548,7 +21319,7 @@ document.addEventListener('keydown', (e) => {
 
   // Цифры 1–9 переключают вкладки (если не в поле ввода)
   if (!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    const tabOrder = ['html','css','js','ts','react','guides','practice','mistakes','resources','roadmap','figma','playground','git','cheatsheets'];
+    const tabOrder = ['html','css','js','ts','react','guides','practice','mistakes','resources','roadmap','calendar','figma','playground','git','cheatsheets'];
     const idx = parseInt(e.key) - 1;
     if (!isNaN(idx) && idx >= 0 && idx < tabOrder.length) {
       const tabs = document.querySelectorAll('.tab');
@@ -22934,8 +23705,8 @@ function createQuickNav() {
   nav.setAttribute('aria-label', 'Быстрое меню');
   const links = [
     ['HTML', 'html'], ['CSS', 'css'], ['JS', 'js'], ['TS', 'ts'],
-    ['React', 'react'], ['Git', 'git'], ['Node', 'node'], ['SQL', 'sql'],
-    ['PG', 'playground']
+    ['React', 'react'], ['Cal', 'calendar'], ['Git', 'git'], ['Node', 'node'],
+    ['SQL', 'sql'], ['PG', 'playground']
   ];
   nav.innerHTML = links.map(([label, tab]) => '<a href="#" onclick="switchTabByName(\'' + tab + '\');return false;" title="' + label + '">' + label.replace('React','R') + '</a>').join('') +
     '<button type="button" onclick="window.scrollTo({top:0,behavior:\'smooth\'})" title="Наверх">↑</button>';
