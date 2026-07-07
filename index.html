@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -6319,7 +6319,8 @@ btn.remove();</div>
       <div class="explain">
         <strong>querySelector(".btn")</strong> — находит первый элемент с классом .btn.<br>
         <strong>textContent</strong> — текст. <strong>innerHTML</strong> — HTML (осторожно!).<br>
-        <strong>classList.toggle</strong> — если класс есть → убирает, нет → добавляет.
+        <strong>classList.toggle</strong> — если класс есть → убирает, нет → добавляет.<br>
+        <strong>Важная связка:</strong> JS меняет состояние и классы, CSS рисует результат. Например JS добавляет <code>dark</code> на <code>body</code>, а CSS через <code>body.dark .theme-btn</code> меняет кнопку.
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb161" onchange="updateProgress(this)"><span>querySelector — один, querySelectorAll — все</span></label>
@@ -6393,8 +6394,15 @@ loadData();</div>
 
     <div class="block" id="block-localstorage">
       <div class="block-title" onclick="scrollToBlock('block-localstorage')">localStorage — сохраняем в браузере <span class="badge pro">продвинуто</span><span class="anchor-icon">🔗</span></div>
-      <div class="code">localStorage.setItem("theme", "dark");
+      <div class="code">// 1. Сохранить
+localStorage.setItem("theme", "dark");
+localStorage.setItem("score", 5);
+
+// 2. Прочитать
 const theme = localStorage.getItem("theme"); // "dark"
+const score = Number(localStorage.getItem("score")) || 0;
+
+// 3. Удалить
 localStorage.removeItem("theme");
 
 // Для ОБЪЕКТОВ — нужно JSON
@@ -6404,12 +6412,68 @@ const saved = JSON.parse(localStorage.getItem("user"));
 console.log(saved.name); // "Алекс"</div>
       <div class="explain">
         <strong>setItem / getItem / removeItem</strong> — три основных операции.<br>
-        Значение может быть <em>только строкой</em>! Для объектов используй JSON.<br>
-        Данные хранятся <em>только в этом браузере</em>. Не для секретных данных!
+        <strong>getItem</strong> достает одно значение по одному ключу: <code>getItem("score")</code>, а не сразу несколько.<br>
+        Значение хранится как <em>строка</em>: если сохраняешь число, при чтении делай <code>Number(...)</code>.<br>
+        <code>|| 0</code> или <code>|| "zero"</code> — запасное значение, если в браузере еще ничего не сохранено.<br>
+        Данные хранятся <em>только в этом браузере</em>. Не храни тут пароли, токены и секретные ключи.
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb169" onchange="updateProgress(this)"><span>setItem / getItem / removeItem</span></label>
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb170" onchange="updateProgress(this)"><span>JSON.stringify для сохранения, JSON.parse для чтения</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" data-pid="wdg-js-ls-1" onchange="updateProgress(this)"><span>Number(localStorage.getItem(...)) — превращаю сохраненную строку обратно в число</span></label>
+      </div>
+    </div>
+    <div class="block" id="block-localstorage-counter">
+      <div class="block-title" onclick="scrollToBlock('block-localstorage-counter')">localStorage на примере счетчика и темы <span class="badge good">практика</span><span class="anchor-icon">🔗</span></div>
+      <div class="code">const count = document.querySelector(".count");
+const themeBtn = document.querySelector(".theme-btn");
+
+let score = Number(localStorage.getItem("score")) || 0;
+let lastAction = localStorage.getItem("lastAction") || "zero";
+const theme = localStorage.getItem("theme");
+
+function updateCount() {
+  count.textContent = score;
+
+  count.classList.remove("positive", "negative", "zero");
+  count.classList.add(lastAction);
+
+  localStorage.setItem("score", score);
+  localStorage.setItem("lastAction", lastAction);
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+
+  if (document.body.classList.contains("dark")) {
+    themeBtn.textContent = "☀️";
+    localStorage.setItem("theme", "dark");
+  } else {
+    themeBtn.textContent = "🌙";
+    localStorage.setItem("theme", "light");
+  }
+}
+
+if (theme === "dark") {
+  document.body.classList.add("dark");
+  themeBtn.textContent = "☀️";
+} else {
+  themeBtn.textContent = "🌙";
+}
+
+updateCount();</div>
+      <div class="explain">
+        <strong>Состояние</strong> — это переменные: <code>score</code>, <code>lastAction</code>, <code>theme</code>.<br>
+        <strong>Отрисовка</strong> — это функция, которая обновляет страницу: текст, классы, иконку.<br>
+        <strong>Сохранение</strong> делай после изменения состояния: нажал кнопку → поменял переменные → вызвал функцию → записал в localStorage.<br>
+        <strong>Восстановление</strong> делай при загрузке: сначала <code>getItem</code>, потом добавь нужные классы на страницу.
+      </div>
+      <div class="tip">
+        Частые ошибки: два раза объявил <code>let score</code>; сделал <code>getItem</code>, но забыл <code>setItem</code>; проверяешь DOM-элемент <code>count</code> вместо числа <code>score</code>; пишешь <code>classList.add(".active")</code> с точкой, хотя нужно <code>classList.add("active")</code>.
+      </div>
+      <div class="items">
+        <label class="item"><input type="checkbox" class="prog-cb" data-pid="wdg-js-ls-2" onchange="updateProgress(this)"><span>Понимаю цепочку: состояние → update/render → localStorage</span></label>
+        <label class="item"><input type="checkbox" class="prog-cb" data-pid="wdg-js-ls-3" onchange="updateProgress(this)"><span>Умею сохранить счетчик и тему после перезагрузки</span></label>
       </div>
     </div>
     <div class="block" id="block-carousel">
@@ -23809,3 +23873,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
