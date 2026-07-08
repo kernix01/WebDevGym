@@ -3400,66 +3400,34 @@
   .ai-sel-popup { position: fixed; z-index: 9999; display: none; }
 
 
-  /* ===== TRANSLATE MENU ===== */
-  .translate-lang-opt {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    text-align: left;
-    padding: 10px 12px;
-    background: none;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background .15s, transform .1s;
-  }
-  .translate-lang-opt .flag { font-size: 18px; flex-shrink: 0; }
-  .translate-lang-opt:hover { background: #ede9fe; transform: translateX(2px); }
-  .translate-lang-opt:active { transform: scale(.98); }
-  body.dark #translateMenu { background: #1a1f2e; border-color: #2d3348; }
-  body.dark .translate-lang-opt { color: #f1f5f9; }
-  body.dark .translate-lang-opt:hover { background: #312e5e; }
-  #translateMenu {
-    min-width: 200px !important;
-    padding: 8px !important;
-  }
-  .translate-divider {
-    height: 1px;
-    background: #e2e8f0;
-    margin: 8px 4px;
-  }
-  body.dark .translate-divider { background: #2d3348; }
-
-  .translate-banner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(139,92,246,.08));
-    border: 1px solid rgba(99,102,241,.25);
+  /* ===== MAIN LANGUAGE SWITCH ===== */
+  .lang-switch {
+    display: inline-flex;
+    gap: 4px;
+    padding: 3px;
+    border: 1.5px solid #e5e7eb;
     border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
-    font-size: 13px;
-    color: #6366f1;
+    background: #fff;
+    align-items: center;
   }
-  body.dark .translate-banner { color: #a5b4fc; }
-  .translate-banner button {
-    margin-left: auto;
-    background: rgba(99,102,241,.15);
+  .lang-main-btn {
     border: none;
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 12px;
-    color: inherit;
+    border-radius: 7px;
+    background: transparent;
+    color: #64748b;
     cursor: pointer;
     font-family: inherit;
-    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 5px 9px;
+    transition: background .15s, color .15s, transform .15s;
   }
+  .lang-main-btn:hover { transform: translateY(-1px); color: var(--accent); }
+  .lang-main-btn.active { background: var(--accent); color: #fff; }
+  body.dark .lang-switch { background: #1a1f2e; border-color: #2d3348; }
+  body.dark .lang-main-btn { color: #94a3b8; }
+  body.dark .lang-main-btn:hover { color: #fff; background: var(--accent-bg-dark-alt); }
+  body.dark .lang-main-btn.active { background: var(--accent); color: #fff; }
 
 
   .pomo-dur-btn {
@@ -3805,26 +3773,16 @@
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  <button class="top-btn" onclick="toggleDark()" id="darkBtn"><iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Тёмная</button>
-  <button class="top-btn" id="bmFilterBtn" onclick="toggleBmFilter()" title="Показать только закладки">🔖 Закладки</button>
-  <button class="top-btn" onclick="startMockInterview()" title="Вопросы по отмеченным темам">🎙️ Мок-интервью</button>
-  <button class="top-btn" onclick="exportProgressJson()" title="Скачать прогресс в JSON">⬇ Экспорт</button>
-  <button class="top-btn" onclick="importProgressJson()" title="Импортировать прогресс из JSON">⬆ Импорт</button>
-  <div style="position:relative;display:inline-block;">
-    <button class="top-btn" onclick="toggleTranslateMenu()" title="Перевести текущую вкладку">🌐 Перевод
-      <span id="translateLangBadge" style="display:none;margin-left:5px;background:var(--accent);color:#fff;border-radius:6px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
-    </button>
-    <div id="translateMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.18);z-index:200;">
-      <button class="translate-lang-opt" onclick="translateCurrentTab('en','English')"><span class="flag">🇬🇧</span> English</button>
-      <button class="translate-lang-opt" onclick="translateCurrentTab('es','Español')"><span class="flag">🇪🇸</span> Español</button>
-      <button class="translate-lang-opt" onclick="translateCurrentTab('de','Deutsch')"><span class="flag">🇩🇪</span> Deutsch</button>
-      <button class="translate-lang-opt" onclick="translateCurrentTab('uk','Українська')"><span class="flag">🇺🇦</span> Українська</button>
-      <button class="translate-lang-opt" onclick="translateCurrentTab('zh','中文')"><span class="flag">🇨🇳</span> 中文</button>
-      <div class="translate-divider"></div>
-      <button class="translate-lang-opt" onclick="translateCurrentTab('ru','Русский')"><span class="flag">🇷🇺</span> Вернуть русский</button>
-    </div>
+  <button class="top-btn" onclick="toggleDark()" id="darkBtn" data-i18n="top.dark"><iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Тёмная</button>
+  <button class="top-btn" id="bmFilterBtn" onclick="toggleBmFilter()" title="Показать только закладки" data-i18n="top.bookmarks">🔖 Закладки</button>
+  <button class="top-btn" onclick="startMockInterview()" title="Вопросы по отмеченным темам" data-i18n="top.interview">🎙️ Мок-интервью</button>
+  <button class="top-btn" onclick="exportProgressJson()" title="Скачать прогресс в JSON" data-i18n="top.export">⬇ Экспорт</button>
+  <button class="top-btn" onclick="importProgressJson()" title="Импортировать прогресс из JSON" data-i18n="top.import">⬆ Импорт</button>
+  <div class="lang-switch" title="Основной язык интерфейса">
+    <button class="lang-main-btn active" id="langRuBtn" type="button" onclick="setMainLanguage('ru')">RU</button>
+    <button class="lang-main-btn" id="langEnBtn" type="button" onclick="setMainLanguage('en')">EN</button>
   </div>
-  <button class="top-btn" onclick="resetProgress()" title="Сбросить весь прогресс">↺ Сброс</button>
+  <button class="top-btn" onclick="resetProgress()" title="Сбросить весь прогресс" data-i18n="top.reset">↺ Сброс</button>
 </div>
 
 <div class="wrap">
@@ -15014,10 +14972,9 @@ function switchTab(id, btn) {
   if (id === 'calendar' && typeof wdgCalRender === 'function') {
     setTimeout(wdgCalRender, 50);
   }
-  // Сбрасываем выбор языка перевода при уходе со вкладки
-  currentTranslateTabId = id;
-  const langBadge = document.getElementById('translateLangBadge');
-  if (langBadge) langBadge.style.display = 'none';
+  if (typeof applyMainLanguage === 'function') {
+    setTimeout(applyMainLanguage, 0);
+  }
 }
 
 // ===== ПРОГРЕСС =====
@@ -23454,199 +23411,876 @@ function aiAddInsertButtons() {
 }
 
 
-// ===== TAB TRANSLATION (via built-in AI) =====
-let currentTranslateTabId = 'html';
-let translateOriginalCache = {}; // { tabId: { lang: originalInnerHTML } }
-let translateActiveLang = {};    // { tabId: 'ru' | 'en' | ... }
+// ===== MAIN LANGUAGE (local, no AI) =====
+const WDG_LANG_KEY = 'webdevgym_main_lang';
+let wdgMainLang = localStorage.getItem(WDG_LANG_KEY) || 'ru';
 
-function toggleTranslateMenu() {
-  const menu = document.getElementById('translateMenu');
-  if (!menu) return;
-  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-}
-
-// Закрытие меню по клику снаружи
-document.addEventListener('mousedown', (e) => {
-  const menu = document.getElementById('translateMenu');
-  const btn = e.target.closest('button');
-  if (menu && menu.style.display === 'block' && !menu.contains(e.target) && (!btn || btn.getAttribute('onclick') !== 'toggleTranslateMenu()')) {
-    menu.style.display = 'none';
+const WDG_I18N = {
+  ru: {
+    'top.dark': '<iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Тёмная',
+    'top.bookmarks': '🔖 Закладки',
+    'top.interview': '🎙️ Мок-интервью',
+    'top.export': '⬇ Экспорт',
+    'top.import': '⬆ Импорт',
+    'top.reset': '↺ Сброс',
+    'splash.title': 'HTML/CSS/JS',
+    'splash.sub': 'Роадмап',
+    'hero.html.title': 'HTML — язык разметки',
+    'hero.html.sub': 'HTML описывает структуру страницы: что является заголовком, абзацем, ссылкой или картинкой. Это фундамент всего веба — без него нет ни CSS, ни JS.',
+    'hero.css.title': 'CSS — язык стилей',
+    'hero.css.sub': 'CSS отвечает за внешний вид: цвета, шрифты, отступы, анимации, адаптивность. Без CSS сайт выглядит как текстовый документ из 90-х.',
+    'hero.js.title': 'JavaScript — язык интерактивности',
+    'hero.js.sub': 'JS оживляет страницы: кнопки работают, данные загружаются без перезагрузки, формы проверяются. Единственный язык, который понимает браузер.',
+    'js.dom.link': 'DOM — управляем страницей',
+    'js.events.link': 'События — реагируем на действия',
+    'js.storage.link': 'localStorage — сохраняем в браузере',
+    'js.storage.practice': 'localStorage на примере счетчика и темы'
+  },
+  en: {
+    'top.dark': '<iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Dark',
+    'top.bookmarks': '🔖 Bookmarks',
+    'top.interview': '🎙️ Mock interview',
+    'top.export': '⬇ Export',
+    'top.import': '⬆ Import',
+    'top.reset': '↺ Reset',
+    'splash.title': 'HTML/CSS/JS',
+    'splash.sub': 'Roadmap',
+    'hero.html.title': 'HTML — markup language',
+    'hero.html.sub': 'HTML describes page structure: headings, paragraphs, links, images, and sections. It is the base of the web — CSS and JS stand on top of it.',
+    'hero.css.title': 'CSS — styling language',
+    'hero.css.sub': 'CSS controls appearance: colors, fonts, spacing, animation, and responsive layout. Without CSS, a site looks like a plain text document.',
+    'hero.js.title': 'JavaScript — interactivity language',
+    'hero.js.sub': 'JavaScript brings pages to life: buttons work, data loads without reloading, forms are validated, and interfaces remember state.',
+    'js.dom.link': 'DOM — control the page',
+    'js.events.link': 'Events — react to actions',
+    'js.storage.link': 'localStorage — save in the browser',
+    'js.storage.practice': 'localStorage with counter and theme'
   }
-});
-
-const TRANSLATE_LANG_NAMES = {
-  en: 'English', es: 'Español', de: 'Deutsch', uk: 'Українська', zh: '中文 (Chinese)', ru: 'Русский'
 };
 
-async function translateCurrentTab(langCode, langLabel) {
-  document.getElementById('translateMenu').style.display = 'none';
-  const tabId = currentTranslateTabId;
-  const sectionEl = document.getElementById('sec-' + tabId);
-  if (!sectionEl) return;
+const WDG_I18N_SELECTORS = {
+  'splash.title': '#splash-screen .splash-title',
+  'splash.sub': '#splash-screen .splash-sub',
+  'hero.html.title': '#sec-html .lang-section-hero-title',
+  'hero.html.sub': '#sec-html .lang-section-hero-sub',
+  'hero.css.title': '#sec-css .lang-section-hero-title',
+  'hero.css.sub': '#sec-css .lang-section-hero-sub',
+  'hero.js.title': '#sec-js .lang-section-hero-title',
+  'hero.js.sub': '#sec-js .lang-section-hero-sub',
+  'js.dom.link': '#block-dom .block-title',
+  'js.events.link': '#block-events .block-title',
+  'js.storage.link': '#block-localstorage .block-title',
+  'js.storage.practice': '#block-localstorage-counter .block-title'
 
-  // Возврат к русскому — восстанавливаем кэш оригинала
-  if (langCode === 'ru') {
-    if (translateOriginalCache[tabId] && translateOriginalCache[tabId]['ru']) {
-      sectionEl.innerHTML = translateOriginalCache[tabId]['ru'];
-      delete translateActiveLang[tabId];
-      updateTranslateBadge();
-    }
-    return;
-  }
+};
 
-  // Уже переведено на этот язык — просто показываем из кэша
-  if (translateOriginalCache[tabId] && translateOriginalCache[tabId][langCode]) {
-    if (!translateOriginalCache[tabId]['ru']) translateOriginalCache[tabId]['ru'] = sectionEl.innerHTML;
-    sectionEl.innerHTML = translateOriginalCache[tabId][langCode];
-    translateActiveLang[tabId] = langCode;
-    updateTranslateBadge();
-    return;
-  }
+const WDG_TEXT_EN = {
+  'Роадмап': 'Roadmap',
+  'Прогресс': 'Progress',
+  'тем изучено': 'topics completed',
+  'Backend & Дополнительно': 'Backend & Extra',
+  'Серверы': 'Servers',
+  'Практика': 'Practice',
+  'Ошибки': 'Mistakes',
+  'Ресурсы': 'Resources',
+  'Путь развития': 'Roadmap',
+  'Календарь': 'Calendar',
+  'Шпаргалки': 'Cheatsheets',
+  'Карьера': 'Career',
+  'Ссылки': 'Links',
+  'Алгоритмы': 'Algorithms',
+  'ИИ': 'AI',
+  'Рефакторинг': 'Refactoring',
+  'Шрифты': 'Fonts',
+  'основа': 'core',
+  'важно': 'important',
+  'знать': 'know',
+  'продвинуто': 'advanced',
+  'практика': 'practice',
+  'следующие шаги': 'next steps',
+  'до 31.12.2026': 'until 12/31/2026',
+  'совет дня': 'tip of the day',
+  'Челлендж дня': 'Daily challenge',
+  'Старт': 'Start',
+  'Другое': 'Another',
+  'Пауза': 'Pause',
+  'Загрузка...': 'Loading...',
+  'Сегодня': 'Today',
+  'День': 'Day',
+  'Добавить': 'Add',
+  'Экспорт календаря': 'Export calendar',
+  'Импорт календаря': 'Import calendar',
+  'Сбросить календарь': 'Reset calendar',
+  'Заметка': 'Note',
+  'Месяц': 'Month',
+  'Пн': 'Mon',
+  'Вт': 'Tue',
+  'Ср': 'Wed',
+  'Чт': 'Thu',
+  'Пт': 'Fri',
+  'Сб': 'Sat',
+  'Вс': 'Sun',
+  'Задачи дня': 'Day tasks',
+  'План': 'Plan',
+  'Засчитать день': 'Mark day done',
+  'учебных дней закрыто': 'study days completed',
+  'дней до 31 декабря': 'days until December 31',
+  'тем впереди': 'topics ahead',
+  'Что важно помнить по учебе, Kwork или проектам?': 'What should you remember about studying, Kwork, or projects?',
+  'Календарь готовит следующий шаг.': 'The calendar is preparing the next step.',
+  'План обучения': 'Learning plan',
+  'Ближайший маршрут': 'Nearest route',
+  'Структура страницы': 'Page structure',
+  'Заголовки и текст': 'Headings and text',
+  'Ссылки и картинки': 'Links and images',
+  'Списки': 'Lists',
+  'Формы — ввод данных': 'Forms — data input',
+  'Семантические теги': 'Semantic tags',
+  'Таблицы — данные в строках и столбцах': 'Tables — data in rows and columns',
+  'Meta-теги — SEO и соцсети': 'Meta tags — SEO and social sharing',
+  'Видео, аудио и iframe': 'Video, audio, and iframe',
+  'Data-атрибуты и доступность (ARIA)': 'Data attributes and accessibility (ARIA)',
+  'Картинки — img, srcset, picture': 'Images — img, srcset, picture',
+  'Core Web Vitals — скорость глазами пользователя': 'Core Web Vitals — speed from the user view',
+  'Инпуты — все типы полей формы': 'Inputs — all form field types',
+  'iframe — встраиваем YouTube, карты, виджеты': 'iframe — embed YouTube, maps, widgets',
+  '&lt;details&gt; и &lt;dialog&gt; — спойлеры и модалки без JS': '&lt;details&gt; and &lt;dialog&gt; — spoilers and modals without JS',
+  'Popover API — попапы и подсказки без JS': 'Popover API — popups and hints without JS',
+  'Как подключить CSS': 'How to connect CSS',
+  'Селекторы — к чему применять стили': 'Selectors — what styles apply to',
+  '&lt;div&gt; — универсальный контейнер': '&lt;div&gt; — universal container',
+  '&lt;span&gt; — строчный контейнер': '&lt;span&gt; — inline container',
+  'Разный фон на каждой странице': 'Different background on each page',
+  'Вложенные селекторы — стили внутри страницы': 'Nested selectors — styles inside a page',
+  'Центрирование списков (ul, ol)': 'Centering lists (ul, ol)',
+  'Центрирование кнопки &lt;button&gt;': 'Centering a &lt;button&gt;',
+  'Карточка товара — картинка + текст под ней': 'Product card — image plus text below',
+  'Блочная модель (Box Model)': 'Box Model',
+  'Flexbox — расположение в ряд': 'Flexbox — row layout',
+  'Grid — сетка / таблица': 'Grid — layout grid',
+  'CSS Анимации и Transition': 'CSS animations and transition',
+  'Анимация при скролле (Intersection Observer)': 'Scroll animation (Intersection Observer)',
+  'Пример: машина уезжает при скролле': 'Example: a car moves away on scroll',
+  'CSS-переменные': 'CSS variables',
+  'Тумблер (Toggle Switch) — как сделать': 'Toggle switch — how to build it',
+  'Градиентный текст и эффекты': 'Gradient text and effects',
+  'Position — позиционирование элементов': 'Position — element positioning',
+  'Псевдоклассы и псевдоэлементы': 'Pseudo-classes and pseudo-elements',
+  'Медиа-запросы — адаптивность': 'Media queries — responsive design',
+  'Container Queries — адаптивность по контейнеру': 'Container Queries — container-based responsiveness',
+  'Типографика — шрифты и текст': 'Typography — fonts and text',
+  'Transition — плавные переходы': 'Transition — smooth changes',
+  'Transform — сдвиг, поворот, масштаб': 'Transform — move, rotate, scale',
+  'Тени — box-shadow, text-shadow, drop-shadow': 'Shadows — box-shadow, text-shadow, drop-shadow',
+  'z-index и stacking context — кто над кем': 'z-index and stacking context — who is above whom',
+  'filter и backdrop-filter — размытие, glassmorphism': 'filter and backdrop-filter — blur, glassmorphism',
+  'object-fit и aspect-ratio — картинки без растяжения': 'object-fit and aspect-ratio — images without stretching',
+  'SCSS — переменные и вложенность': 'SCSS — variables and nesting',
+  'SCSS — функции, циклы и @extend': 'SCSS — functions, loops, and @extend',
+  'Tailwind CSS — utility-first стек': 'Tailwind CSS — utility-first stack',
+  'Современный CSS: @layer и nesting': 'Modern CSS: @layer and nesting',
+  'CSS 2026: @scope, scroll-driven и View Transitions': 'CSS 2026: @scope, scroll-driven animations, and View Transitions',
+  'Переменные — где храним данные': 'Variables — where data is stored',
+  'Строки — работа с текстом': 'Strings — working with text',
+  'Условия — если... то...': 'Conditions — if... then...',
+  'Циклы — повторяем действие': 'Loops — repeat an action',
+  'Массивы — список элементов': 'Arrays — lists of items',
+  'DOM — управляем страницей': 'DOM — control the page',
+  'События — реагируем на действия': 'Events — react to actions',
+  'Асинхронность и fetch — запросы к серверу': 'Async and fetch — requests to the server',
+  'localStorage — сохраняем в браузере': 'localStorage — save in the browser',
+  'localStorage на примере счетчика и темы': 'localStorage with a counter and theme',
+  'Карусель (слайдер) — листаем фото стрелками': 'Carousel (slider) — switch photos with arrows',
+  'Объекты — структурированные данные': 'Objects — structured data',
+  'try / catch — обработка ошибок': 'try / catch — error handling',
+  'Функции — обычные, стрелочные, параметры': 'Functions — regular, arrow, parameters',
+  'Promise и async/await — асинхронность по-человечески': 'Promise and async/await — async in human language',
+  'Деструктуризация и spread — современный синтаксис': 'Destructuring and spread — modern syntax',
+  'setTimeout, setInterval, debounce': 'setTimeout, setInterval, debounce',
+  'Классы — class, extends, this': 'Classes — class, extends, this',
+  'Event Loop — как работает асинхронность': 'Event Loop — how async works',
+  'Замыкания (Closures)': 'Closures',
+  'Архитектура JS-кода до React': 'JS code architecture before React',
+  'Основы TypeScript — типы переменных': 'TypeScript basics — variable types',
+  'Интерфейсы и type alias': 'Interfaces and type aliases',
+  'Дженерики (Generics)': 'Generics',
+  'Enum и литеральные типы': 'Enum and literal types',
+  'Type Narrowing и Type Guards': 'Type narrowing and type guards',
+  'Async/await с типами и работа с API': 'Async/await with types and APIs',
+  'tsconfig.json — настройка компилятора': 'tsconfig.json — compiler setup',
+  'Discriminated Unions и advanced типы': 'Discriminated unions and advanced types',
+  'TypeScript + React — типизация компонентов': 'TypeScript + React — component typing',
+  'void, never, unknown — отличия': 'void, never, unknown — differences',
+  'Conditional Types и Mapped Types': 'Conditional types and mapped types',
+  'Type Assertions: as и satisfies': 'Type assertions: as and satisfies',
+  'Компоненты и JSX': 'Components and JSX',
+  'Хуки: useState и useEffect': 'Hooks: useState and useEffect',
+  'Списки и условный рендер': 'Lists and conditional rendering',
+  'Формы и controlled components': 'Forms and controlled components',
+  'useContext — глобальное состояние': 'useContext — global state',
+  'useMemo, useCallback и React.memo': 'useMemo, useCallback, and React.memo',
+  'React Router — навигация': 'React Router — navigation',
+  'Кастомные хуки': 'Custom hooks',
+  'useRef — прямой доступ к DOM': 'useRef — direct DOM access',
+  'useEffect: функция очистки (cleanup)': 'useEffect: cleanup function',
+  'useEffect: бесконечный цикл': 'useEffect: infinite loop',
+  'State Management: Redux Toolkit и Zustand': 'State management: Redux Toolkit and Zustand',
+  'TanStack Query — правильная работа с сервером': 'TanStack Query — correct server-state work',
+  'useReducer и useLayoutEffect': 'useReducer and useLayoutEffect',
+  'Архитектура FSD — стандарт крупных проектов': 'FSD architecture — standard for large projects',
+  'Zustand: селекторы — без них смысла нет': 'Zustand selectors — they are the point',
+  'Zustand middleware: persist и devtools': 'Zustand middleware: persist and devtools',
+  'Тестирование: Vitest + React Testing Library': 'Testing: Vitest + React Testing Library',
+  'React в крупных продуктах: микрофронтенды': 'React in large products: microfrontends',
+  'Базовые команды терминала': 'Basic terminal commands',
+  'Права доступа и пользователи': 'Permissions and users',
+  'Процессы и системный мониторинг': 'Processes and system monitoring',
+  'SSH — подключение к серверам': 'SSH — connecting to servers',
+  'Bash-скрипты и автоматизация': 'Bash scripts and automation',
+  'Пакетные менеджеры и npm-инструменты': 'Package managers and npm tools',
+  'Vite — быстрый dev-сервер и сборка': 'Vite — fast dev server and build',
+  'ESLint + Prettier — качество кода': 'ESLint + Prettier — code quality',
+  'Переменные окружения (.env)': 'Environment variables (.env)',
+  'SSR, Islands и новые сборщики': 'SSR, Islands, and new bundlers',
+  'Что реально требуют на рынке': 'What the market actually requires',
+  'Зарплаты frontend-разработчиков': 'Frontend developer salaries',
+  'Портфолио — что реально работает': 'Portfolio — what really works',
+  'Резюме frontend-разработчика': 'Frontend developer resume',
+  'Собеседование — как проходит и что спрашивают': 'Interview — how it works and what they ask',
+  'Prompt Engineering для обучения коду': 'Prompt engineering for learning code',
+  'Code Smells — признаки что пора рефакторить': 'Code smells — signs it is time to refactor',
+  'DRY, KISS, YAGNI — главные принципы': 'DRY, KISS, YAGNI — main principles',
+  'Extract Function и Extract Variable': 'Extract Function and Extract Variable',
+  'Рефакторинг условий': 'Refactoring conditions',
+  'Когда рефакторить (и когда не стоит)': 'When to refactor and when not to',
+  'Big O — сложность алгоритмов': 'Big O — algorithm complexity',
+  'Задачи на массивы — топ на собесах': 'Array tasks — top interview topic',
+  'Задачи на строки': 'String tasks',
+  'Рекурсия': 'Recursion',
+  'Структуры данных: Stack, Queue, Tree, Graph': 'Data structures: Stack, Queue, Tree, Graph',
+  'AST и Bloom Filter': 'AST and Bloom Filter',
+  'Что такое Figma и зачем она тебе': 'What Figma is and why you need it',
+  'Интерфейс Figma — что где находится': 'Figma interface — where everything is',
+  'Inspect — как получить CSS из Figma': 'Inspect — how to get CSS from Figma',
+  'Слои и типы элементов': 'Layers and element types',
+  'Экспорт картинок и иконок': 'Exporting images and icons',
+  'Горячие клавиши — ускоряют в 3 раза': 'Hotkeys — speed you up 3x',
+  'Компоненты, стили и переменные': 'Components, styles, and variables',
+  'Алгоритм верстки по макету Figma': 'Figma-to-layout workflow',
+  'Design Tokens: цвета, отступы, шрифты': 'Design tokens: colors, spacing, fonts',
+  'Полезные плагины для разработчиков': 'Useful plugins for developers',
+  'Установка и первая настройка': 'Install and first setup',
+  'Статус и добавление файлов': 'Status and adding files',
+  'Коммиты — сохраняем историю': 'Commits — save history',
+  'Ветки — работаем параллельно': 'Branches — work in parallel',
+  'Remote — работа с GitHub': 'Remote — working with GitHub',
+  'Конфликты и их решение': 'Conflicts and how to solve them',
+  '.gitignore — что НЕ добавлять в репо': '.gitignore — what not to add to a repo',
+  'Stash и cherry-pick': 'Stash and cherry-pick',
+  'Визуализация веток — как это выглядит': 'Branch visualization — how it looks',
+  'Типичные сценарии — пошаговые команды': 'Typical scenarios — step-by-step commands',
+  'Push — отправка изменений на GitHub': 'Push — send changes to GitHub',
+  'Конфликт при git pull — что делать': 'Conflict during git pull — what to do',
+  'Что такое Node.js и зачем он': 'What Node.js is and why it exists',
+  'Установка и первый запуск': 'Install and first run',
+  'npm — менеджер пакетов': 'npm — package manager',
+  'Первый сервер на Express': 'First Express server',
+  'Что такое API и JSON': 'What API and JSON are',
+  'Куда двигаться дальше': 'Where to go next',
+  'Middleware и структура Express-приложения': 'Middleware and Express app structure',
+  'Переменные окружения и .env': 'Environment variables and .env',
+  'Работа с файловой системой (fs)': 'Working with the file system (fs)',
+  'Next.js + Node.js — почему вместе лучше': 'Next.js + Node.js — why they work well together',
+  'App Router — файловая система как роутинг': 'App Router — file system as routing',
+  'API Routes — Node.js backend внутри Next.js': 'API Routes — Node.js backend inside Next.js',
+  'Server Components и загрузка данных': 'Server Components and data loading',
+  'SSG и ISR — статическая генерация': 'SSG and ISR — static generation',
+  'Session vs JWT — два подхода к авторизации': 'Session vs JWT — two auth approaches',
+  'Access и Refresh токены': 'Access and refresh tokens',
+  'Безопасные куки: httpOnly, Secure, SameSite': 'Secure cookies: httpOnly, Secure, SameSite',
+  'Валидация данных через Zod': 'Data validation with Zod',
+  'CORS и Security Headers': 'CORS and Security Headers',
+  'Zod: refine и transform': 'Zod: refine and transform',
+  'REST, GraphQL, gRPC, tRPC и SSE': 'REST, GraphQL, gRPC, tRPC, and SSE',
+  'WebSockets — реальное время (Socket.io)': 'WebSockets — real time (Socket.io)',
+  'Что такое база данных': 'What a database is',
+  'SELECT — получить данные': 'SELECT — get data',
+  'INSERT, UPDATE, DELETE': 'INSERT, UPDATE, DELETE',
+  'Ключи и связи таблиц': 'Keys and table relations',
+  'Где практиковаться': 'Where to practice',
+  'JOIN — объединение таблиц': 'JOIN — combine tables',
+  'Агрегатные функции и GROUP BY': 'Aggregate functions and GROUP BY',
+  'Индексы и оптимизация': 'Indexes and optimization',
+  'Транзакции и уровни изоляции': 'Transactions and isolation levels',
+  'Redis и NoSQL — когда не только SQL': 'Redis and NoSQL — when SQL is not enough',
+  'Как устроен сервер': 'How a server works',
+  'Кэширование — главный ускоритель': 'Caching — the main accelerator',
+  'Балансировка нагрузки': 'Load balancing',
+  'Docker — контейнеры': 'Docker — containers',
+  'Полная картина: путь к «много людей»': 'Full picture: the path to many users',
+  'CI/CD: GitHub Actions — автоматизация деплоя': 'CI/CD: GitHub Actions — deploy automation',
+  'Docker Compose и Nginx reverse proxy': 'Docker Compose and Nginx reverse proxy',
+  'Очереди сообщений: RabbitMQ и Kafka': 'Message queues: RabbitMQ and Kafka',
+  'Установка и подключение': 'Install and connection',
+  'Параметризованные запросы и безопасность': 'Parameterized queries and security',
+  'Схема БД и миграции': 'DB schema and migrations',
+  'CRUD операции в PostgreSQL': 'CRUD operations in PostgreSQL',
+  'JSON и JSONB в PostgreSQL': 'JSON and JSONB in PostgreSQL',
+  'Функции, триггеры и представления': 'Functions, triggers, and views',
+  'Prisma ORM — работа с PostgreSQL из Node.js': 'Prisma ORM — PostgreSQL from Node.js',
+  '🆕 Создать новый репозиторий': '🆕 Create a new repository',
+  '🚀 Загрузить файл в репозиторий GitHub': '🚀 Upload a file to a GitHub repository',
+  'Понимаю, зачем нужен DOCTYPE': 'I understand why DOCTYPE is needed',
+  'На странице только один h1 — остальные h2, h3...': 'Only one h1 per page — the rest are h2, h3...',
+  '&lt;p&gt; для текста, не &lt;div&gt;': '&lt;p&gt; for text, not &lt;div&gt;',
+  '&lt;strong&gt; = важно, &lt;em&gt; = акцент (ударение)': '&lt;strong&gt; = important, &lt;em&gt; = emphasis',
+  'CSS — это не “красота”, а правила отображения.': 'CSS is not just “beauty”; it is display rules.',
+  'Переменная — это коробка с именем, где лежит значение.': 'A variable is a named box that stores a value.',
+  'Функция — это кусок кода, которому дали имя.': 'A function is a piece of code with a name.',
+  'DOM — это HTML, превращённый браузером в дерево объектов.': 'DOM is HTML turned by the browser into an object tree.',
+  'Событие — это действие пользователя или браузера.': 'An event is an action from the user or the browser.',
+  'localStorage хранит строки в браузере даже после перезагрузки страницы.': 'localStorage stores strings in the browser even after page reload.',
+  'ИИ-помощник': 'AI assistant',
+  'Выбери модель →': 'Choose model →',
+  'Контекст из темы': 'Topic context',
+  'Спросить ИИ': 'Ask AI',
+  'Или просто напиши свой вопрос ниже.': 'Or just type your question below.',
+  'Задай вопрос...': 'Ask a question...',
+  'Замыкания JS': 'JS closures',
+  'Как работает flexbox?': 'How does flexbox work?',
+  'Очистить историю ИИ-чата?': 'Clear AI chat history?',
+  'История ИИ-чата очищена': 'AI chat history cleared',
+  'Убрать файл': 'Remove file',
+  'Проанализируй прикреплённые файлы.': 'Analyze the attached files.',
+  'Нет ответа': 'No response',
+  'Найди ошибки': 'Find bugs',
+  'Улучшить код': 'Improve code',
+  'Объясни код': 'Explain code',
+  'Добавь комментарии': 'Add comments',
+  'Вставить в редактор': 'Insert into editor',
+  'Вставлено!': 'Inserted!',
+  'Сохранено и применяется при каждой загрузке': 'Saved and applied on every load'
+};
 
-  // Сохраняем оригинал перед первым переводом
-  if (!translateOriginalCache[tabId]) translateOriginalCache[tabId] = {};
-  if (!translateOriginalCache[tabId]['ru']) translateOriginalCache[tabId]['ru'] = sectionEl.innerHTML;
 
-  // Показываем загрузку
-  const loadingOverlay = document.createElement('div');
-  loadingOverlay.id = 'translateLoadingOverlay';
-  loadingOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;font-size:14px;';
-  loadingOverlay.innerHTML = `
-    <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,.25);border-top-color:#8b5cf6;border-radius:50%;animation:aiSpin 0.8s linear infinite;"></div>
-    <div>Переводим вкладку на ${langLabel}...</div>
-    <div id="translateProgressText" style="font-size:12px;opacity:.7;">Запросы отправлены параллельно — обычно 5-15 секунд</div>
-  `;
-  document.body.appendChild(loadingOverlay);
-  if (!document.getElementById('aiSpinKeyframe')) {
-    const style = document.createElement('style');
-    style.id = 'aiSpinKeyframe';
-    style.textContent = '@keyframes aiSpin { to { transform: rotate(360deg); } }';
-    document.head.appendChild(style);
-  }
+Object.assign(WDG_TEXT_EN, {
+  'Ссылка на ДРУГОЙ САЙТ': 'Link to ANOTHER WEBSITE',
+  'Ссылка на ДРУГУЮ СТРАНИЦУ ТВОЕГО САЙТА': 'Link to ANOTHER PAGE OF YOUR SITE',
+  'Ссылка в НОВОЙ ВКЛАДКЕ': 'Link in a NEW TAB',
+  'Ссылка на РАЗДЕЛ ЭТОЙ ЖЕ страницы': 'Link to a SECTION OF THIS SAME page',
+  'Кнопка-ссылка': 'Button link',
+  'кнопка, которая ведёт на другую страницу': 'a button that goes to another page',
+  'Картинка': 'Image',
+  'Открыть Google': 'Open Google',
+  'Настройки': 'Settings',
+  'Обо мне': 'About me',
+  'Контакты': 'Contacts',
+  'Перейти к': 'Go to',
+  'О нас': 'About us',
+  'Закат на море': 'Sunset at the sea',
+  'На другой сайт': 'To another website',
+  'На свою страницу': 'To your own page',
+  'В новой вкладке': 'In a new tab',
+  'Якорь (#)': 'Anchor (#)',
+  'Кнопка-ссылка': 'Button link',
+  'Картинка': 'Image',
+  'полный адрес сайта': 'the full website address',
+  'Браузер откроет этот сайт': 'The browser opens that site',
+  'имя файла': 'file name',
+  'Если файл в папке': 'If the file is in a folder',
+  'Если на уровень выше': 'If it is one level up',
+  'откроется в отдельной вкладке': 'opens in a separate tab',
+  'не закрывая текущую': 'without closing the current one',
+  'прокрутит страницу до элемента с': 'scrolls the page to the element with',
+  'Работает только внутри одной страницы': 'Works only inside one page',
+  'оборачиваешь': 'wrap',
+  'получится кнопка, которая ведёт на другую страницу': 'you get a button that goes to another page',
+  'путь к файлу картинки': 'path to the image file',
+  'описание для слепых': 'description for blind users',
+  'обязательно': 'required',
+  'ссылка на свой файл': 'link to your own file',
+  'на чужой сайт': 'to another website',
+  'новая вкладка': 'new tab',
+  'безопасность': 'security',
+  'якорь': 'anchor',
+  'прокрутит к': 'scrolls to',
+  'на этой странице': 'on this page',
+  'кнопка-ссылка': 'button link',
+  'Текст': 'Text',
+  'Другой сайт': 'Another website',
+  'Другая страница': 'Another page',
+  'Новая вкладка': 'New tab',
+  'Раздел страницы': 'Page section',
+  'Кнопка': 'Button',
+  'Описание': 'Description',
+  'страница': 'page',
+  'сайт': 'site',
+  'ссылка': 'link',
+  'кнопка': 'button',
+  'картинка': 'image',
+  'раздел': 'section',
+  'вкладка': 'tab',
+  'файл': 'file',
+  'папка': 'folder',
+  'адрес': 'address',
+  'пользователь': 'user',
+  'браузер': 'browser',
+  'страницы': 'pages',
+  'сайта': 'site',
+  'текущую': 'current one',
+  'другую': 'another',
+  'свою': 'your own',
+  'чужой': 'external',
+  'уровень выше': 'one level up',
+  'внутри': 'inside',
+  'одной': 'one',
+  'этой же': 'this same',
+  'ведёт': 'goes',
+  'слепых': 'blind users',
+  'русских букв': 'Russian letters',
+  'видимый контент': 'visible content',
+  'отступов': 'spacing',
+  'абзацами': 'paragraphs',
+  'Автоматически': 'Automatically',
+  'автоматически': 'automatically',
+  'добавляет': 'adds',
+  'между': 'between',
+  'разницу': 'difference',
+  'Понимаю': 'I understand',
+  'Знаю': 'I know',
+  'Не забываю': 'I do not forget',
+  'это': 'this is',
+  'тут': 'here',
+  'будут': 'there will be',
+  'вместо': 'instead of',
+  'нужен': 'is needed',
+  'нужна': 'is needed',
+  'нужно': 'is needed',
+  'правильная структура': 'correct structure',
+  'ошибка': 'error',
+  'ошибки': 'errors',
+  'частые ошибки': 'common mistakes',
+  'пример': 'example',
+  'примеры': 'examples',
+  'задача': 'task',
+  'задачи': 'tasks',
+  'проект': 'project',
+  'мини-проект': 'mini-project',
+  'повторение': 'review',
+  'отдых': 'rest',
+  'теория': 'theory',
+  'учеба': 'study',
+  'учёба': 'study',
+  'прогресс': 'progress',
+  'изучено': 'completed',
+  'закрыто': 'completed',
+  'впереди': 'ahead',
+  'дней': 'days',
+  'час': 'hour',
+  'часа': 'hours',
+  'дня': 'days',
+  'отдыха': 'of rest',
+  'развития': 'development',
+  'до 31 декабря': 'until December 31',
+  'следующий шаг': 'next step',
+  'следующие шаги': 'next steps',
+  'маршрут': 'route',
+  'план обучения': 'learning plan',
+  'ближайший': 'nearest',
+  'заметка': 'note',
+  'добавить': 'add',
+  'сбросить': 'reset',
+  'экспорт': 'export',
+  'импорт': 'import',
+  'скачан': 'downloaded',
+  'импортирован': 'imported',
+  'сброшен': 'reset',
+  'календарь сброшен': 'Calendar reset',
+  'календарь скачан в JSON': 'Calendar downloaded as JSON',
+  'календарь импортирован': 'Calendar imported',
+  'скопировать': 'copy',
+  'скопировано': 'copied',
+  'не получилось скопировать': 'Could not copy',
+  'скопируй вручную': 'copy manually',
+  'Выдели любой текст на странице и нажми': 'Select any text on the page and click',
+  'объясню именно эту тему': 'I will explain this exact topic',
+  'напиши свой вопрос ниже': 'write your question below',
+  'Объясни проще': 'Explain simpler',
+  'Пример с кодом': 'Code example',
+  'Частые ошибки': 'Common mistakes',
+  'Где применяется': 'Where it is used',
+  'Задай любой вопрос': 'Ask any question',
+  'Задай вопрос': 'Ask a question',
+  'Выбери модель': 'Choose a model',
+  'Модель не найдена': 'Model not found',
+  'Неверный API ключ': 'Invalid API key',
+  'Нет ответа': 'No response',
+  'Ошибка': 'Error',
+  'Заполни': 'Fill in',
+  'сохранена': 'saved',
+  'удалены': 'deleted',
+  'Удалить': 'Delete',
+  'Очистить историю': 'Clear history',
+  'история': 'history',
+  'фото': 'photo',
+  'файл': 'file',
+  'файлы': 'files',
+  'Прикрепить файл': 'Attach file',
+  'прикреплено': 'attached',
+  'Прикреплённые файлы': 'Attached files',
+  'Содержимое файла': 'File contents',
+  'Проанализируй': 'Analyze',
+  'модель': 'model',
+  'ключ': 'key',
+  'провайдер': 'provider',
+  'сеть': 'network',
+  'лимит': 'limit',
+  'запрос': 'request',
+  'запросов': 'requests'
+});
 
-  try {
-    // Извлекаем текстовые узлы, сохраняя структуру HTML через маркеры
-    const original = translateOriginalCache[tabId]['ru'];
-    const translated = await translateHtmlChunk(original, langLabel);
+Object.assign(WDG_TEXT_EN, {
+  'заголовки.': 'headings.',
+  'заголовки': 'headings',
+  'самый важный': 'the most important one',
+  'название страницы': 'page title',
+  'самый мелкий': 'the smallest',
+  'Используй по порядку': 'Use them in order',
+  'Не перепрыгивай!': 'Do not skip levels.',
+  'абзац': 'paragraph',
+  'Браузер автоматически добавляет отступы между абзацами.': 'The browser automatically adds spacing between paragraphs.',
+  'жирный, означает': 'bold, means',
+  'важный': 'important',
+  'текст.': 'text.',
+  'курсив, означает': 'italic, means',
+  'акцент': 'emphasis',
+  'ударение': 'emphasis',
+  'перенос строки.': 'line break.',
+  'Не используй для отступов!': 'Do not use it for spacing.',
+  'Для этого есть CSS.': 'CSS is for that.',
+  'для текста, не': 'for text, not',
+  'На странице только один': 'Only one',
+  'остальные': 'the rest are',
+  'только один на странице!': 'only one per page!',
+  'Самый главный': 'The main heading',
+  'Раздел': 'Section',
+  'Подраздел': 'Subsection',
+  'Это абзац текста.': 'This is a text paragraph.',
+  'А тут': 'And here is',
+  'жирный': 'bold',
+  'курсив': 'italic',
+  'Скелет сайта': 'Site skeleton',
+  'Теги и атрибуты': 'Tags and attributes',
+  'Семантика': 'Semantics',
+  'SEO основа': 'SEO basics',
+  'Начни здесь': 'Start here',
+  'Язык стилей': 'Styling language',
+  'Интерактивность': 'Interactivity',
+  'Внешний вид': 'Appearance',
+  'Адаптивность': 'Responsiveness',
+  'Анимации': 'Animations',
+  'Состояние': 'State',
+  'Компоненты': 'Components',
+  'Маршрутизация': 'Routing',
+  'Состояние приложения': 'Application state',
+  'Серверное состояние': 'Server state',
+  'Тестирование': 'Testing',
+  'Архитектура': 'Architecture',
+  'Основная навигация': 'Main navigation',
+  'thead + tbody — правильная структура таблицы': 'thead + tbody is the correct table structure',
+  'Путь к файлу': 'File path',
+  'Описание картинки': 'Image description',
+  'Размер картинки': 'Image size'
+});
 
-    sectionEl.innerHTML = translated;
-    translateOriginalCache[tabId][langCode] = translated;
-    translateActiveLang[tabId] = langCode;
-    updateTranslateBadge();
+Object.assign(WDG_TEXT_EN, {
+  '📅 Календарь': '📅 Calendar',
+  '💼 Карьера': '💼 Career',
+  '🔗 Ссылки': '🔗 Links',
+  '🧮 Алгоритмы': '🧮 Algorithms',
+  '✨ ИИ': '✨ AI',
+  '🔧 Рефакторинг': '🔧 Refactoring',
+  '🔤 Шрифты': '🔤 Fonts',
+  'Копировать': 'Copy',
+  'Скопировано!': 'Copied!',
+  'Добавить заметку': 'Add note',
+  'Моя заметка': 'My note',
+  'Наверх': 'To top',
+  'Быстрое меню': 'Quick menu',
+  'Показать только закладки': 'Show bookmarks only',
+  'Вопросы по отмеченным темам': 'Questions from selected topics',
+  'Скачать прогресс в JSON': 'Download progress as JSON',
+  'Импортировать прогресс из JSON': 'Import progress from JSON',
+  'Сбросить весь прогресс': 'Reset all progress',
+  'Нажми чтобы изменить время': 'Click to change time',
+  'Готово': 'Done',
+  'Закрыть': 'Close',
+  'Открыть': 'Open',
+  'Сохранить': 'Save',
+  'Удалить': 'Delete',
+  'Очистить': 'Clear',
+  'Поиск': 'Search',
+  'Поиск по темам...': 'Search topics...',
+  'Понимаю, зачем нужен DOCTYPE': 'I understand why DOCTYPE is needed',
+  'Знаю разницу между': 'I know the difference between',
+  'настройки': 'settings',
+  'видимый контент': 'visible content',
+  'Не забываю': 'I do not forget',
+  'иначе будут': 'otherwise there will be',
+  'вместо русских букв': 'instead of Russian letters',
+  'это текст во вкладке браузера, а не на странице': 'this is the browser tab text, not page content',
+  'говорит браузеру': 'tells the browser',
+  'это современный HTML5': 'this is modern HTML5',
+  'Пиши всегда первой строкой.': 'Always write it as the first line.',
+  'корень страницы': 'the page root',
+  'подсказывает браузеру и поисковикам язык': 'tells the browser and search engines the language',
+  'голова': 'head',
+  'сайта. Тут настройки, которые': 'of the site. It contains settings that are',
+  'не видны': 'not visible',
+  'на странице: кодировка, заголовок вкладки, подключение CSS.': 'on the page: encoding, tab title, CSS connection.',
+  'чтобы русские буквы отображались нормально': 'so Russian letters display correctly',
+  'Без этого будут': 'Without this there will be',
+  'кракозябры': 'broken characters',
+  'тело': 'body',
+  'Всё, что ты тут напишешь,': 'Everything you write here',
+  'увидит пользователь': 'will be seen by the user',
+  'Заголовки и текст': 'Headings and text',
+  'Ссылки и картинки': 'Links and images',
+  'Формы — ввод данных': 'Forms — data input',
+  'Семантические теги': 'Semantic tags',
+  'Таблицы — данные в строках и столбцах': 'Tables — data in rows and columns',
+  'Meta-теги — SEO и соцсети': 'Meta tags — SEO and social media',
+  'Видео, аудио и iframe': 'Video, audio, and iframe',
+  'Data-атрибуты и доступность (ARIA)': 'Data attributes and accessibility (ARIA)'
+});
 
-  } catch (err) {
-    alert('Не удалось перевести: ' + err.message + '\n\nПроверь что ИИ-помощник настроен (вкладка «ИИ») или работает дефолтная модель.');
-  } finally {
-    document.getElementById('translateLoadingOverlay')?.remove();
-  }
-}
+Object.assign(WDG_TEXT_EN, {
+  'HTML — это скелет любого сайта. Он не отвечает за красоту, а говорит браузеру: «это заголовок», «это картинка», «это ссылка».': 'HTML is the skeleton of any website. It is not responsible for beauty; it tells the browser: “this is a heading”, “this is an image”, “this is a link”.',
+  'DOCTYPE говорит браузеру: это современный HTML5. Пиши всегда первой строкой.': 'DOCTYPE tells the browser: this is modern HTML5. Always put it on the first line.',
+  'Корень страницы. lang подсказывает браузеру и поисковикам язык.': 'The root of the page. lang tells the browser and search engines what language the page uses.',
+  'head — «голова» сайта. Тут настройки, которые не видны на странице: кодировка, заголовок вкладки, подключение CSS.': 'head is the “head” of the site. It contains settings that are not visible on the page: encoding, tab title, CSS links.',
+  'body — «тело» сайта. Всё, что ты тут напишешь, увидит пользователь.': 'body is the “body” of the site. Everything you write here is visible to the user.',
+  'h1–h6 — заголовки. h1 — самый важный (название страницы), h6 — самый мелкий. Используй по порядку: h1 → h2 → h3. Не перепрыгивай!': 'h1–h6 are headings. h1 is the most important one (page title), h6 is the smallest. Use them in order: h1 → h2 → h3. Do not skip levels.',
+  'p — абзац (paragraph). Браузер автоматически добавляет отступы между абзацами.': 'p is a paragraph. The browser automatically adds spacing between paragraphs.',
+  'strong — жирный, означает важный текст.': 'strong makes text bold and means the text is important.',
+  'em — курсив, означает акцент (ударение).': 'em makes text italic and means emphasis.',
+  'br — перенос строки. Не используй для отступов! Для этого есть CSS.': 'br is a line break. Do not use it for spacing. CSS is for spacing.',
+  'Ссылки бывают трёх типов: на другой сайт, на свою другую страницу, и на раздел этой же страницы.': 'Links have three common types: to another website, to another page of your site, and to a section on the same page.',
+  'На другой сайт: href="https://..." — полный адрес сайта. Браузер откроет этот сайт.': 'To another website: href="https://..." is the full address. The browser opens that site.',
+  'На свою страницу: href="settings.html" — имя файла. Если файл в папке: href="pages/settings.html". Если на уровень выше: href="../settings.html".': 'To your own page: href="settings.html" is the file name. If the file is in a folder: href="pages/settings.html". One level up: href="../settings.html".',
+  'В новой вкладке: target="_blank" — откроется в отдельной вкладке, не закрывая текущую.': 'In a new tab: target="_blank" opens the link in a separate tab without closing the current one.',
+  'Якорь (#): href="#about" — прокрутит страницу до элемента с id="about". Работает только внутри одной страницы.': 'Anchor (#): href="#about" scrolls the page to the element with id="about". It works inside one page.',
+  'Кнопка-ссылка: оборачиваешь button в a — получится кнопка, которая ведёт на другую страницу.': 'Button link: wrap button in a link and you get a button that goes to another page.',
+  'Картинка: src = путь к файлу, alt = описание картинки, width/height = размер.': 'Image: src is the file path, alt is the image description, width/height are the size.',
+  'Без семантики — сайт для браузера как текст без знаков препинания. Непонятно, где важное, а где нет. Семантика помогает: поисковикам (SEO), скринридерам (слепым пользователям), другим разработчикам в команде.': 'Without semantics, a website is like text without punctuation. It is unclear what matters and what does not. Semantics helps search engines, screen readers, and other developers.',
+  'Meta-теги не видны на странице, но влияют на то, как сайт выглядит в поиске и при репосте в соцсетях.': 'Meta tags are not visible on the page, but they affect how the site looks in search results and social sharing.',
+  'Твой менеджер или дизайнер пришлёт тебе ссылку на Figma — и ты должен по ней сделать точно такой же сайт. Figma покажет все размеры, цвета, отступы и шрифты — прямо в пикселях. Тебе не нужно угадывать — просто смотри и копируй.': 'Your manager or designer will send you a Figma link, and you must build the site from it. Figma shows sizes, colors, spacing, and fonts in pixels. You do not guess; you inspect and reproduce.',
+  'В правой панели Figma показывает: размер, отступы, цвет, шрифт, border-radius и даже готовый CSS-код.': 'In the right panel, Figma shows size, spacing, color, font, border-radius, and even ready CSS.',
+  'Открой Inspect любого текста — запиши font-family, размеры, цвета. Занеси в :root как CSS-переменные.': 'Open Inspect for any text, write down font-family, sizes, and colors. Put them into :root as CSS variables.',
+  'Если дизайнер использовал Auto Layout — у элемента будет , и . Figma покажет всё это в Inspect.': 'If the designer used Auto Layout, the element will have layout values. Figma shows them in Inspect.',
+  'Генерирует HTML/CSS код из выделенных элементов. Не идеален, но даёт хорошую отправную точку.': 'Generates HTML/CSS from selected elements. It is not perfect, but it gives a good starting point.',
+  'Файл скачается. Положи в папку проекта и подключи через &lt;img src="..."&gt; или background-image.': 'The file will download. Put it into your project folder and connect it through &lt;img src="..."&gt; or background-image.',
+  'CSS — это не “красота”, а правила отображения.': 'CSS is not just “beauty”; it is display rules.',
+  'Сначала header, потом секции, потом footer. В каждой секции — сначала контейнер, потом его содержимое.': 'First header, then sections, then footer. In each section: first a container, then its content.',
+  'Transition делает изменения CSS-свойств плавными. Самый простой способ добавить «жизнь» в интерфейс.': 'Transition makes CSS property changes smooth. It is the simplest way to add life to an interface.',
+  'Тени делают интерфейс «объёмным». Главное — не перебарщивать. Хорошая тень мягкая и едва заметная.': 'Shadows add depth to an interface. The main rule: do not overdo it. A good shadow is soft and subtle.',
+  'Элементы появляются плавно, когда пользователь доскролливает до них — как на современных сайтах.': 'Elements appear smoothly when the user scrolls to them, like on modern websites.',
+  'Тумблер — это стилизованный чекбокс. Делается через &lt;input type="checkbox"&gt; + CSS псевдоэлементы.': 'A toggle is a styled checkbox. It is built with &lt;input type="checkbox"&gt; plus CSS pseudo-elements.',
+  '&lt;span&gt; — как &lt;div&gt;, но НЕ создаёт новую строку. Для части текста внутри &lt;p&gt;.': '&lt;span&gt; is like &lt;div&gt;, but it does not create a new line. Use it for part of text inside &lt;p&gt;.',
+  'Центрирование fixed-элемента: top/left 50% + transform: translate(-50%,-50%)': 'Centering a fixed element: top/left 50% plus transform: translate(-50%, -50%).',
+  'z-index работает только при position: relative/absolute/fixed/sticky': 'z-index works only with position: relative/absolute/fixed/sticky.',
+  'overflow: hidden на родителе обрезает absolute-дочернего — осторожно с дропдаунами': 'overflow: hidden on a parent cuts off absolute children. Be careful with dropdowns.',
+  'Core Web Vitals — метрики Google про то, как пользователь ощущает страницу: быстро ли появился главный контент, не прыгает ли layout, быстро ли сайт реагирует.': 'Core Web Vitals are Google metrics for how a user feels the page: how fast main content appears, whether layout jumps, and how fast the site reacts.',
+  'Медиа-запросы реагируют на размер ВСЕГО окна браузера. Но что если одна и та же карточка лежит и в узком сайдбаре, и в широком центре страницы? Container Queries решают именно это.': 'Media queries react to the whole browser window. But what if the same card is inside a narrow sidebar and a wide content area? Container Queries solve exactly that.',
+  'В новых React-проектах Tailwind часто выбирают вместо ручного SCSS: стили собираются из маленьких utility-классов прямо в JSX, а дизайн-система живёт в конфиге.': 'In new React projects, Tailwind is often chosen instead of manual SCSS: styles are built from small utility classes directly in JSX, and the design system lives in the config.',
+  'меньше случайных CSS-файлов и конфликтов имён, проще держать единые отступы, цвета и состояния.': 'fewer random CSS files and naming conflicts, easier consistent spacing, colors, and states.',
+  'для функций, mixin и сложных циклов, но вложенность больше не является его уникальной суперсилой.': 'for functions, mixins, and complex loops, but nesting is no longer its unique superpower.',
+  'ограничивает область действия селекторов. Это похоже на локальные стили компонента, но без CSS Modules.': 'limits selector scope. It is similar to local component styles, but without CSS Modules.',
+  'Проверяй поддержку CSS и JS фич в браузерах. Открывай перед тем как использовать что-то новое.': 'Check browser support for CSS and JS features. Open this before using something new.',
+  'Визуальный редактор кривых анимации. Незаменим для настройки transition и animation timing.': 'A visual animation curve editor. Essential for tuning transition and animation timing.',
+  'Огромная библиотека CSS компонентов — кнопки, карточки, инпуты, лоадеры. Всё бесплатно и с кодом.': 'A huge library of CSS components: buttons, cards, inputs, loaders. Everything is free and includes code.',
+  'Переменная — это коробка с именем, где лежит значение.': 'A variable is a named box that stores a value.',
+  'Функция — это кусок кода, которому дали имя.': 'A function is a piece of code with a name.',
+  'DOM — это HTML, превращённый браузером в дерево объектов.': 'DOM is HTML turned by the browser into an object tree.',
+  'Событие — это действие пользователя или браузера.': 'An event is an action from the user or the browser.',
+  'Объект — это набор «ключ: значение». Идеально для описания сущностей: пользователь, товар, задача.': 'An object is a set of key-value pairs. It is perfect for describing entities: user, product, task.',
+  'Когда код «ждёт» (запрос к серверу, таймер) — он работает асинхронно. Promise — обещание дать результат «потом». async/await — синтаксис, чтобы это выглядело как обычный код.': 'When code “waits” (server request, timer), it works asynchronously. A Promise is a promise to give a result later. async/await makes it look like normal code.',
+  'Любимый вопрос интервьюеров №1. Замыкание — это функция, которая "помнит" переменные из окружения, в котором она была создана, даже после того как это окружение завершило работу.': 'A favorite interview question. A closure is a function that remembers variables from the environment where it was created, even after that environment has finished.',
+  'Не добавляй addEventListener повторно без removeEventListener — будут дубли': 'Do not add the same addEventListener repeatedly without removeEventListener — duplicates will appear.',
+  'Делегирование событий — один обработчик на родителя вместо 100 на детей': 'Event delegation means one handler on the parent instead of 100 handlers on children.',
+  'Анонимную функцию нельзя удалить через removeEventListener — давай имена': 'An anonymous function cannot be removed with removeEventListener. Give handlers names.',
+  'Понимаю как считается специфичность: ID > класс > тег': 'I understand specificity: ID > class > tag.',
+  '!important — последнее средство, не первое решение': '!important is the last resort, not the first solution.',
+  'Инлайновый style перебивает любой CSS в файле': 'Inline style overrides any CSS in a stylesheet.',
+  'Напиши функцию , которая принимает строку, убирает пробелы по краям и возвращает её в верхнем регистре.': 'Write a function that takes a string, trims spaces from the edges, and returns it in uppercase.',
+  'Напиши компонент , который принимает и как props и возвращает JSX с &lt;h2&gt; и &lt;p&gt;.': 'Write a component that takes data as props and returns JSX with &lt;h2&gt; and &lt;p&gt;.',
+  'Для списков используй .map() с обязательным key. Условный рендер — через && или тернарный оператор.': 'For lists, use .map() with a required key. Conditional rendering is done with && or a ternary operator.',
+  'useRef — фундаментальный хук. Нужен когда нужно достать DOM-элемент напрямую (фокус, размеры)': 'useRef is a fundamental hook. Use it when you need direct access to a DOM element, such as focus or size.',
+  'useContext хорош для простых случаев, но в крупных приложениях вызывает лишние перерисовки. Почти все вакансии требуют знание внешней библиотеки для глобального состояния.': 'useContext is good for simple cases, but in large apps it can cause extra re-renders. Many jobs expect knowledge of an external global-state library.',
+  'Писать сырой fetch внутри useEffect — устаревший подход. Это приводит к race conditions, отсутствию кэширования и тоннам шаблонного кода для loading/error состояний.': 'Writing raw fetch inside useEffect is an outdated approach. It leads to race conditions, no caching, and lots of boilerplate for loading/error states.',
+  'Vitest — современная и быстрая замена Jest, особенно для проектов на Vite (использует тот же движок и конфиг). React Testing Library — стандарт для тестирования React-компонентов.': 'Vitest is a modern fast replacement for Jest, especially in Vite projects. React Testing Library is the standard for testing React components.',
+  'В маленьких проектах файлы делят по типу: components/, hooks/, pages/. В крупных проектах этот подход превращается в кашу. Современный стандарт на рынке — методология FSD (Feature-Sliced Design).': 'In small projects, files are grouped by type: components/, hooks/, pages/. In large projects this becomes messy. A modern market standard is FSD (Feature-Sliced Design).',
+  'В реальных проектах стор часто должен переживать перезагрузку страницы: тема, корзина, настройки, токен-состояние интерфейса. Для этого в Zustand есть middleware.': 'In real projects, state often must survive page reload: theme, cart, settings, UI token state. Zustand has middleware for this.',
+  'Терминал — это текстовый интерфейс к системе. Работает быстрее мыши для большинства задач разработчика.': 'The terminal is a text interface to the system. It is faster than the mouse for most developer tasks.',
+  'Ветка — это независимая копия кода. Делаешь новую фичу? Создай ветку — main остаётся нетронутым.': 'A branch is an independent copy of the code. Building a new feature? Create a branch; main stays untouched.',
+  'Каждый кружок — коммит. Стрелка — от нового к старому. Ветки — параллельные линии истории.': 'Each circle is a commit. The arrow goes from newer to older. Branches are parallel lines of history.',
+  'VS Code подсвечивает конфликты и показывает кнопки: «Accept Current», «Accept Incoming», «Accept Both».': 'VS Code highlights conflicts and shows buttons: “Accept Current”, “Accept Incoming”, “Accept Both”.',
+  'Загрузи файл напрямую в твой GitHub репозиторий через API — прямо отсюда. Токен нигде не сохраняется.': 'Upload a file directly to your GitHub repository through the API from here. The token is not saved anywhere.',
+  'Браузер умеет запускать JS. Но JS «снаружи» браузера — на компьютере, на сервере — запускает': 'The browser can run JS. But JS outside the browser, on a computer or server, is run by',
+  'Node.js — фреймворк поверх React, который сам является Node.js приложением.': 'Node.js runs JavaScript outside the browser. Next.js is a framework over React that runs as a Node.js application.',
+  'Next.js — фреймворк поверх React, который сам является Node.js приложением. Понимание Node.js — обязательное условие чтобы по-настоящему понимать Next.js, а не просто копировать код.': 'Next.js is a framework over React that itself runs as a Node.js app. Understanding Node.js is required to truly understand Next.js instead of just copying code.',
+  'Если ты понимаешь чистый Node.js (как работает сервер, event loop, модули), то код Next.js перестаёт быть "магией" — ты понимаешь что происходит при каждом запросе.': 'If you understand plain Node.js (server, event loop, modules), Next.js code stops being magic; you understand what happens on every request.',
+  'REST API работает по принципу "запрос → ответ". Но чаты, уведомления в реальном времени и live-обновления (например, совместное редактирование) требуют постоянного соединения — для этого WebSockets.': 'REST API works as request → response. But chats, real-time notifications, and live updates need a persistent connection. That is what WebSockets are for.',
+  'REST — база. Но в командах встречаются и другие подходы: GraphQL для гибких запросов, gRPC для микросервисов, tRPC для TypeScript fullstack, SSE для стриминга.': 'REST is the base. But teams also use GraphQL for flexible requests, gRPC for microservices, tRPC for TypeScript fullstack, and SSE for streaming.',
+  '— формат передачи данных. Выглядит как JS-объект. Понятен и серверу, и браузеру, и любому языку.': 'is a data exchange format. It looks like a JS object and is understandable to servers, browsers, and any language.',
+  'Session vs JWT — два подхода к авторизации': 'Session vs JWT — two authorization approaches',
+  'Почему нельзя выдать один токен навечно? Потому что если его украдут (XSS, перехват) — злоумышленник получит доступ навсегда. Решение — короткоживущий Access + долгоживущий Refresh.': 'Why not issue one token forever? If it is stolen through XSS or interception, the attacker gets access forever. The solution is short-lived Access plus long-lived Refresh.',
+  'Хранить токены в localStorage в реальных проектах небезопасно — любой встроенный на страницу скрипт (XSS-атака) может их прочитать. httpOnly cookie решает эту проблему.': 'Storing tokens in localStorage is unsafe in real projects: any injected script can read them. httpOnly cookies solve this problem.',
+  'Access живёт мало — даже если украден, окно для атаки маленькое (15 минут). Refresh живёт долго, но хранится только в httpOnly cookie, недоступной для JS/XSS.': 'Access lives for a short time, so even if stolen, the attack window is small. Refresh lives longer but is stored in httpOnly cookies unavailable to JS/XSS.',
+  '— если подставлять данные в строку напрямую, злоумышленник может выполнить произвольный SQL.': 'if you insert data directly into a string, an attacker can execute arbitrary SQL.',
+  'PostgreSQL — стандарт для серьёзных проектов. Открытый исходный код, ACID-совместимость, JSON, полнотекстовый поиск. Используется везде от стартапов до банков.': 'PostgreSQL is a standard for serious projects: open source, ACID compliance, JSON, full-text search. It is used everywhere from startups to banks.',
+  'Сначала PostgreSQL/SQL. NoSQL добавляй не «потому что модно», а когда есть реальная причина.': 'Start with PostgreSQL/SQL. Add NoSQL not because it is trendy, but when there is a real reason.',
+  'CI/CD автоматизирует то, что иначе делаешь руками: проверку кода и деплой. Один файл — и при каждом пуше в main линтер проверяет код, а проект автоматически деплоится.': 'CI/CD automates what you would otherwise do manually: code checks and deployment. One file, and on every push to main the linter checks code and the project deploys automatically.',
+  'Dockerfile собирает один контейнер. Docker Compose запускает сразу несколько: сайт, сервер, базу, Redis. Nginx принимает запросы снаружи и прокидывает их внутрь.': 'A Dockerfile builds one container. Docker Compose starts several at once: site, server, database, Redis. Nginx receives external requests and forwards them inside.',
+  'контейнер — как транспортный контейнер на корабле. Неважно что внутри — он стандартного размера и подходит к любому кораблю, крану, грузовику. Так же Docker-контейнер запускается на любом сервере одинаково.': 'A container is like a shipping container. No matter what is inside, it has a standard shape and fits any ship, crane, or truck. A Docker container runs the same on any server.',
+  '— это просто компьютер, который всегда включён и отвечает на запросы из интернета. Когда ты открываешь сайт — твой браузер шлёт запрос на сервер, сервер отвечает.': 'is just a computer that is always on and responds to internet requests. When you open a site, your browser sends a request to the server and the server responds.',
+  '— выполняется синхронно ДО того как браузер отрисует изменения. Используй только для измерений DOM, которые должны быть видны мгновенно (иначе будет "мигание").': 'runs synchronously before the browser paints changes. Use it only for DOM measurements that must be visible immediately; otherwise there may be flicker.',
+  'Рефакторинг — это изменение структуры кода без изменения того, что он делает. Грязный код работает, но рефакторинг делает его понятным, поддерживаемым и расширяемым.': 'Refactoring changes code structure without changing behavior. Dirty code can work, but refactoring makes it understandable, maintainable, and extensible.',
+  'Code Smell — не баг, код работает. Но это сигнал что структура плохая и в будущем создаст проблемы.': 'A code smell is not a bug; the code works. But it signals bad structure that will create problems later.',
+  '— если функция не помещается на экран, скорее всего делает слишком много. Раздели на части.': 'if a function does not fit on one screen, it probably does too much. Split it into parts.',
+  'защищают от лишней сложности: без React, без библиотек, только подсказки, не полный ответ.': 'protect from extra complexity: no React, no libraries, only hints, not the full answer.',
+  'Структура данных — это способ хранить данные так, чтобы нужные операции были удобными и быстрыми.': 'A data structure is a way to store data so the needed operations are convenient and fast.',
+  'достаточно понять идею producer → queue → worker. Реально понадобится позже, когда будет backend-проект.': 'it is enough to understand the idea: producer → queue → worker. You will really need it later in backend projects.',
+  'Пиши HTML, CSS и JS — результат сразу виден справа. Идеально для экспериментов по темам роадмапа.': 'Write HTML, CSS, and JS; the result is visible on the right immediately. Perfect for experiments with roadmap topics.',
+  'Отобранные инструменты, библиотеки и сайты которые реально используются в работе. Без мусора.': 'Selected tools, libraries, and websites that are actually used at work. No junk.',
+  'Не книга, а самая авторитетная документация. Каждый тег с примерами и нюансами поддержки браузерами.': 'Not a book, but the most authoritative documentation. Every tag has examples and browser-support nuances.',
+  'Английская версия learn.javascript.ru. Тот же контент — для английских интервью и вакансий.': 'The English version of learn.javascript.ru. Same kind of content, useful for English interviews and jobs.',
+  'От автора jQuery. Замыкания, прототипы, this, события — глубоко и с тестами, проверяющими ваши знания.': 'From the creator of jQuery. Closures, prototypes, this, events — deeply explained with knowledge-checking tests.',
+  'Быстрая бурая лиса прыгает через ленивую собаку. The quick brown fox jumps over the lazy dog.': 'The quick brown fox jumps over the lazy dog.',
+  'Один для заголовков, один для текста — этого хватает в 95% случаев. Каждый шрифт = +30-100 КБ загрузки.': 'One font for headings and one for body text is enough in 95% of cases. Every font adds 30-100 KB of loading.',
+  'Без какой-либо настройки ИИ-помощник уже работает на бесплатной модели Llama 3.3 70B (через Groq). Просто открой чат кнопкой 💬 в правом нижнем углу или выдели текст на странице.': 'Without any setup, the AI assistant already works with the free Llama 3.3 70B model through Groq. Open the chat with the button in the bottom-right corner or select text on the page.',
+  'По умолчанию: Llama 3.3 70B встроено': 'Default: Llama 3.3 70B is built in',
+  'Своя модель и API ключ': 'Your own model and API key',
+  'опционально': 'optional',
+  'Примеры настроек по провайдерам': 'Provider setup examples',
+  'справка': 'help',
+  'Главная роль:': 'Main role:',
+  'Code review и анализ файлов:': 'Code review and file analysis:',
+  'Доступные template_name: "flexbox", "animation", "form", "todo".': 'Available template_name values: "flexbox", "animation", "form", "todo".',
+  'Обычный код в ответах оформляй в тройные обратные кавычки с названием языка.': 'Format normal code answers in triple backticks with the language name.'
+});
 
-function updateTranslateBadge() {
-  const tabId = currentTranslateTabId;
-  const badge = document.getElementById('translateLangBadge');
-  if (!badge) return;
-  const lang = translateActiveLang[tabId];
-  if (lang) {
-    badge.style.display = 'inline-block';
-    badge.textContent = lang.toUpperCase();
-  } else {
-    badge.style.display = 'none';
-  }
-}
+const WDG_TEXT_RU = Object.fromEntries(Object.entries(WDG_TEXT_EN).map(([ru, en]) => [en, ru]));
 
-// Переводит HTML-чанк через AI, разбивая на части если слишком длинный
-async function translateHtmlChunk(htmlChunk, langLabel) {
-  const MAX_CHARS = 12000; // безопасный лимит на один запрос
-  if (htmlChunk.length <= MAX_CHARS) {
-    return await callAiForTranslation(htmlChunk, langLabel);
-  }
-
-  // Разбиваем по крупным блокам (div class="block"), группируя соседние блоки
-  // в чанки побольше — меньше запросов, и шлём их ПАРАЛЛЕЛЬНО, а не по очереди
-  const rawParts = htmlChunk.split(/(?=<div class="block")/).filter(p => p.trim());
-
-  const groups = [];
-  let current = '';
-  for (const part of rawParts) {
-    if (current.length + part.length > MAX_CHARS && current) {
-      groups.push(current);
-      current = part;
-    } else {
-      current += part;
-    }
-  }
-  if (current) groups.push(current);
-
-  updateTranslateProgress(0, groups.length);
-
-  let doneCount = 0;
-  const translatedGroups = await Promise.all(groups.map(async (group) => {
-    const out = await callAiForTranslation(group, langLabel);
-    doneCount++;
-    updateTranslateProgress(doneCount, groups.length);
-    return out;
-  }));
-
-  return translatedGroups.join('');
-}
-
-function updateTranslateProgress(done, total) {
-  const el = document.getElementById('translateProgressText');
-  if (el) el.textContent = `Переведено ${done} из ${total} частей...`;
-}
-
-async function callAiForTranslation(htmlChunk, langLabel) {
-  const systemPrompt = `You are a precise HTML translator. Translate ALL human-readable text content in the given HTML to ${langLabel}.
-STRICT RULES:
-- Keep ALL HTML tags, attributes, classes, ids, onclick handlers, inline styles EXACTLY as they are — do not translate or modify them.
-- Do NOT translate: code inside <span class="kw">, <span class="cm">, <span class="str">, <span class="num">, <span class="fn">, <span class="tag">, <span class="attr"> if it's actual programming code (variable names, function names, keywords like const/let/function stay as-is). Only translate comments written in Russian inside <span class="cm"> tags.
-- DO translate: regular paragraph text, headings, labels, button text, list items, explanations.
-- Do NOT add any commentary, markdown formatting, or code fences. Output ONLY the translated HTML, nothing else.
-- Preserve exact whitespace/indentation structure as much as possible.`;
-
-  const customCfg = (typeof aiGetCustomConfig === 'function') ? aiGetCustomConfig() : null;
-  const useCustom = customCfg && customCfg.apiKey && customCfg.model;
-
-  let res, data;
-  if (useCustom) {
-    const baseUrl = customCfg.baseUrl || 'https://api.groq.com/openai/v1';
-    res = await fetch(baseUrl.replace(/\/$/, '') + '/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + customCfg.apiKey,
-        ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'Frontend Roadmap' } : {})
-      },
-      body: JSON.stringify({
-        model: customCfg.model,
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: htmlChunk }],
-        max_tokens: 4096,
-        temperature: 0.2
-      })
+function wdgApplyTextMap(core, map) {
+  if (!core) return core;
+  if (map[core]) return map[core];
+  let out = core;
+  Object.entries(map)
+    .filter(([from]) => from.length > 2 && out.includes(from))
+    .sort((a, b) => b[0].length - a[0].length)
+    .forEach(([from, to]) => {
+      out = out.split(from).join(to);
     });
-  } else {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_KEYS.groq },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: htmlChunk }],
-        max_tokens: 4096,
-        temperature: 0.2
-      })
-    });
-  }
-
-  data = await res.json();
-  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-  let out = data.choices?.[0]?.message?.content || htmlChunk;
-
-  // Убираем возможные markdown code fences если модель их добавила
-  out = out.replace(/^```(?:html)?\n?/i, '').replace(/```\s*$/i, '');
   return out;
 }
 
+function wdgTranslateTextNode(node) {
+  const raw = node.nodeValue;
+  if (!raw || !raw.trim()) return;
+  if (!node.__wdgRuText && wdgMainLang === 'en') node.__wdgRuText = raw;
+  if (wdgMainLang === 'ru' && node.__wdgRuText) {
+    node.nodeValue = node.__wdgRuText;
+    return;
+  }
+  const source = node.__wdgRuText || raw;
+  const leading = source.match(/^\s*/)?.[0] || '';
+  const trailing = source.match(/\s*$/)?.[0] || '';
+  const core = source.trim();
+  const translated = wdgApplyTextMap(core, WDG_TEXT_EN);
+  if (translated !== core) node.nodeValue = leading + translated + trailing;
+}
 
+function wdgTranslateAttributes(root) {
+  const attrs = ['title', 'placeholder', 'aria-label', 'alt'];
+  root.querySelectorAll('*').forEach(el => {
+    attrs.forEach(attr => {
+      if (!el.hasAttribute(attr)) return;
+      const storeKey = '__wdgRuAttr_' + attr;
+      if (!el[storeKey] && wdgMainLang === 'en') el[storeKey] = el.getAttribute(attr);
+      if (wdgMainLang === 'ru' && el[storeKey]) {
+        el.setAttribute(attr, el[storeKey]);
+        return;
+      }
+      const source = el[storeKey] || el.getAttribute(attr);
+      const translated = wdgApplyTextMap(source, WDG_TEXT_EN);
+      if (translated !== source) el.setAttribute(attr, translated);
+    });
+  });
+}
+
+function wdgTranslateStaticText(root = document.body) {
+  if (!root) return;
+  const skip = new Set(['SCRIPT', 'STYLE', 'CODE', 'PRE', 'TEXTAREA', 'INPUT', 'SELECT', 'OPTION']);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent || skip.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+      if (parent.closest('script,style,code,pre,textarea,.code-block,.live-code,.editor')) return NodeFilter.FILTER_REJECT;
+      const core = (node.__wdgRuText || node.nodeValue || '').trim();
+      return (/[А-Яа-яЁё]/.test(core) || WDG_TEXT_RU[core]) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(wdgTranslateTextNode);
+  wdgTranslateAttributes(root);
+}
+
+function setMainLanguage(lang) {
+  wdgMainLang = lang === 'en' ? 'en' : 'ru';
+  localStorage.setItem(WDG_LANG_KEY, wdgMainLang);
+  applyMainLanguage();
+}
+
+function applyMainLanguage() {
+  const dict = WDG_I18N[wdgMainLang] || WDG_I18N.ru;
+  document.documentElement.lang = wdgMainLang;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (dict[key]) el.innerHTML = dict[key];
+  });
+
+  Object.entries(WDG_I18N_SELECTORS).forEach(([key, selector]) => {
+    const el = document.querySelector(selector);
+    if (!el || !dict[key]) return;
+    if (el.classList.contains('block-title')) {
+      const badge = el.querySelector('.badge')?.outerHTML || '';
+      const anchor = el.querySelector('.anchor-icon')?.outerHTML || '';
+      el.innerHTML = `${dict[key]} ${badge}${anchor}`;
+    } else {
+      el.textContent = dict[key];
+    }
+  });
+
+  document.getElementById('langRuBtn')?.classList.toggle('active', wdgMainLang === 'ru');
+  document.getElementById('langEnBtn')?.classList.toggle('active', wdgMainLang === 'en');
+  wdgTranslateStaticText(document.body);
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyMainLanguage();
+  const observer = new MutationObserver((mutations) => {
+    if (wdgMainLang !== 'en') return;
+    const shouldTranslate = mutations.some(m => m.addedNodes && m.addedNodes.length);
+    if (!shouldTranslate) return;
+    clearTimeout(window.__wdgI18nTimer);
+    window.__wdgI18nTimer = setTimeout(() => wdgTranslateStaticText(document.body), 50);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+});
 // ===== CUSTOM CSS (настройки → свой CSS на всю страницу) =====
 function applyCustomCss(css) {
   const tag = document.getElementById('customCssStyleTag');
@@ -23873,5 +24507,9 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
+
+
 
 
