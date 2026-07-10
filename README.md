@@ -6,7 +6,7 @@ Live Demo
 
 Open on GitHub Pages after you deploy it — the URL will be:
 ```
-https://kernix01.github.io/roadmap/
+https://kernix01.github.io/WebDevGym/
 ```
 
 What's inside
