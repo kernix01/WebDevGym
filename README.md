@@ -1,58 +1,54 @@
-Frontend Developer Roadmap
+План развития фронтенд-разработчика
 
-An interactive learning platform built as a single HTML file. Study topics, take mini-tests, solve practice tasks, and track your progress — all without any server or installation.
+Интерактивная обучающая платформа, созданная в виде единого HTML-файла. Изучайте темы, проходите мини-тесты, решайте практические задания и отслеживайте свой прогресс — всё без сервера и установки.
 
-Live Demo
+Демонстрация в реальном времени
 
-Open on GitHub Pages after you deploy it — the URL will be:
-```
+Откроется на GitHub Pages после развертывания — URL будет следующим:
+
 https://kernix01.github.io/WebDevGym/
-```
+Что внутри
 
-What's inside
+План развития разделен на три группы:
 
-The roadmap is split into three groups:
+Фронтенд — HTML, CSS, JavaScript, TypeScript, React, Git
 
-**Frontend** — HTML, CSS, JavaScript, TypeScript, React, Git
+Бэкенд и дополнительно — Node.js, SQL, Серверы, Linux, Vite
 
-**Backend & Extra** — Node.js, SQL, Servers, Linux, Vite
+Другое — Руководства, Практика, Распространенные ошибки, Ресурсы, Карьерный путь, Основы Figma, Плейборд, Шпаргалки, GitHub
 
-**Other** — Guides, Practice, Common mistakes, Resources, Career path, Figma basics, Playground, Cheatsheets, GitHub
+Каждая тема включает теоретический блок с примерами кода, мини-тест (2–3 вопроса) и практическое задание. Флажки разблокируются только после успешного прохождения теста и выполнения задания.
 
-Each topic has a theory block with code examples, a mini-test (2–3 questions), and a practice task. Checkboxes unlock only after you pass both the test and the task.
+Особенности
 
-Features
+Панель мониторинга прогресса с индикаторами и процентами для каждого языка
+Темный и светлый режимы
+Закладки для тем, к которым вы хотите вернуться
+Полнотекстовый поиск по всем темам
+Встроенная среда разработки кода (HTML/CSS/JS)
+Вкладка GitHub — поиск репозиториев и отправка файлов непосредственно в ваш репозиторий через API
+Как развернуть
 
-- Progress dashboard with per-language bars and percentages
-- Dark and light mode
-- Bookmarks for topics you want to revisit
-- Full-text search across all topics
-- Built-in code playground (HTML/CSS/JS)
-- GitHub tab — search repos and push files directly to your repository via API
+Вариант 1 — GitHub Pages (рекомендуется)
 
-How to deploy
+Создайте новый репозиторий на GitHub
+Загрузите index.html в корневую папку основной ветки
+Перейдите в Настройки → Страницы → Источник: основная ветка, / (корневая папка)
+Ваш сайт будет запущен примерно через минуту
+Вариант 2 — Отправка из самого приложения
 
-Option 1 — GitHub Pages (recommended)
+Откройте вкладку GitHub в дорожной карте, укажите ваше имя пользователя, имя репозитория и персональный токен доступа (с областью действия репозитория), выберите файл и нажмите «Отправить». Токен нигде не сохраняется — он находится только в текущей вкладке браузера.
 
-1. Create a new repository on GitHub
-2. Upload `index.html` to the root of the `main` branch
-3. Go to Settings → Pages → Source: main branch, / (root)
-4. Your site will be live in about a minute
+Вариант 3 — Локальное использование
 
-**Option 2 — Push from the app itself**
+Просто дважды щелкните index.html. Сервер не требуется.
 
-Open the GitHub tab inside the roadmap, fill in your username, repository name, and a Personal Access Token (with `repo` scope), select the file and click Push. The token is never saved anywhere — it only lives in the current browser tab.
+Сброс прогресса
 
-Option 3 — Local use
+Нажмите кнопку «Сброс» на верхней панели. Это очистит localStorage, и все флажки обнулятся. Ваши закладки также будут очищены.
 
-Just double-click `index.html`. No server needed.
+Примечания
 
-Resetting progress
-
-Click the Reset button in the top bar. This clears localStorage so all checkboxes go back to zero. Your bookmarks are also cleared.
-
-Notes
-
-- Progress is saved in `localStorage` and persists between sessions in the same browser
-- Locked checkboxes (🔒) unlock only after passing the mini-test and practice task for that topic
-- The file is self-contained — no CDN dependencies for core functionality
+Прогресс сохраняется в localStorage и сохраняется между сессиями в одном браузере.
+Заблокированные флажки (🔒) разблокируются только после прохождения мини-теста и практического задания по данной теме.
+Файл является самодостаточным — для основной функциональности нет зависимостей от CDN.
