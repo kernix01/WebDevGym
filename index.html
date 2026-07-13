@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -7,6 +7,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;700&family=Onest:wght@400;500;700&family=Rubik:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700&family=Lexend:wght@400;500;700&family=Work+Sans:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&family=Mulish:wght@400;500;700&family=Cabin:wght@400;500;700&family=Karla:wght@400;500;700&family=Quicksand:wght@400;500;700&family=Mukta:wght@400;500;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;500;700&family=Cormorant+Garamond:wght@400;500;700&family=Crimson+Pro:wght@400;500;700&family=PT+Serif:wght@400;700&family=EB+Garamond:wght@400;500;700&family=Libre+Baskerville:wght@400;700&family=Bitter:wght@400;500;700&family=Source+Serif+4:wght@400;600;700&family=Spectral:wght@400;500;700&family=Bebas+Neue:wght@400&family=Anton:wght@400&family=Oswald:wght@400;500;700&family=Archivo+Black:wght@400&family=Righteous:wght@400&family=Abril+Fatface:wght@400&family=Fjalla+One:wght@400&family=Russo+One:wght@400&family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500&family=Source+Code+Pro:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Caveat:wght@400;500;700&family=Pacifico:wght@400&family=Dancing+Script:wght@400;500;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 <title>WebDevGym</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="js/modern-language-bootstrap-v2.js"></script>
+<link rel="stylesheet" href="css/modern-ui.css">
+<link rel="stylesheet" href="css/modern-ui-fixes.css">
+<link rel="stylesheet" href="css/modern-language-fixes.css">
+<link rel="stylesheet" href="css/modern-ui-v2.css">
+<link rel="stylesheet" href="css/modern-ui-v3.css">
+<link rel="stylesheet" href="css/modern-ui-v5.css">
 <style>
   /* ===== АКЦЕНТНЫЕ ЦВЕТА (настраиваются конструктором) ===== */
   :root {
@@ -3775,8 +3783,281 @@ body.dark .nexus-chip { background:rgba(124,58,237,.18); color:#c4b5fd; }
 .nexus-empty { color:#64748b; font-size:13px; padding:20px; text-align:center; }
 @media (max-width:820px){ .nexus-shell,.nexus-editor-grid { grid-template-columns:1fr; } }
 
+
+
+  /* ===== WEBDEVGYM 2026 REDESIGN ===== */
+  :root {
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --accent-light: #60a5fa;
+    --accent-pale: #bfdbfe;
+    --accent-2: #0f9f8f;
+    --accent-2-alt: #f97316;
+    --accent-bg-dark: #172033;
+    --accent-bg-dark-alt: #202a3a;
+    --accent-soft: rgba(37, 99, 235, .12);
+    --accent-grad: linear-gradient(90deg, #2563eb, #0f9f8f);
+    --card: #ffffff;
+    --text: #172033;
+    --muted: #687387;
+    --border: #dce3ed;
+    --bg: #f3f6fa;
+  }
+
+  html { scroll-padding-top: 78px; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: #f3f6fa;
+    color: #172033;
+    letter-spacing: 0;
+  }
+  body.dark {
+    --card: #181b20;
+    --text: #edf0f5;
+    --muted: #9aa4b3;
+    --border: #303640;
+    --bg: #101215;
+    background: #101215;
+    color: #edf0f5;
+  }
+
+  .top-bar {
+    min-height: 58px;
+    margin: 0;
+    padding: 8px max(16px, calc((100vw - 1180px) / 2));
+    gap: 7px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid #dce3ed;
+    box-shadow: 0 4px 18px rgba(23,32,51,.06);
+    backdrop-filter: blur(14px);
+    scrollbar-width: none;
+  }
+  .top-bar::-webkit-scrollbar { display: none; }
+  body.dark .top-bar {
+    background: rgba(16,18,21,.95);
+    border-bottom-color: #303640;
+    box-shadow: 0 4px 18px rgba(0,0,0,.24);
+  }
+  .app-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: auto;
+    padding-right: 14px;
+    flex: 0 0 auto;
+    color: #172033;
+  }
+  body.dark .app-brand { color: #f8fafc; }
+  .app-brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #172033;
+    color: #fff;
+    font: 800 15px/1 'JetBrains Mono', monospace;
+    box-shadow: inset 0 -3px 0 #0f9f8f;
+  }
+  body.dark .app-brand-mark { background: #edf0f5; color: #101215; }
+  .app-brand-copy { min-width: 0; display: flex; flex-direction: column; }
+  .app-brand-copy strong { font-size: 14px; line-height: 1.1; letter-spacing: 0; }
+  .app-brand-copy small { margin-top: 3px; color: #7a8597; font-size: 9px; line-height: 1.1; white-space: nowrap; }
+  .top-btn {
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    background: #fff;
+    color: #3d485b;
+    font-size: 12px;
+    font-weight: 650;
+    box-shadow: none;
+  }
+  .top-btn:hover { background: #edf4ff; border-color: #9dbcf6; color: #1d4ed8; }
+  body.dark .top-btn { background: #181b20; border-color: #303640; color: #c2cad5; }
+  body.dark .top-btn:hover { background: #202a3a; border-color: #47658f; color: #fff; }
+  .lang-switch {
+    min-height: 34px;
+    padding: 3px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    background: #eef2f7;
+  }
+  .lang-main-btn { min-width: 34px; min-height: 26px; padding: 0 8px; border-radius: 5px; }
+  .lang-main-btn.active { background: #172033; color: #fff; }
+  body.dark .lang-switch { background: #181b20; border-color: #303640; }
+  body.dark .lang-main-btn.active { background: #edf0f5; color: #101215; }
+
+  .wrap { max-width: 1180px; padding: 22px 24px 64px; }
+  .wrap > div:first-child {
+    margin-bottom: 14px !important;
+    padding: 14px 16px 12px;
+    background: #fff;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+  }
+  body.dark .wrap > div:first-child { background: #181b20; border-color: #303640; }
+  .progress-label { margin-bottom: 9px; color: #536075; font-weight: 650; }
+  body.dark .progress-label { color: #aab3c0; }
+  .progress-bar { height: 6px; margin-bottom: 0; background: #e6ebf2; border-radius: 3px; }
+  .progress-fill { border-radius: 3px; }
+
+  .prog-dash {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .prog-dash-section-title { padding: 7px 2px 1px; color: #6f7b8e; letter-spacing: .6px; }
+  .prog-dash-card {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 32px minmax(0,1fr) auto;
+    grid-template-areas: 'icon name pct' 'icon bar bar';
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 5px;
+    padding: 11px 12px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #dce3ed !important;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+  .prog-dash-card:hover {
+    border-color: #9dbcf6 !important;
+    box-shadow: 0 5px 14px rgba(23,32,51,.08);
+    transform: translateY(-1px);
+  }
+  body.dark .prog-dash-card { background: #181b20; border-color: #303640 !important; }
+  .pdc-icon { grid-area: icon; margin: 0; display: flex; align-items: center; justify-content: center; }
+  .pdc-lang-icon { width: 25px; height: 25px; }
+  .pdc-name { grid-area: name; margin: 0; overflow: hidden; text-overflow: ellipsis; color: #536075; }
+  .pdc-bar { grid-area: bar; height: 4px; margin: 0; }
+  .pdc-pct { grid-area: pct; font-size: 11px; color: #172033; }
+
+  .tabs-nav {
+    gap: 5px;
+    margin-bottom: 18px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(23,32,51,.04);
+  }
+  body.dark .tabs-nav { background: #181b20; border-color: #303640; }
+  .tabs-row { gap: 6px; min-height: 30px; }
+  .tabs-row-label { min-width: 92px; padding: 6px 9px; border-radius: 5px; text-align: center; }
+  .tabs-row-label.fe { background: #2563eb; }
+  .tabs-row-label.be { background: #0f766e; }
+  .tabs-row-label.oth { background: #596579; }
+  .tab {
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid #dce3ed;
+    border-radius: 6px;
+    color: #536075;
+    background: #f8fafc;
+    font-weight: 600;
+  }
+  .tab:hover:not(.active) { background: #edf4ff; border-color: #9dbcf6; color: #1d4ed8; }
+  .tab.active { background: #172033; border-color: #172033; box-shadow: none; }
+  body.dark .tab { background: #20242a; border-color: #343b46; color: #aab3c0; }
+  body.dark .tab.active { background: #edf0f5; border-color: #edf0f5; color: #101215; }
+
+  .lang-section-hero {
+    min-height: 126px;
+    padding: 22px 26px;
+    margin-bottom: 16px;
+    border: 1px solid #27364c;
+    border-left: 6px solid #0f9f8f !important;
+    border-radius: 8px;
+    background: #172033 !important;
+    box-shadow: 0 8px 22px rgba(23,32,51,.12);
+  }
+  .lang-section-hero::before { display: none; }
+  .lang-section-hero-icon { font-size: 2.35rem !important; }
+  .lang-section-hero-title { font-size: 21px; font-weight: 760; }
+  .lang-section-hero-sub { max-width: 850px; color: #c7d0dd; opacity: 1; }
+  .lang-section-hero-badge { border-radius: 5px; background: rgba(255,255,255,.1); }
+
+  .block, .tool-block {
+    padding: 20px 22px;
+    margin-bottom: 12px;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(23,32,51,.035);
+  }
+  .block:hover, .tool-block:hover { box-shadow: 0 7px 18px rgba(23,32,51,.075); }
+  body.dark .block, body.dark .tool-block { background: #181b20; border-color: #303640; }
+  .block-title { font-size: 16px; font-weight: 720; padding-bottom: 11px; border-bottom-color: #e7ebf1; }
+  body.dark .block-title { border-bottom-color: #303640; }
+  .badge { padding: 3px 8px; border-radius: 5px; letter-spacing: .2px; }
+  .tip { border-radius: 0 6px 6px 0; background: #f5f8fc; color: #5d697c; }
+  body.dark .tip { background: #20242a; color: #aab3c0; }
+  .explain { border-radius: 6px; background: #f8fafc; border-color: #e4e9f0; }
+  body.dark .explain { background: #20242a; border-color: #303640; }
+  .code { border-radius: 6px; background: #111720; box-shadow: none; }
+  .item { border-radius: 6px; }
+
+  .tip-of-day {
+    min-height: 48px;
+    margin-bottom: 12px;
+    padding: 11px 14px;
+    background: #fff;
+    color: #3d485b;
+    border: 1px solid #dce3ed;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+  }
+  .tip-of-day-label { background: #fff3d6; color: #9a5d00; border-radius: 4px; }
+  body.dark .tip-of-day { background: #181b20; color: #c2cad5; border-color: #303640; border-left-color: #f59e0b; }
+  .challenge-card {
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    background: #172033;
+    border: 1px solid #27364c;
+    border-top: 5px solid #f97316;
+    border-radius: 8px;
+  }
+  .challenge-timer { border-radius: 6px; background: rgba(255,255,255,.1); }
+  .challenge-task-name { font-size: 20px; }
+  .challenge-btn { border-radius: 6px; color: #172033; }
+  .challenge-btn:hover { transform: translateY(-1px); }
+
+  .quick-nav { border-radius: 8px; box-shadow: 0 8px 24px rgba(23,32,51,.12); }
+  .quick-nav a, .quick-nav button { border-radius: 5px; }
+  .search-fab, .ai-fab, .settings-fab, .pomo-btn, .scroll-top { box-shadow: 0 7px 20px rgba(23,32,51,.18); }
+
+  @media (max-width: 980px) {
+    .app-brand-copy small { display: none; }
+    .prog-dash { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .tabs-row-label { min-width: 82px; }
+  }
+  @media (max-width: 720px) {
+    .top-bar { min-height: 52px; padding: 7px 10px; }
+    .app-brand { padding-right: 5px; }
+    .app-brand-mark { width: 32px; height: 32px; font-size: 13px; }
+    .app-brand-copy { display: none; }
+    .top-btn { min-height: 32px; padding: 0 9px; }
+    .wrap { padding: 14px 10px 56px; }
+    .prog-dash { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .prog-dash-card { padding: 9px; grid-template-columns: 27px minmax(0,1fr) auto; }
+    .tabs-nav { padding: 8px; }
+    .tabs-row-label { min-width: 72px; font-size: 8px; }
+    .lang-section-hero { min-height: auto; padding: 18px; gap: 13px; }
+    .lang-section-hero-title { font-size: 18px; }
+    .lang-section-hero-sub { font-size: 13px; }
+    .block, .tool-block { padding: 16px 14px; }
+    .block-title { font-size: 15px; }
+  }
+
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="css/webdevgym-features.css">
 </head>
 <body>
 <div id="customBgLayer"></div>
@@ -3806,14 +4087,15 @@ body.dark .nexus-chip { background:rgba(124,58,237,.18); color:#c4b5fd; }
 
 <!-- TOP BAR -->
 <div class="top-bar">
+  <div class="app-brand" aria-label="WebDevGym"><span class="app-brand-mark">&lt;/&gt;</span><span class="app-brand-copy"><strong>WebDevGym</strong><small>Тренажер frontend-разработчика</small></span></div>
   <button class="top-btn" onclick="toggleDark()" id="darkBtn" data-i18n="top.dark"><iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Тёмная</button>
   <button class="top-btn" id="bmFilterBtn" onclick="toggleBmFilter()" title="Показать только закладки" data-i18n="top.bookmarks">🔖 Закладки</button>
   <button class="top-btn" onclick="startMockInterview()" title="Вопросы по отмеченным темам" data-i18n="top.interview">🎙️ Мок-интервью</button>
   <button class="top-btn" onclick="exportProgressJson()" title="Скачать прогресс в JSON" data-i18n="top.export">⬇ Экспорт</button>
   <button class="top-btn" onclick="importProgressJson()" title="Импортировать прогресс из JSON" data-i18n="top.import">⬆ Импорт</button>
   <div class="lang-switch" title="Основной язык интерфейса">
-    <button class="lang-main-btn active" id="langRuBtn" type="button" onclick="location.href='index.html'">RU</button>
-    <button class="lang-main-btn" id="langEnBtn" type="button" onclick="location.href='roadmap-en.html'">EN</button>
+    <button class="lang-main-btn active" id="langRuBtn" type="button" onclick="location.href='https://kernix01.github.io/WebDevGym/'">RU</button>
+    <button class="lang-main-btn" id="langEnBtn" type="button" onclick="location.href='https://kernix01.github.io/WebDevGym-EN/'">EN</button>
   </div>
   <button class="top-btn" onclick="resetProgress()" title="Сбросить весь прогресс" data-i18n="top.reset">↺ Сброс</button>
 </div>
@@ -6165,9 +6447,16 @@ msg.replace("Мир", "друг"); // "Привет, друг!"
 msg.trim();               // Убрать пробелы по краям
 msg.split(", ");          // ["Привет", "Мир!"]</div>
       <div class="explain">
-        <strong>Шаблоны ``</strong> — обратные кавычки. Внутри <code>${переменная}</code> — подставляется значение.<br>
-        <strong>.trim()</strong> — убирает пробелы в начале и конце. Полезно при вводе пользователем.<br>
-        <strong>.split()</strong> — разбивает строку на массив по разделителю.
+        
+<strong>Как читать этот код:</strong> строка — это текст. Если текст лежит в переменной, с ним можно работать методами: проверять длину, искать кусок текста, менять регистр, заменять часть строки.<br>
+        <strong>Шаблонная строка</strong> пишется через обратные кавычки <code>`</code>. Внутри <code>${name}</code> означает: возьми значение переменной <code>name</code> и вставь его прямо в текст.<br>
+        <strong>Важно:</strong> методы строк обычно <em>не меняют старую строку</em>, а возвращают новый результат. Например <code>msg.toUpperCase()</code> вернет текст большими буквами, но сам <code>msg</code> останется прежним.<br>
+        <strong>.length</strong> — это не функция, поэтому без скобок. Она просто хранит число символов.<br>
+        <strong>.includes("Мир")</strong> задает вопрос: “есть ли внутри такой кусок текста?” Ответ будет <code>true</code> или <code>false</code>.<br>
+        <strong>.trim()</strong> почти всегда полезен перед проверкой формы: пользователь мог ввести только пробелы, а <code>trim()</code> превратит это в пустую строку.<br>
+        <strong>.split(", ")</strong> режет строку по разделителю и делает массив. Если разделитель не найден, получится массив из одной строки.<br>
+        <strong>Когда применять:</strong> формы, поиск по странице, сообщения пользователю, форматирование имени, проверка email/логина перед отправкой.
+
       </div>
       <!-- МИНИ-ТЕСТ ДЛЯ СТРОК -->
       <div class="quiz-block" id="quiz-strings">
@@ -6219,10 +6508,16 @@ const status = age >= 18 ? "взрослый" : "ребёнок";
 // &&   И (оба условия верны)
 // ||   ИЛИ (хотя бы одно верно)</div>
       <div class="explain">
-        <strong>===</strong> — строгое равенство. Всегда используй === вместо ==.<br>
-        <strong>&& (И)</strong> — оба условия должны быть true.<br>
-        <strong>|| (ИЛИ)</strong> — хотя бы одно true.<br>
-        <strong>Тернарный</strong>: <code>условие ? да : нет</code> — короткая замена if/else.
+        
+<strong>Как читать if:</strong> браузер идет сверху вниз и выполняет первый блок, где условие стало <code>true</code>. Остальные ветки после этого пропускаются.<br>
+        <strong>if</strong> — первая проверка. <strong>else if</strong> — запасная проверка, если первая не подошла. <strong>else</strong> — вариант “иначе”, когда ничего выше не подошло.<br>
+        <strong>Где ставить ===:</strong> когда сравниваешь “это значение равно тому значению?”. Например <code>role === "admin"</code>, <code>score === 0</code>, <code>theme === "dark"</code>.<br>
+        <strong>Где ставить &gt;=:</strong> когда проверяешь границу: возраст, цена, количество, ширина экрана, число кликов. <code>age &gt;= 18</code> значит “18 или больше”.<br>
+        <strong>&amp;&amp;</strong> — нужно, чтобы выполнились оба условия: <code>age &gt;= 18 &amp;&amp; hasTicket</code>.<br>
+        <strong>||</strong> — достаточно одного условия: <code>role === "admin" || role === "moderator"</code>.<br>
+        <strong>Тернарный оператор</strong> удобен для короткого выбора значения. Если внутри уже много действий, лучше обычный <code>if/else</code>, так код легче читать.<br>
+        <strong>Частая ошибка:</strong> <code>=</code> присваивает, <code>===</code> сравнивает. В условиях почти всегда нужен именно <code>===</code>.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb155" onchange="updateProgress(this)"><span>Всегда используй === (строгое), а не == (нестрогое)</span></label>
@@ -6250,9 +6545,14 @@ for (const fruit of fruits) {
   console.log(fruit);
 }</div>
       <div class="explain">
-        <strong>for</strong> — классический цикл: начало; условие; шаг.<br>
-        <strong>while</strong> — «повторяй, пока условие истинно». Осторожно: бесконечный цикл!<br>
-        <strong>for...of</strong> — удобный перебор массива.
+        
+<strong>Как читать цикл for:</strong> <code>let i = 0</code> — откуда начинаем, <code>i &lt; 5</code> — пока продолжаем, <code>i++</code> — что делаем после каждого круга.<br>
+        <strong>Почему вывод 0..4:</strong> цикл стартует с 0, а условие <code>i &lt; 5</code> останавливает его до 5. Когда <code>i</code> станет 5, условие уже false.<br>
+        <strong>while</strong> нужен, когда заранее неизвестно точное число повторений. Например ждать, пока пользователь введет правильные данные.<br>
+        <strong>Опасность while:</strong> если внутри не менять значение, условие может всегда оставаться true, и получится бесконечный цикл.<br>
+        <strong>for...of</strong> используй, когда тебе нужен сам элемент массива: фрукт, карточка, задача, пользователь. Это проще, чем доставать элемент по индексу.<br>
+        <strong>Когда применять:</strong> вывести список карточек, пройтись по кнопкам, посчитать сумму, найти нужный элемент, создать HTML для каждого объекта.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb157" onchange="updateProgress(this)"><span>for — когда знаю сколько раз, while — пока условие верно</span></label>
@@ -6277,10 +6577,16 @@ const doubled = numbers.map(n => n * 2);  // [2,4,6,8,10]
 const big = numbers.filter(n => n > 3);   // [4, 5]
 const sum = numbers.reduce((t, n) => t + n, 0); // 15</div>
       <div class="explain">
-        <strong>push / pop</strong> — добавить/удалить с конца.<br>
-        <strong>map</strong> — «примени что-то к каждому, получи новый массив».<br>
-        <strong>filter</strong> — «оставь только те, что подходят».<br>
-        <strong>reduce</strong> — «сверни всё в одно значение» (сумма, максимум и т.д.).
+        
+<strong>Как читать массив:</strong> массив — это список значений в одном порядке. Индексы начинаются с 0, поэтому <code>fruits[0]</code> — первый элемент, а не “нулевой по смыслу”.<br>
+        <strong>.length</strong> показывает количество элементов. Последний индекс всегда <code>length - 1</code>.<br>
+        <strong>push / pop</strong> работают с концом массива. <code>push</code> добавляет, <code>pop</code> удаляет последний и возвращает удаленный элемент.<br>
+        <strong>unshift / shift</strong> работают с началом массива. Их лучше не злоупотреблять на больших списках, потому что элементы приходится сдвигать.<br>
+        <strong>map</strong> — когда нужно получить новый массив такой же длины, но с измененными элементами: числа умножить, объекты превратить в HTML, имена привести к виду.<br>
+        <strong>filter</strong> — когда нужно оставить только часть элементов: только выполненные задачи, товары дороже 1000, карточки по поиску.<br>
+        <strong>reduce</strong> — когда из массива нужно получить одно значение: сумму, максимум, объект группировки, статистику.<br>
+        <strong>Как читать reduce:</strong> <code>t</code> — накопитель, <code>n</code> — текущий элемент, <code>0</code> — стартовое значение. На каждом шаге возвращается новый накопитель.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb159" onchange="updateProgress(this)"><span>Нумерация с 0: fruits[0] — первый элемент</span></label>
@@ -6309,10 +6615,14 @@ document.body.appendChild(div);
 // УДАЛИТЬ
 btn.remove();</div>
       <div class="explain">
-        <strong>querySelector(".btn")</strong> — находит первый элемент с классом .btn.<br>
-        <strong>textContent</strong> — текст. <strong>innerHTML</strong> — HTML (осторожно!).<br>
-        <strong>classList.toggle</strong> — если класс есть → убирает, нет → добавляет.<br>
-        <strong>Важная связка:</strong> JS меняет состояние и классы, CSS рисует результат. Например JS добавляет <code>dark</code> на <code>body</code>, а CSS через <code>body.dark .theme-btn</code> меняет кнопку.
+        
+<strong>Как читать DOM-код:</strong> сначала ты находишь элемент на странице, потом меняешь его текст, стиль, классы или вешаешь события.<br>
+        <strong>querySelector</strong> берет первый подходящий элемент. Внутри пишется CSS-селектор: <code>".btn"</code> для класса, <code>"#title"</code> для id, <code>"button"</code> для тега.<br>
+        <strong>querySelectorAll</strong> берет список элементов. По нему обычно проходят через <code>forEach</code>, потому что это не один элемент, а коллекция.<br>
+        <strong>textContent</strong> меняет текст внутри элемента. Это безопаснее для обычного текста, чем <code>innerHTML</code>.<br>
+        <strong>classList</strong> лучше, чем постоянно менять <code>style</code>. Логика остается в JS, внешний вид — в CSS.<br>
+        <strong>createElement + append</strong> нужны, когда элемент должен появиться на странице после действия пользователя: новая задача, сообщение, карточка, ошибка формы.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb161" onchange="updateProgress(this)"><span>querySelector — один, querySelectorAll — все</span></label>
@@ -6342,9 +6652,15 @@ input.addEventListener("input", (e) => {
 // mouseover, mouseout — мышь
 // scroll — прокрутка</div>
       <div class="explain">
-        <strong>addEventListener</strong> — «слушай событие и запускай функцию».<br>
-        <strong>e.target</strong> — элемент, на котором произошло. <strong>e.target.value</strong> — значение поля.<br>
-        <strong>e.preventDefault()</strong> — отменить стандартное поведение (форма не перезагрузит страницу).
+        
+<strong>Как читать событие:</strong> <code>addEventListener("click", ...)</code> значит “когда произойдет click, запусти эту функцию”. Код внутри не запускается сразу, он ждет действия пользователя.<br>
+        <strong>Первый аргумент</strong> — название события строкой: <code>"click"</code>, <code>"input"</code>, <code>"submit"</code>, <code>"keydown"</code>.<br>
+        <strong>Второй аргумент</strong> — функция, которая выполнится потом. Поэтому пишем функцию без немедленного вызова. <code>handleClick</code> — передать функцию, <code>handleClick()</code> — вызвать сразу.<br>
+        <strong>e</strong> или <strong>event</strong> — объект события. В нем браузер дает детали: где кликнули, какая клавиша нажата, что лежит в input.<br>
+        <strong>e.target</strong> — конкретный элемент, на котором произошло событие. <code>e.target.value</code> — текст внутри input.<br>
+        <strong>e.preventDefault()</strong> нужен в форме, чтобы браузер не перезагрузил страницу после submit.<br>
+        <strong>Как выбрать событие:</strong> кнопка — <code>click</code>, поле ввода в реальном времени — <code>input</code>, отправка формы — <code>submit</code>, клавиатура — <code>keydown</code>.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb163" onchange="updateProgress(this)"><span>addEventListener — слушаем событие</span></label>
@@ -6372,10 +6688,15 @@ input.addEventListener("input", (e) => {
 }
 loadData();</div>
       <div class="explain">
-        <strong>async</strong> — функция умеет «ждать». <strong>await</strong> — жди результата.<br>
-        <strong>fetch(url)</strong> — HTTP-запрос на сервер.<br>
-        <strong>response.json()</strong> — превращает ответ в JS-объект.<br>
-        <strong>try / catch</strong> — «попробуй, если ошибка — поймай».
+        
+<strong>Как читать fetch:</strong> это запрос за данными. Код не получает ответ мгновенно, поэтому используется <code>async/await</code>.<br>
+        <strong>async function</strong> разрешает использовать <code>await</code> внутри функции. Без <code>async</code> браузер не даст поставить <code>await</code>.<br>
+        <strong>await fetch(url)</strong> ждет ответ сервера. Пока ответ не пришел, браузер не зависает, просто продолжит выполнение функции позже.<br>
+        <strong>response.ok</strong> проверяет HTTP-успех. Важно: <code>fetch</code> не всегда сам падает при 404/500, поэтому мы вручную кидаем ошибку через <code>throw</code>.<br>
+        <strong>await response.json()</strong> превращает JSON-текст ответа в обычные JS-данные: объект или массив.<br>
+        <strong>try/catch</strong> нужен, чтобы приложение не ломалось молча: можно показать ошибку, состояние загрузки или запасной текст.<br>
+        <strong>В реальном интерфейсе:</strong> перед запросом показываешь “Загрузка…”, после успеха рендеришь данные, в <code>catch</code> показываешь ошибку пользователю.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb166" onchange="updateProgress(this)"><span>async/await — жди результат без зависания</span></label>
@@ -6403,11 +6724,15 @@ localStorage.setItem("user", JSON.stringify(user));
 const saved = JSON.parse(localStorage.getItem("user"));
 console.log(saved.name); // "Алекс"</div>
       <div class="explain">
-        <strong>setItem / getItem / removeItem</strong> — три основных операции.<br>
-        <strong>getItem</strong> достает одно значение по одному ключу: <code>getItem("score")</code>, а не сразу несколько.<br>
-        Значение хранится как <em>строка</em>: если сохраняешь число, при чтении делай <code>Number(...)</code>.<br>
-        <code>|| 0</code> или <code>|| "zero"</code> — запасное значение, если в браузере еще ничего не сохранено.<br>
-        Данные хранятся <em>только в этом браузере</em>. Не храни тут пароли, токены и секретные ключи.
+        
+<strong>Как читать localStorage:</strong> это маленькое хранилище браузера. Данные остаются после перезагрузки страницы, но только на этом устройстве и в этом браузере.<br>
+        <strong>Ключ и значение:</strong> <code>setItem("theme", "dark")</code> значит “сохрани значение dark под ключом theme”. Потом <code>getItem("theme")</code> достанет именно это значение.<br>
+        <strong>getItem берет один ключ за раз.</strong> Нельзя достать сразу <code>score</code>, <code>theme</code> и <code>lastAction</code> одним вызовом. Для каждого ключа нужен свой <code>getItem</code>.<br>
+        <strong>Все хранится строками:</strong> число <code>5</code> вернется как строка <code>"5"</code>. Поэтому для счета нужен <code>Number(localStorage.getItem("score")) || 0</code>.<br>
+        <strong>Объекты и массивы</strong> сначала превращай в строку через <code>JSON.stringify</code>, а после чтения возвращай через <code>JSON.parse</code>.<br>
+        <strong>Когда сохранять:</strong> после изменения состояния. Например: нажал кнопку → изменил <code>score</code> → обновил DOM → записал новый score в localStorage.<br>
+        <strong>Безопасность:</strong> не храни тут пароли, токены, API-ключи для реального продакшена. Любой JS на странице может прочитать localStorage.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb169" onchange="updateProgress(this)"><span>setItem / getItem / removeItem</span></label>
@@ -6455,13 +6780,15 @@ if (theme === "dark") {
 
 updateCount();</div>
       <div class="explain">
-        <strong>Состояние</strong> — это переменные: <code>score</code>, <code>lastAction</code>, <code>theme</code>.<br>
-        <strong>Отрисовка</strong> — это функция, которая обновляет страницу: текст, классы, иконку.<br>
-        <strong>Сохранение</strong> делай после изменения состояния: нажал кнопку → поменял переменные → вызвал функцию → записал в localStorage.<br>
-        <strong>Восстановление</strong> делай при загрузке: сначала <code>getItem</code>, потом добавь нужные классы на страницу.
-      </div>
-      <div class="tip">
-        Частые ошибки: два раза объявил <code>let score</code>; сделал <code>getItem</code>, но забыл <code>setItem</code>; проверяешь DOM-элемент <code>count</code> вместо числа <code>score</code>; пишешь <code>classList.add(".active")</code> с точкой, хотя нужно <code>classList.add("active")</code>.
+        
+<strong>Как читать этот пример:</strong> сначала мы достаем сохраненные значения из браузера, потом рисуем страницу на их основе.<br>
+        <strong>score</strong> — число, поэтому при чтении нужен <code>Number(...)</code>. <strong>lastAction</strong> и <strong>theme</strong> — строки, поэтому их можно читать напрямую.<br>
+        <strong>updateCount()</strong> делает две вещи: обновляет DOM и сохраняет актуальное состояние. Поэтому ее вызывают после плюса, минуса и reset.<br>
+        <strong>lastAction</strong> нужен не для счета, а для цвета/класса. Это отдельное состояние интерфейса: последнее действие было positive, negative или zero.<br>
+        <strong>toggleTheme()</strong> сначала переключает класс <code>dark</code> на body, потом смотрит, есть ли этот класс, и сохраняет <code>"dark"</code> или <code>"light"</code>.<br>
+        <strong>Блок if (theme === "dark")</strong> нужен при загрузке страницы: если раньше была темная тема, мы сразу возвращаем ее до клика по кнопке.<br>
+        <strong>Главная цепочка:</strong> прочитал из localStorage → положил в переменные → отрисовал страницу → при изменениях снова сохранил.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="wdg-js-ls-2" onchange="updateProgress(this)"><span>Понимаю цепочку: состояние → update/render → localStorage</span></label>
@@ -6766,11 +7093,15 @@ sumAll(1, 2, 3, 4, 5);   // 15
 [1, 2, 3].map(n => n * 2);   // [2, 4, 6]
 setTimeout(() => console.log("через секунду"), 1000);</div>
       <div class="explain">
-        <strong>function vs стрелочная</strong> — почти всегда стрелочная. Короче, нет «своего» <code>this</code> (что чаще удобнее), легко передавать как колбэк.<br>
-        <strong>Когда нужна обычная function</strong>: метод объекта (внутри нужен <code>this</code>) и hoisting — обычную можно вызвать <em>до</em> объявления, стрелочную нельзя.<br>
-        <strong>Параметры по умолчанию</strong> — <code>quantity = 1</code>. Сработает, если параметр не передали или передали <code>undefined</code>.<br>
-        <strong>...rest</strong> — «всё остальное» в массив. Удобно для функций с любым количеством аргументов: <code>Math.max(...nums)</code>.<br>
-        <strong>Колбэк</strong> — функция как аргумент. Сердце JS: <code>map</code>, <code>addEventListener</code>, <code>setTimeout</code> — все принимают функции.
+        
+<strong>Как читать функцию:</strong> функция — это именованный кусок логики. Параметры в скобках — это данные, которые функция получает снаружи.<br>
+        <strong>return</strong> — результат функции. Если return нет, функция вернет <code>undefined</code>. <code>console.log</code> только печатает, но не возвращает значение.<br>
+        <strong>function greet(name)</strong> удобно читать как “создай действие greet, которому нужен name”. Вызов <code>greet("Мир")</code> подставляет строку вместо параметра.<br>
+        <strong>Стрелочная функция</strong> часто короче: <code>n =&gt; n * n</code> значит “возьми n и верни n * n”. Если тело в одну строку, <code>return</code> пишется неявно.<br>
+        <strong>Если есть фигурные скобки</strong> в стрелочной функции, <code>return</code> снова нужен: <code>() =&gt; { return value; }</code>.<br>
+        <strong>Параметры по умолчанию</strong> спасают, если аргумент не передали: <code>quantity = 1</code>.<br>
+        <strong>Callback</strong> — функция, которую передали в другую функцию. Именно так работают <code>map</code>, <code>filter</code>, <code>addEventListener</code>, <code>setTimeout</code>.
+
       </div>
       <div class="items">
         <label class="item"><input type="checkbox" class="prog-cb" data-pid="pcb184" onchange="updateProgress(this)"><span>const f = () => ... — стрелочная по умолчанию</span></label>
@@ -20687,15 +21018,34 @@ function playClickSound() {
   if (!clickSoundsOn) return;
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = 800;
-    gain.gain.value = 0.05;
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-    osc.stop(audioCtx.currentTime + 0.08);
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const output = audioCtx.createGain();
+    const body = audioCtx.createOscillator();
+    const sparkle = audioCtx.createOscillator();
+    const bodyGain = audioCtx.createGain();
+    const sparkleGain = audioCtx.createGain();
+
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(360, now);
+    body.frequency.exponentialRampToValueAtTime(190, now + 0.055);
+    bodyGain.gain.setValueAtTime(0.0001, now);
+    bodyGain.gain.linearRampToValueAtTime(0.035, now + 0.006);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
+
+    sparkle.type = 'sine';
+    sparkle.frequency.setValueAtTime(720, now);
+    sparkle.frequency.exponentialRampToValueAtTime(520, now + 0.025);
+    sparkleGain.gain.setValueAtTime(0.0001, now);
+    sparkleGain.gain.linearRampToValueAtTime(0.012, now + 0.004);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+
+    output.gain.value = 0.85;
+    body.connect(bodyGain); sparkle.connect(sparkleGain);
+    bodyGain.connect(output); sparkleGain.connect(output);
+    output.connect(audioCtx.destination);
+    body.start(now); sparkle.start(now);
+    body.stop(now + 0.08); sparkle.stop(now + 0.04);
   } catch (e) {}
 }
 function toggleClickSounds(row) {
@@ -24339,8 +24689,8 @@ function wdgTranslateStaticText(root = document.body) {
 }
 
 function setMainLanguage(lang) {
-  if (lang === 'en') location.href = 'roadmap-en.html';
-  else location.href = 'index.html';
+  if (lang === 'ru') location.href = 'https://kernix01.github.io/WebDevGym/';
+  else location.href = 'https://kernix01.github.io/WebDevGym-EN/';
 }
 
 function applyMainLanguage() {
@@ -24574,6 +24924,15 @@ document.addEventListener('DOMContentLoaded', () => {
   typingNewTarget();
 });
 </script>
+<script src="js/modern-ui-bootstrap.js"></script>
+<script src="js/modern-ui.js"></script>
+<script src="js/modern-ui-v2.js"></script>
+<script src="js/modern-ui-v3.js"></script>
+<script src="js/modern-ui-v4.js"></script>
+<script src="js/modern-ui-v5.js"></script>
+<script src="js/modern-ui-v6.js"></script>
+<script src="js/webdevgym-features.js"></script>
+<script src="js/webdevgym-learning.js"></script>
 </body>
 </html>
 
