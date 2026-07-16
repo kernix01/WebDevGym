@@ -594,6 +594,13 @@ body.wdgf-drawer-open .wdg-bottom-dock { display: none !important; }
   color: #f0abfc;
   font-size: .92em;
 }
+.wdg-use-grid .wdg-use-task {
+  margin-top: 3px;
+  padding: 9px 10px;
+  border-left: 2px solid #a855f7;
+  background: rgba(168, 85, 247, .08);
+}
+
 /* ===== WEBDEVGYM LEARNING SYSTEM V2 ===== */
 .wdgf-drawer-head-actions {
   display: flex;
