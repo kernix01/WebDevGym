@@ -654,14 +654,35 @@
     const base = (isEnglishPage ? enBase : ruBase)[id] || (isEnglishPage ? enBase.js : ruBase.js);
     const rules = isEnglishPage ? enRules : ruRules;
     const haystack = `${code}\n${text}`;
-    const found = rules.find(rule => rule.test.test(haystack));
+    const found = ['js', 'ts'].includes(id) ? rules.find(rule => rule.test.test(haystack)) : null;
     return Object.assign({}, base, found ? found.data : null);
+  }
+
+  function escapeGuideText(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]);
+  }
+
+  function independentTask(id) {
+    const tasks = isEnglishPage ? {
+      html:'Recreate the structure with your own text and add one meaningful attribute.',
+      css:'Change one layout property and one visual property, then explain which result each change caused.',
+      js:'Change the input value or event, predict the result, and only then run the code.',
+      ts:'Make one type stricter and handle the value that no longer fits it.',
+      react:'Change one prop or state value and check which component rerenders.'
+    } : {
+      html:'Повтори структуру со своим текстом и добавь один осмысленный атрибут.',
+      css:'Измени одно свойство раскладки и одно визуальное свойство, затем объясни результат каждого изменения.',
+      js:'Измени входное значение или событие, предскажи результат и только потом запускай код.',
+      ts:'Сделай один тип строже и обработай значение, которое теперь ему не подходит.',
+      react:'Измени один prop или state и проверь, какой компонент перерисовался.'
+    };
+    return tasks[id] || tasks.js;
   }
 
   function makeGuide(data) {
     const labels = isEnglishPage
-      ? { where:'Where to put it', change:'What to change', check:'What to check' }
-      : { where:'Куда вставлять', change:'Что менять под себя', check:'Что проверить' };
+      ? { what:'What it is', where:'Where to put it', change:'What to change', mistake:'Common mistake', task:'Independent task' }
+      : { what:'Что это', where:'Куда вставлять', change:'Что менять под себя', mistake:'Частая ошибка', task:'Самостоятельная задача' };
     const wrap = document.createElement('div');
     wrap.className = 'wdg-use-guide';
     wrap.innerHTML = `
@@ -670,9 +691,11 @@
         <strong>${data.title}</strong>
       </div>
       <div class="wdg-use-grid">
+        <p><b>${labels.what}:</b> ${data.what}</p>
         <p><b>${labels.where}:</b> ${data.where}</p>
         <p><b>${labels.change}:</b> ${data.change}</p>
-        <p><b>${labels.check}:</b> ${data.check}</p>
+        <p><b>${labels.mistake}:</b> ${data.check}</p>
+        <p class="wdg-use-task"><b>${labels.task}:</b> ${data.task}</p>
       </div>`;
     return wrap;
   }
@@ -681,10 +704,14 @@
     document.querySelectorAll(sectionSelectors.map(id => `${id} .block`).join(',')).forEach(block => {
       if (block.dataset.wdgUsageGuide === '1') return;
       const code = block.querySelector('.code');
-      if (!code) return;
-      const anchor = block.querySelector('.explain') || code;
-      const text = block.querySelector('.block-title')?.textContent || '';
-      const data = chooseGuide(sectionId(block), code.textContent || '', text + ' ' + (block.querySelector('.tip')?.textContent || ''));
+      const anchor = block.querySelector('.explain') || code || block.querySelector('.tip, .items') || block.querySelector('.block-title');
+      if (!anchor) return;
+      const id = sectionId(block);
+      const title = block.querySelector('.block-title')?.textContent?.replace(/\s+/g, ' ').trim() || '';
+      const explanation = block.querySelector('.explain, .tip')?.textContent?.replace(/\s+/g, ' ').trim();
+      const data = chooseGuide(id, code?.textContent || '', title + ' ' + (block.querySelector('.tip')?.textContent || ''));
+      data.what = escapeGuideText((explanation || (isEnglishPage ? 'This lesson introduces ' : 'Эта тема знакомит с: ') + title).slice(0, 320));
+      data.task = independentTask(id);
       anchor.insertAdjacentElement('afterend', makeGuide(data));
       block.dataset.wdgUsageGuide = '1';
     });

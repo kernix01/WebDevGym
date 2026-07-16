@@ -4,14 +4,14 @@
   const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
   const copy = isEnglish ? {
     progress: 'Your progress', course: 'Course progress', learned: 'topics complete',
-    learn: 'Learn', practice: 'Practice', playground: 'Playground', nexus: 'Nexus', calendar: 'Calendar',
+    learn: 'Learn', playground: 'Playground', nexus: 'Nexus', calendar: 'Calendar',
     continue: 'Continue', seeAll: 'See all', notes: 'Notes', previous: 'Previous', next: 'Continue',
     inProgress: 'In progress', locked: 'Next', openGraph: 'Drag nodes to explore', search: 'Search',
     noteText: 'Your progress, notes and graph are saved locally in this browser.',
     graph: 'Knowledge graph', center: 'Center graph', reset: 'Reset positions'
   } : {
     progress: 'Твой прогресс', course: 'Прогресс курса', learned: 'тем изучено',
-    learn: 'Обучение', practice: 'Практика', playground: 'Playground', nexus: 'Nexus', calendar: 'Календарь',
+    learn: 'Обучение', playground: 'Playground', nexus: 'Nexus', calendar: 'Календарь',
     continue: 'Продолжить', seeAll: 'Все темы', notes: 'Заметки', previous: 'Назад', next: 'Продолжить',
     inProgress: 'Изучается', locked: 'Дальше', openGraph: 'Перетаскивай узлы и исследуй связи', search: 'Поиск',
     noteText: 'Прогресс, заметки и расположение графа сохраняются локально в этом браузере.',
@@ -20,7 +20,6 @@
 
   const navItems = [
     { id: 'learn', label: copy.learn, icon: 'tabler:book-2', tab: 'html' },
-    { id: 'practice', label: copy.practice, icon: 'tabler:target-arrow', tab: 'practice' },
     { id: 'playground', label: copy.playground, icon: 'tabler:code', tab: 'playground' },
     { id: 'nexus', label: copy.nexus, icon: 'tabler:binary-tree-2', tab: 'nexus' },
     { id: 'calendar', label: copy.calendar, icon: 'tabler:calendar', tab: 'calendar' }
@@ -212,7 +211,7 @@
   }
 
   function syncNavigation(id) {
-    const direct = ['practice', 'playground', 'nexus', 'calendar'].includes(id) ? id : 'learn';
+    const direct = ['playground', 'nexus', 'calendar'].includes(id) ? id : 'learn';
     document.querySelectorAll('[data-wdg-nav]').forEach(function (button) {
       button.classList.toggle('active', button.dataset.wdgNav === direct);
     });
@@ -249,14 +248,25 @@
   /* Nexus --------------------------------------------------------------- */
   const GRAPH_POSITION_KEY = 'webdevgym_nexus_graph_positions_v2';
   const GRAPH_CAMERA_KEY = 'webdevgym_nexus_graph_camera_v2';
-  const baseTitles = ['HTML', 'CSS', 'JavaScript', 'DOM', 'Events', 'localStorage', 'React'];
+  const baseTitles = ['HTML', 'CSS', 'JavaScript', 'DOM', 'Events', 'localStorage', 'TypeScript', 'React', 'Git', 'Vite', 'Node.js', 'SQL'];
   const baseEdges = [
     ['HTML', 'DOM'], ['CSS', 'DOM'], ['JavaScript', 'DOM'], ['DOM', 'Events'],
-    ['DOM', 'localStorage'], ['JavaScript', 'Events'], ['JavaScript', 'React'], ['Events', 'React']
+    ['DOM', 'localStorage'], ['JavaScript', 'Events'], ['JavaScript', 'TypeScript'],
+    ['TypeScript', 'React'], ['JavaScript', 'React'], ['Git', 'Vite'], ['HTML', 'Vite'],
+    ['CSS', 'Vite'], ['JavaScript', 'Vite'], ['Vite', 'React'], ['Vite', 'Node.js'], ['Node.js', 'SQL']
   ];
   const defaultPositions = {
-    HTML: [570, 95], CSS: [690, 255], JavaScript: [120, 260], DOM: [430, 245],
-    Events: [355, 85], localStorage: [250, 415], React: [560, 430]
+    HTML: [90, 90], CSS: [90, 245], JavaScript: [300, 170], DOM: [505, 170],
+    Events: [505, 40], localStorage: [505, 315], TypeScript: [300, 355], React: [725, 170],
+    Git: [90, 425], Vite: [725, 345], 'Node.js': [725, 505], SQL: [505, 505]
+  };
+  const topicRoutes = {
+    HTML:'html', CSS:'css', JavaScript:'js', DOM:'js', Events:'js', localStorage:'js',
+    TypeScript:'ts', React:'react', Git:'git', Vite:'vite', 'Node.js':'node', SQL:'sql'
+  };
+  const topicSearch = {
+    DOM:'dom', Events:'event', localStorage:'localstorage', HTML:'html', CSS:'css', JavaScript:'javascript',
+    TypeScript:'typescript', React:'react', Git:'git', Vite:'vite', 'Node.js':'node', SQL:'sql'
   };
 
   function safeNotes() {
@@ -329,13 +339,60 @@
   }
 
   function toneFor(title, index) {
-    const tones = { JavaScript: 'cyan', Events: 'coral', localStorage: 'orange', HTML: 'cyan', CSS: 'blue', DOM: 'violet', React: 'violet' };
+    const tones = { JavaScript:'cyan', Events:'coral', localStorage:'orange', HTML:'cyan', CSS:'blue', DOM:'violet', React:'violet', TypeScript:'blue', Git:'coral', Vite:'violet', 'Node.js':'cyan', SQL:'orange' };
     return tones[title] || ['blue', 'cyan', 'coral', 'orange', 'violet'][index % 5];
   }
 
+  function graphEscape(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) { return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]; });
+  }
+
+  function graphProgress(title) {
+    const route = topicRoutes[title];
+    const section = route ? document.getElementById('sec-' + route) : null;
+    if (!section) return null;
+    const boxes = Array.from(section.querySelectorAll('.prog-cb:not([disabled])'));
+    const done = boxes.filter(function (box) { return box.checked || localStorage.getItem('prog_' + box.dataset.pid) === '1'; }).length;
+    return boxes.length ? Math.round(done / boxes.length * 100) : 0;
+  }
+
   function graphOpenNode(node) {
+    const route = topicRoutes[node.title];
+    if (route) {
+      if (typeof window.switchTabByName === 'function') window.switchTabByName(route);
+      setTimeout(function () {
+        const query = topicSearch[node.title];
+        const blocks = Array.from(document.querySelectorAll('#sec-' + route + ' > .block'));
+        const target = query ? blocks.find(function (block) { return block.textContent.toLowerCase().includes(query.toLowerCase()); }) : blocks[0];
+        target?.scrollIntoView({ behavior:'smooth', block:'start' });
+      }, 160);
+      return;
+    }
     if (node.note && typeof nexusOpen === 'function') nexusOpen(node.note.id);
     else if (typeof nexusCreateNote === 'function') nexusCreateNote(node.title);
+  }
+
+  function fitGraph(host) {
+    const viewport = host?.querySelector('.wdg-graph-viewport');
+    const nodes = Array.from(host?.querySelectorAll('.wdg-graph-node') || []);
+    if (!viewport || !nodes.length) return;
+    const bounds = nodes.reduce(function (acc, node) {
+      const left = parseFloat(node.style.left) || 0;
+      const top = parseFloat(node.style.top) || 0;
+      acc.minX = Math.min(acc.minX, left);
+      acc.minY = Math.min(acc.minY, top);
+      acc.maxX = Math.max(acc.maxX, left + node.offsetWidth);
+      acc.maxY = Math.max(acc.maxY, top + node.offsetHeight);
+      return acc;
+    }, { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity });
+    const padding = 52;
+    const width = Math.max(1, bounds.maxX - bounds.minX);
+    const height = Math.max(1, bounds.maxY - bounds.minY);
+    state.graph.scale = Math.max(.45, Math.min(1.35, (viewport.clientWidth - padding * 2) / width, (viewport.clientHeight - padding * 2) / height));
+    state.graph.x = (viewport.clientWidth - width * state.graph.scale) / 2 - bounds.minX * state.graph.scale;
+    state.graph.y = (viewport.clientHeight - height * state.graph.scale) / 2 - bounds.minY * state.graph.scale;
+    applyGraphCamera(host);
+    saveGraphState();
   }
 
   function bindGraphInteractions(host, data) {
@@ -401,6 +458,7 @@
     host.querySelector('[data-graph-action="zoom-in"]')?.addEventListener('click', function () { state.graph.scale = Math.min(2.1, state.graph.scale + .15); applyGraphCamera(host); saveGraphState(); });
     host.querySelector('[data-graph-action="zoom-out"]')?.addEventListener('click', function () { state.graph.scale = Math.max(.45, state.graph.scale - .15); applyGraphCamera(host); saveGraphState(); });
     host.querySelector('[data-graph-action="center"]')?.addEventListener('click', function () { state.graph.x = 0; state.graph.y = 0; state.graph.scale = 1; applyGraphCamera(host); saveGraphState(); });
+    host.querySelector('[data-graph-action="fit"]')?.addEventListener('click', function () { fitGraph(host); });
     host.querySelector('[data-graph-action="reset"]')?.addEventListener('click', function () { state.graph.positions = {}; localStorage.removeItem(GRAPH_POSITION_KEY); renderNexusGraph(); });
   }
 
@@ -415,12 +473,14 @@
         '<button class="wdg-graph-tool" type="button" data-graph-action="zoom-in" title="Zoom in">' + icon('tabler:plus', 15) + '</button>' +
         '<button class="wdg-graph-tool" type="button" data-graph-action="zoom-out" title="Zoom out">' + icon('tabler:minus', 15) + '</button>' +
         '<button class="wdg-graph-tool" type="button" data-graph-action="center" title="' + copy.center + '">' + icon('tabler:focus-centered', 15) + '</button>' +
+        '<button class="wdg-graph-tool" type="button" data-graph-action="fit" title="Fit graph">' + icon('tabler:arrows-maximize', 15) + '</button>' +
         '<button class="wdg-graph-tool" type="button" data-graph-action="reset" title="' + copy.reset + '">' + icon('tabler:refresh', 15) + '</button>' +
       '</div><div class="wdg-graph-viewport"><div class="wdg-graph-world"><svg class="wdg-graph-lines"></svg>' +
       data.nodes.map(function (node, index) {
         const pos = graphPosition(node.title, index);
         const active = node.title.toLowerCase() === activeTitle.toLowerCase();
-        return '<button class="wdg-graph-node ' + (active ? 'active' : '') + '" type="button" data-tone="' + toneFor(node.title, index) + '" data-node-title="' + String(node.title).replace(/"/g, '&quot;') + '" style="left:' + pos[0] + 'px;top:' + pos[1] + 'px">' + node.title + '</button>';
+        const progress = graphProgress(node.title);
+        return '<button class="wdg-graph-node ' + (active ? 'active' : '') + (progress === 100 ? ' completed' : '') + '" type="button" data-tone="' + toneFor(node.title, index) + '" data-node-title="' + graphEscape(node.title) + '" style="left:' + pos[0] + 'px;top:' + pos[1] + 'px"><span>' + graphEscape(node.title) + '</span>' + (progress == null ? '' : '<small>' + progress + '%</small>') + '</button>';
       }).join('') + '</div><div class="wdg-graph-status">' + copy.openGraph + '</div></div></div>';
     applyGraphCamera(host);
     requestAnimationFrame(function () { updateGraphLines(host, data); bindGraphInteractions(host, data); });

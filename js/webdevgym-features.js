@@ -6,10 +6,10 @@
     dashboard: 'Dashboard', dashboardSub: 'Your learning command center', close: 'Close',
     progress: 'Course progress', completed: 'Completed', focus: 'Focus time', streak: 'Daily streak', reviews: 'Due reviews',
     quick: 'Quick actions', courses: 'Course progress', activity: 'Learning activity', today: 'Challenge of the day',
-    projects: 'Mini projects', debug: 'Debug Lab', review: 'Review', skills: 'Skill map', profile: 'Local profile',
+    debug: 'Debug Lab', review: 'Review', skills: 'Skill map', profile: 'Local profile',
     command: 'Type a command or topic...', noResults: 'Nothing found', focusMode: 'Focus mode',
     start: 'Start', pause: 'Pause', finish: 'Finish', minutes: 'minutes', open: 'Open', done: 'Done', reset: 'Reset',
-    projectSub: 'Build small features and mark your real practice', debugSub: 'Find the bug before viewing the explanation',
+    debugSub: 'Find the bug before viewing the explanation',
     reviewSub: 'Spaced repetition from topics you have already touched', skillsSub: 'A practical route through the stack',
     profileSub: 'Stored only in this browser. No account and no server.', save: 'Save', name: 'Name', role: 'Role', bio: 'About', stack: 'Stack', avatar: 'Avatar',
     portfolio: 'Portfolio', addProject: 'Add project', projectTitle: 'Project title', description: 'Description', link: 'Project link', remove: 'Remove',
@@ -23,10 +23,10 @@
     dashboard: 'Обзор', dashboardSub: 'Центр управления твоим обучением', close: 'Закрыть',
     progress: 'Прогресс курса', completed: 'Выполнено', focus: 'В фокусе', streak: 'Серия дней', reviews: 'Повторить сегодня',
     quick: 'Быстрые действия', courses: 'Прогресс по направлениям', activity: 'Активность обучения', today: 'Челлендж дня',
-    projects: 'Мини-проекты', debug: 'Debug Lab', review: 'Повторение', skills: 'Карта навыков', profile: 'Локальный профиль',
+    debug: 'Debug Lab', review: 'Повторение', skills: 'Карта навыков', profile: 'Локальный профиль',
     command: 'Найди команду, раздел или тему...', noResults: 'Ничего не найдено', focusMode: 'Режим фокуса',
     start: 'Старт', pause: 'Пауза', finish: 'Завершить', minutes: 'минут', open: 'Открыть', done: 'Готово', reset: 'Сбросить',
-    projectSub: 'Собирай небольшие функции и отмечай настоящую практику', debugSub: 'Найди ошибку до открытия объяснения',
+    debugSub: 'Найди ошибку до открытия объяснения',
     reviewSub: 'Интервальное повторение тем, которых ты уже касался', skillsSub: 'Практический маршрут по стеку',
     profileSub: 'Хранится только в этом браузере. Без аккаунта и сервера.', save: 'Сохранить', name: 'Имя', role: 'Роль', bio: 'О себе', stack: 'Стек', avatar: 'Аватар',
     portfolio: 'Портфолио', addProject: 'Добавить проект', projectTitle: 'Название проекта', description: 'Описание', link: 'Ссылка на проект', remove: 'Удалить',
@@ -39,11 +39,12 @@
   };
 
   const KEYS = {
-    activity: 'wdg_activity_v1', focus: 'wdg_focus_v1', projects: 'wdg_projects_v1', debug: 'wdg_debug_v1',
+    activity: 'wdg_activity_v1', focus: 'wdg_focus_v1', debug: 'wdg_debug_v1',
     review: 'wdg_review_v1', challenge: 'wdg_challenge_v1', profile: 'wdg_profile_v1', portfolio: 'wdg_portfolio_v1',
     diary: 'wdg_diary_v1', weak: 'wdg_weak_v1'
   };
   const pages = new Map();
+  const extensionFeatures = new Map();
   let currentPage = '';
   let focusTimer = null;
   let focusLeft = 25 * 60;
@@ -122,12 +123,22 @@
     return page;
   }
 
+  function syncNativeNavigation() {
+    const section = document.querySelector('.section.active') || document.querySelector('.section');
+    const sectionId = section?.id?.replace(/^sec-/, '') || 'html';
+    const direct = ['practice', 'playground', 'nexus', 'calendar'].includes(sectionId) ? sectionId : 'learn';
+    document.querySelectorAll('[data-wdg-nav]').forEach(button => {
+      button.classList.toggle('active', button.dataset.wdgNav === direct);
+    });
+  }
+
   function showPage(id, render) {
     pages.forEach(page => page.classList.remove('open'));
     const page = render();
     page.classList.add('open');
     currentPage = id;
     document.body.classList.add('wdgf-page-open');
+    document.querySelectorAll('[data-wdg-nav]').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('[data-wdg-feature]').forEach(btn => btn.classList.toggle('active', btn.dataset.wdgFeature === id));
     page.scrollTop = 0;
   }
@@ -137,6 +148,7 @@
     currentPage = '';
     document.body.classList.remove('wdgf-page-open');
     document.querySelectorAll('[data-wdg-feature]').forEach(btn => btn.classList.remove('active'));
+    syncNativeNavigation();
   }
   function closePageForNativeNavigation(event) {
     const target = event.target.closest('[data-wdg-nav], .wdg-library-item, .tabs-nav .tab');
@@ -146,6 +158,10 @@
 
   function openSettingsPanel() {
     closePage();
+    if (typeof window.openWebDevGymSettings === 'function') {
+      window.openWebDevGymSettings();
+      return;
+    }
     const panel = document.getElementById('settingsMini');
     if (panel) {
       panel.classList.toggle('show');
@@ -202,34 +218,6 @@
     ['FAQ-аккордеон', 'События', 'Открытым может оставаться только один ответ.'],
     ['Элемент Todo', 'Состояние', 'Добавляй, отмечай и удаляй задачи.'],
     ['Загрузка пользователя', 'Async', 'Покажи состояния загрузки, успеха и ошибки.']
-  ];
-
-  const projectData = isEnglish ? [
-    ['profile-card','Profile card','HTML + CSS','card','Build semantic markup, responsive spacing and action links.',['Semantic HTML','Responsive CSS','Hover and focus']],
-    ['theme-switch','Theme switcher','DOM + Storage','darkswitch','Switch a body class and remember the choice.',['classList.toggle','Button icon','localStorage']],
-    ['form-check','Form validation','Forms + JS','form','Validate fields without hiding the browser defaults.',['submit event','trim()','Error messages']],
-    ['live-search','Live card search','Arrays + DOM','search','Filter a rendered list by query.',['input event','filter()','Empty state']],
-    ['faq','FAQ accordion','Events','accordion','Build an accessible accordion.',['aria-expanded','closest()','Keyboard']],
-    ['calculator','Price calculator','State + DOM','calc','Calculate a total from several inputs.',['Number()','input event','Formatting']],
-    ['todo','Todo list','State + Storage','todo','Keep tasks after reload.',['State array','render()','JSON']],
-    ['modal','Accessible modal','DOM','modal','Control focus and all close paths.',['Escape','Overlay','Focus return']],
-    ['gallery','Filterable gallery','CSS Grid + JS','gallery','Create category filters and a responsive gallery.',['Grid','dataset','Filtering']],
-    ['weather','Weather states','Fetch','weather','Create loading, success and error UI states.',['async/await','try/catch','Status UI']],
-    ['quiz','Mini quiz','Data + DOM','quiz','Render questions from an array and calculate score.',['Objects','Index state','Result']],
-    ['portfolio','Portfolio page','HTML + CSS + JS','hero','Combine navigation, projects, contacts and theme.',['Structure','Adaptive layout','Interaction']]
-  ] : [
-    ['profile-card','Карточка профиля','HTML + CSS','card','Собери семантичную карточку, адаптивные отступы и ссылки-действия.',['Семантичный HTML','Адаптивный CSS','Hover и focus']],
-    ['theme-switch','Переключатель темы','DOM + Storage','darkswitch','Переключай класс body и запоминай выбор.',['classList.toggle','Иконка кнопки','localStorage']],
-    ['form-check','Проверка формы','Формы + JS','form','Проверь поля, не отключая полезную проверку браузера.',['Событие submit','trim()','Тексты ошибок']],
-    ['live-search','Живой поиск карточек','Массивы + DOM','search','Фильтруй отрисованный список по запросу.',['Событие input','filter()','Пустое состояние']],
-    ['faq','FAQ-аккордеон','События','accordion','Собери доступный аккордеон.',['aria-expanded','closest()','Клавиатура']],
-    ['calculator','Калькулятор цены','Состояние + DOM','calc','Посчитай итог из нескольких полей.',['Number()','Событие input','Форматирование']],
-    ['todo','Todo-список','Состояние + Storage','todo','Сохрани задачи после перезагрузки.',['Массив состояния','render()','JSON']],
-    ['modal','Доступное модальное окно','DOM','modal','Продумай фокус и все способы закрытия.',['Escape','Клик по фону','Возврат фокуса']],
-    ['gallery','Галерея с фильтрами','CSS Grid + JS','gallery','Добавь категории и адаптивную сетку.',['Grid','dataset','Фильтрация']],
-    ['weather','Состояния погоды','Fetch','weather','Сделай загрузку, успешный результат и ошибку.',['async/await','try/catch','Состояния UI']],
-    ['quiz','Мини-квиз','Данные + DOM','quiz','Рендери вопросы из массива и считай результат.',['Объекты','Текущий индекс','Результат']],
-    ['portfolio','Страница портфолио','HTML + CSS + JS','hero','Объедини навигацию, проекты, контакты и тему.',['Структура','Адаптив','Интерактив']]
   ];
 
   const debugData = isEnglish ? [
@@ -345,7 +333,7 @@
       return '<div class="wdgf-course-row"><span>' + labels[id] + '</span><div class="wdgf-course-track"><div class="wdgf-course-fill" style="width:' + p.pct + '%"></div></div><output>' + p.pct + '%</output></div>';
     }).join('');
     const quick = [
-      ['projects','tabler:layout-grid-add',t.projects,isEnglish ? 'Practice through finished features' : 'Практика через законченные функции'],
+      ['forge','tabler:hammer','Forge',isEnglish ? 'Guided projects with criteria, hints and checks' : 'Проекты с критериями, подсказками и проверкой'],
       ['debug','tabler:bug',t.debug,isEnglish ? 'Find real mistakes in code' : 'Ищи реальные ошибки в коде'],
       ['review','tabler:brain',t.review,isEnglish ? 'Repeat what is due today' : 'Повтори то, что пора вспомнить'],
       ['skills','tabler:route',t.skills,isEnglish ? 'See your next technical step' : 'Увидь следующий технический шаг'],
@@ -384,31 +372,6 @@
 
   function bindFeatureLinks(root) {
     root.querySelectorAll('[data-open-feature]').forEach(button => button.addEventListener('click', () => openFeature(button.dataset.openFeature)));
-  }
-
-  function projectsPage() {
-    const completed = readJson(KEYS.projects, {});
-    const body = '<div class="wdgf-feature-grid">' + projectData.map(project => {
-      const isDone = Boolean(completed[project[0]]);
-      return '<article class="wdgf-project-card"><div class="wdgf-project-top"><span class="wdgf-chip">' + project[2] + '</span><h3>' + project[1] + '</h3><p>' + project[4] + '</p></div>' +
-        '<div class="wdgf-project-body"><ul class="wdgf-project-checks">' + project[5].map(item => '<li>' + icon('tabler:circle-check',15) + '<span>' + item + '</span></li>').join('') + '</ul></div>' +
-        '<footer class="wdgf-project-foot"><button class="wdgf-btn primary" data-project-open="' + project[0] + '">' + icon('tabler:code',15) + ' ' + t.open + '</button><button class="wdgf-btn ' + (isDone ? 'good' : '') + '" data-project-done="' + project[0] + '">' + (isDone ? t.done : t.challengeDone) + '</button></footer></article>';
-    }).join('') + '</div>';
-    const page = pageShell('projects', t.projects, t.projectSub, body);
-    page.querySelectorAll('[data-project-open]').forEach(button => button.addEventListener('click', () => {
-      const project = projectData.find(item => item[0] === button.dataset.projectOpen);
-      closePage();
-      openSection('playground');
-      setTimeout(() => { if (project && typeof window.loadTemplate === 'function') window.loadTemplate(project[3]); }, 120);
-    }));
-    page.querySelectorAll('[data-project-done]').forEach(button => button.addEventListener('click', () => {
-      const data = readJson(KEYS.projects, {});
-      data[button.dataset.projectDone] = !data[button.dataset.projectDone];
-      writeJson(KEYS.projects, data);
-      logActivity(data[button.dataset.projectDone] ? 2 : -1);
-      showPage('projects', projectsPage);
-    }));
-    return page;
   }
 
   function debugPage(index) {
@@ -663,8 +626,15 @@
 
   function openFeature(id) {
     if (id === 'focus') return toggleFocusMode(true);
-    const renderers = { dashboard:dashboardPage, projects:projectsPage, debug:() => debugPage(0), review:reviewPage, skills:skillsPage, profile:profilePage, diary:diaryPage, weak:weakPage };
-    if (renderers[id]) showPage(id, renderers[id]);
+    const renderers = { dashboard:dashboardPage, debug:() => debugPage(0), review:reviewPage, skills:skillsPage, profile:profilePage, diary:diaryPage, weak:weakPage };
+    const extension = extensionFeatures.get(id);
+    const renderer = renderers[id] || extension?.renderer;
+    if (renderer) showPage(id, renderer);
+  }
+
+  function registerFeature(id, renderer, meta) {
+    if (!id || typeof renderer !== 'function') return;
+    extensionFeatures.set(id, { renderer, meta: meta || {} });
   }
 
   function addNavigationLabels() {
@@ -810,7 +780,6 @@
     const entries = [
       ['dashboard',t.dashboard,'tabler:layout-dashboard',() => openFeature('dashboard'),t.action],
       ['focus',t.focusMode,'tabler:focus-2',() => openFeature('focus'),t.action],
-      ['projects',t.projects,'tabler:layout-grid-add',() => openFeature('projects'),t.action],
       ['debug',t.debug,'tabler:bug',() => openFeature('debug'),t.action],
       ['review',t.review,'tabler:brain',() => openFeature('review'),t.action],
       ['skills',t.skills,'tabler:route',() => openFeature('skills'),t.action],
@@ -822,6 +791,10 @@
         if (typeof window.toggleBmFilter === 'function') window.toggleBmFilter();
       },t.action]
     ];
+    extensionFeatures.forEach((feature, id) => {
+      const meta = feature.meta || {};
+      entries.push([id, meta.title || id, meta.icon || 'tabler:apps', () => openFeature(id), meta.group || t.action]);
+    });
     document.querySelectorAll('.tabs-nav .tab').forEach(tab => {
       const onclick = tab.getAttribute('onclick') || '';
       const match = onclick.match(/switchTab\('([^']+)'/);
@@ -1005,7 +978,16 @@
     installImportExport();
     enhanceNexus();
     bindGlobalEvents();
-    window.WebDevGymFeatures = { open:openFeature, close:closePage, openCommandPalette, logActivity, recordWeakPoint, refreshReviewReminder };
+    window.WebDevGymFeatures = {
+      open:openFeature,
+      close:closePage,
+      register:registerFeature,
+      pageShell,
+      openCommandPalette,
+      logActivity,
+      recordWeakPoint,
+      refreshReviewReminder
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 40));
