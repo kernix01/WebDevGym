@@ -9291,8 +9291,6 @@ const WDG_I18N = {
 };
 
 const WDG_I18N_SELECTORS = {
-  'splash.title': '#splash-screen .splash-title',
-  'splash.sub': '#splash-screen .splash-sub',
   'hero.html.title': '#sec-html .lang-section-hero-title',
   'hero.html.sub': '#sec-html .lang-section-hero-sub',
   'hero.css.title': '#sec-css .lang-section-hero-title',

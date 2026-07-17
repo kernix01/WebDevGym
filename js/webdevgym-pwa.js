@@ -69,8 +69,15 @@
     document.getElementById('wdgInstallBtn')?.remove();
   });
 
-  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    const registerServiceWorker = () => navigator.serviceWorker.register('./sw.js').catch(() => {});
+  let serviceWorkerContainer = null;
+  try {
+    if (window.self === window.top && 'serviceWorker' in navigator) {
+      serviceWorkerContainer = navigator.serviceWorker;
+    }
+  } catch (error) {}
+
+  if (serviceWorkerContainer && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    const registerServiceWorker = () => serviceWorkerContainer.register('./sw.js').catch(() => {});
     if (document.readyState === 'complete') registerServiceWorker();
     else window.addEventListener('load', registerServiceWorker, { once: true });
   }
