@@ -3,16 +3,21 @@
 
   const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
   const VAULT_KEY = 'wdg_github_token_vault_v1';
+  const DEVICE_VAULT_KEY = 'wdg_github_token_device_v1';
+  const DEVICE_DB_NAME = 'wdg_github_secure_store_v1';
+  const DEVICE_STORE_NAME = 'keys';
+  const DEVICE_KEY_ID = 'github-token-key';
+  let deviceRestorePromise = null;
   const FIELD_PREFIX = 'wdg_github_field_v1:';
   const TOKEN_FIELD_IDS = new Set(['gh-token', 'ghc-token']);
   const ITERATIONS = 250000;
 
   const copy = isEnglish ? {
     title: 'Encrypted token storage',
-    description: 'The token is encrypted in this browser. The vault password is never saved.',
+    description: 'The token is encrypted and restored automatically only in this browser profile. The vault password is never saved.',
     password: 'Vault password', passwordHint: 'At least 8 characters',
     save: 'Save token', unlock: 'Unlock', lock: 'Lock', remove: 'Delete',
-    empty: 'No saved token', locked: 'Saved and locked', unlocked: 'Unlocked for this tab',
+    empty: 'No saved token', locked: 'Saved and locked', unlocked: 'Remembered on this device',
     saved: 'Token encrypted and saved', removed: 'Saved token deleted',
     enterToken: 'Enter a new GitHub token first.',
     enterPassword: 'Enter a vault password with at least 8 characters.',
@@ -21,13 +26,13 @@
     unavailable: 'Encrypted storage requires a modern browser and HTTPS.',
     showToken: 'Show token', hideToken: 'Hide token',
     security: 'Revoke a token immediately if it was posted in a chat, screenshot or public repository.',
-    fieldNote: 'The token stays in memory until this tab is closed. Save it below only in encrypted form.'
+    fieldNote: 'After saving or unlocking once, the token survives reloads and reopening this browser profile. Locking the vault disables automatic restore.'
   } : {
     title: 'Зашифрованное хранение токена',
-    description: 'Токен шифруется в этом браузере. Пароль хранилища нигде не сохраняется.',
+    description: 'Токен шифруется и автоматически восстанавливается только в этом профиле браузера. Пароль хранилища нигде не сохраняется.',
     password: 'Пароль хранилища', passwordHint: 'Минимум 8 символов',
     save: 'Сохранить токен', unlock: 'Разблокировать', lock: 'Заблокировать', remove: 'Удалить',
-    empty: 'Сохранённого токена нет', locked: 'Сохранён и заблокирован', unlocked: 'Разблокирован для этой вкладки',
+    empty: 'Сохранённого токена нет', locked: 'Сохранён и заблокирован', unlocked: 'Запомнен на этом устройстве',
     saved: 'Токен зашифрован и сохранён', removed: 'Сохранённый токен удалён',
     enterToken: 'Сначала введи новый токен GitHub.',
     enterPassword: 'Задай пароль хранилища минимум из 8 символов.',
@@ -36,7 +41,7 @@
     unavailable: 'Для шифрования нужен современный браузер и HTTPS.',
     showToken: 'Показать токен', hideToken: 'Скрыть токен',
     security: 'Если токен попал в чат, на скриншот или в публичный репозиторий, сразу отзови его.',
-    fieldNote: 'До закрытия вкладки токен хранится только в памяти. Ниже его можно сохранить лишь в зашифрованном виде.'
+    fieldNote: 'После одного сохранения или разблокировки токен переживёт перезагрузку и повторное открытие этого профиля браузера. Кнопка «Заблокировать» отключит автовосстановление.'
   };
 
   function storageGet(key) {
@@ -126,6 +131,106 @@
     return Boolean(window.crypto?.subtle && window.TextEncoder && window.TextDecoder);
   }
 
+  function openDeviceDatabase() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) return reject(new Error('IndexedDB unavailable'));
+      const request = indexedDB.open(DEVICE_DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains(DEVICE_STORE_NAME)) {
+          request.result.createObjectStore(DEVICE_STORE_NAME);
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('IndexedDB open failed'));
+    });
+  }
+
+  async function getDeviceKey(createIfMissing = false) {
+    const database = await openDeviceDatabase();
+    try {
+      const existing = await new Promise((resolve, reject) => {
+        const request = database.transaction(DEVICE_STORE_NAME, 'readonly')
+          .objectStore(DEVICE_STORE_NAME)
+          .get(DEVICE_KEY_ID);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error || new Error('Device key read failed'));
+      });
+      if (existing || !createIfMissing) return existing;
+
+      const key = await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+      await new Promise((resolve, reject) => {
+        const transaction = database.transaction(DEVICE_STORE_NAME, 'readwrite');
+        transaction.objectStore(DEVICE_STORE_NAME).put(key, DEVICE_KEY_ID);
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error || new Error('Device key save failed'));
+        transaction.onabort = () => reject(transaction.error || new Error('Device key save aborted'));
+      });
+      return key;
+    } finally {
+      database.close();
+    }
+  }
+
+  async function rememberTokenForDevice(token) {
+    const key = await getDeviceKey(true);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      new TextEncoder().encode(token)
+    );
+    storageSet(DEVICE_VAULT_KEY, JSON.stringify({
+      version: 1,
+      algorithm: 'AES-GCM',
+      iv: bytesToBase64(iv),
+      ciphertext: bytesToBase64(new Uint8Array(ciphertext))
+    }));
+  }
+
+  async function readRememberedToken() {
+    const payload = storageGet(DEVICE_VAULT_KEY);
+    if (!payload) return '';
+    const data = JSON.parse(payload);
+    if (data.version !== 1 || data.algorithm !== 'AES-GCM') throw new Error('Unsupported device vault');
+    const key = await getDeviceKey(false);
+    if (!key) throw new Error('Device key missing');
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: base64ToBytes(data.iv) },
+      key,
+      base64ToBytes(data.ciphertext)
+    );
+    return new TextDecoder().decode(decrypted);
+  }
+
+  function forgetRememberedToken() {
+    storageRemove(DEVICE_VAULT_KEY);
+  }
+
+  function restoreRememberedToken() {
+    if (currentToken() || !storageGet(DEVICE_VAULT_KEY)) return Promise.resolve('');
+    if (deviceRestorePromise) return deviceRestorePromise;
+    deviceRestorePromise = readRememberedToken()
+      .then(token => {
+        if (!tokenLooksUsable(token)) throw new Error('Invalid remembered token');
+        syncToken(token);
+        updatePanels();
+        return token;
+      })
+      .catch(() => {
+        forgetRememberedToken();
+        updatePanels();
+        return '';
+      })
+      .finally(() => {
+        deviceRestorePromise = null;
+      });
+    return deviceRestorePromise;
+  }
+
   function clearLegacyPlaintextTokens() {
     try {
       for (let index = localStorage.length - 1; index >= 0; index -= 1) {
@@ -172,6 +277,7 @@
     if (password.length < 8) return updatePanels(copy.enterPassword, 'error');
     try {
       storageSet(VAULT_KEY, await encryptToken(token, password));
+      await rememberTokenForDevice(token);
       panel.querySelector('[data-gh-vault-password]').value = '';
       updatePanels(copy.saved, 'success');
     } catch (error) {
@@ -189,6 +295,7 @@
       const token = await decryptToken(payload, password);
       if (!tokenLooksUsable(token)) throw new Error('Invalid token');
       syncToken(token);
+      await rememberTokenForDevice(token);
       panel.querySelector('[data-gh-vault-password]').value = '';
       updatePanels(copy.unlocked, 'success');
     } catch (error) {
@@ -197,6 +304,7 @@
   }
 
   function lockToken() {
+    forgetRememberedToken();
     syncToken('');
     tokenInputs().forEach(input => { input.type = 'password'; });
     updatePanels(copy.locked);
@@ -204,6 +312,7 @@
 
   function removeToken() {
     storageRemove(VAULT_KEY);
+    forgetRememberedToken();
     syncToken('');
     updatePanels(copy.removed, 'success');
   }
@@ -297,6 +406,7 @@
   function initVaults() {
     tokenInputs().forEach(injectVault);
     updatePanels();
+    restoreRememberedToken();
   }
 
   function init() {
