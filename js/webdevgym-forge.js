@@ -1,8 +1,9 @@
 (function () {
   'use strict';
 
-  const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en') || /index-en\.html$/i.test(location.pathname);
-  const L = (en, ru) => isEnglish ? en : ru;
+  const runtime = window.WebDevGymRuntime;
+  const isEnglish = runtime?.isEnglish ?? (document.documentElement.lang.toLowerCase().startsWith('en') || /index-en\.html$/i.test(location.pathname));
+  const L = runtime?.L || ((en, ru) => isEnglish ? en : ru);
   const STORE_KEY = 'wdg_forge_v1';
   const GIT_KEY = 'wdg_git_trainer_v1';
   const PREVIEW_STORAGE_KEY = 'wdg_forge_preview_storage_v1';
@@ -483,13 +484,11 @@
   let storageBridgeReady = false;
   let forgeState = readJson(STORE_KEY, { activeProject: 'counter', workspaces: {} });
 
-  function icon(name, size) {
-    return '<iconify-icon icon="' + name + '" width="' + (size || 18) + '" height="' + (size || 18) + '"></iconify-icon>';
-  }
+  const icon = runtime?.icon || ((name, size) =>
+    '<iconify-icon icon="' + name + '" width="' + (size || 18) + '" height="' + (size || 18) + '"></iconify-icon>');
 
-  function esc(value) {
-    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]);
-  }
+  const esc = runtime?.escapeHtml || (value =>
+    String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]));
 
   function readJson(key, fallback) {
     try {
@@ -817,6 +816,10 @@
       success
     }));
     api.logActivity?.(allPassed ? 4 : 1);
+    if (allPassed) document.dispatchEvent(new CustomEvent('webdevgym:forge-complete', { detail:{
+      projectId:project.id, title:project.title, section:project.section,
+      completedAt:work.completedAt
+    }}));
     renderForge();
   }
 
@@ -1150,6 +1153,22 @@
     }
     api.register('forge', forgePage, { title:copy.title, icon:'tabler:hammer', group:L('Practice', 'Практика') });
     addNavigation();
+    window.WebDevGymForge = {
+      open(id) {
+        if (id) forgeState.activeProject = projectById(id).id;
+        saveForge();
+        api.open('forge');
+      },
+      current() {
+        const project = projectById(forgeState.activeProject);
+        const work = workspace(project.id);
+        return {
+          id:project.id, title:project.title, description:project.description,
+          section:project.section, completed:Boolean(work.completedAt), updatedAt:work.updatedAt,
+          source:{html:work.html, css:work.css, js:work.js}
+        };
+      }
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 140));

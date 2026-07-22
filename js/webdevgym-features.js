@@ -897,7 +897,9 @@
   function safeExportKeys() {
     const safe = {};
     const prefixes = ['prog_','quiz_passed_','book_','note_','wdg_','webdevgym_calendar','webdevgym_calendar_note','webdevgym_nexus'];
+    const sensitive = /(token|api.?key|secret|password|credential|vault)/i;
     Object.keys(localStorage).forEach(key => {
+      if (sensitive.test(key) || key === 'wdg_recovery_v1') return;
       if (prefixes.some(prefix => key.startsWith(prefix)) || ['darkMode','theme','custom_css'].includes(key)) safe[key] = localStorage.getItem(key);
     });
     return safe;
@@ -917,11 +919,12 @@
 
   function installImportExport() {
     window.exportProgressJson = function () {
-      const backup = { app:'WebDevGym', version:60, exportedAt:new Date().toISOString(), storage:safeExportKeys() };
+      const backup = { app:'WebDevGym', version:61, exportedAt:new Date().toISOString(), storage:safeExportKeys() };
       downloadBlob(JSON.stringify(backup,null,2), 'webdevgym-backup-' + todayKey() + '.json', 'application/json');
       notify(t.exported);
     };
     window.importProgressJson = function () {
+      document.dispatchEvent(new CustomEvent('webdevgym:before-import'));
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'application/json,.json';

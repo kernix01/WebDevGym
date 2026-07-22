@@ -1,16 +1,17 @@
 (function () {
   'use strict';
 
-  const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en') || /index-en\.html$/i.test(location.pathname);
-  const L = (en, ru) => isEnglish ? en : ru;
+  const runtime = window.WebDevGymRuntime;
+  const isEnglish = runtime?.isEnglish ?? (document.documentElement.lang.toLowerCase().startsWith('en') || /index-en\.html$/i.test(location.pathname));
+  const L = runtime?.L || ((en, ru) => isEnglish ? en : ru);
   const KEY = 'wdg_lab_v1';
   const ACTIVE_KEY = 'wdg_lab_active_v1';
   const c = {
     title:L('Training center','Центр тренировки'),
-    subtitle:L('Six focused tools for checking knowledge, reviewing code and preparing for client work','Шесть точечных инструментов для проверки знаний, ревью кода и подготовки к заказам'),
+    subtitle:L('Nine focused tools for understanding code, checking knowledge and preparing for client work','Девять точечных инструментов для понимания кода, проверки знаний и подготовки к заказам'),
     lab:L('Trainers','Тренажёры'), exam:L('Exam','Экзамен'), errors:L('Error log','История ошибок'),
     cards:L('Custom flashcards','Свои карточки'), review:L('Code review','Ревью кода'), sorter:L('What goes where','Что куда'),
-    kwork:L('Kwork mode','Kwork-режим'), local:L('Saved locally','Сохраняется локально'),
+    kwork:L('Kwork mode','Kwork-режим'), xray:'Code X-Ray', domcss:'DOM / CSS Lab', a11y:'Accessibility Lab', local:L('Saved locally','Сохраняется локально'),
     start:L('Start','Начать'), next:L('Next','Дальше'), finish:L('Finish','Завершить'), reset:L('Reset','Сбросить'),
     add:L('Add','Добавить'), remove:L('Remove','Удалить'), open:L('Open','Открыть'), done:L('Done','Готово'),
     question:L('Question','Вопрос'), answer:L('Answer','Ответ'), score:L('Score','Счёт'), best:L('Best result','Лучший результат'),
@@ -20,7 +21,8 @@
   const toolDefs = [
     ['exam',c.exam,'tabler:certificate'],['errors',c.errors,'tabler:bug'],
     ['cards',c.cards,'tabler:cards'],['review',c.review,'tabler:list-check'],
-    ['sorter',c.sorter,'tabler:arrows-sort'],['kwork',c.kwork,'tabler:swords']
+    ['sorter',c.sorter,'tabler:arrows-sort'],['kwork',c.kwork,'tabler:swords'],
+    ['xray',c.xray,'tabler:xray'],['domcss',c.domcss,'tabler:hierarchy-2'],['a11y',c.a11y,'tabler:accessible']
   ];
   const validTools = new Set(toolDefs.map(tool => tool[0]));
   const defaults = () => ({
@@ -43,8 +45,8 @@
   let flashIndex = 0;
   let flashOpen = false;
 
-  const icon = (name,size=17) => '<iconify-icon icon="' + name + '" width="' + size + '" height="' + size + '"></iconify-icon>';
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]);
+  const icon = runtime?.icon || ((name,size=17) => '<iconify-icon icon="' + name + '" width="' + size + '" height="' + size + '"></iconify-icon>');
+  const esc = runtime?.escapeHtml || (value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]));
   const uid = prefix => prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (error) {} }
   function target() { return page?.querySelector('#wdglView'); }
@@ -67,7 +69,9 @@
   function renderActive() {
     clearInterval(battleTimer);
     battleTimer = null;
-    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,kwork:renderKwork};
+    window.WebDevGymStudioLabs?.destroy?.();
+    const studio = id => () => window.WebDevGymStudioLabs?.render?.(id,target());
+    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,kwork:renderKwork,xray:studio('xray'),domcss:studio('domcss'),a11y:studio('a11y')};
     (renderers[activeTool] || renderExam)();
   }
   function switchTool(id) {
@@ -384,6 +388,14 @@
     if(!api||typeof api.register!=='function'){setTimeout(init,50);return;}
     api.register('lab',labPage,{title:c.lab,icon:'tabler:flask-2',group:L('Training','Тренировка')});
     addNavigation();
+    window.WebDevGymLab = {
+      open(tool='exam') {
+        activeTool = validTools.has(tool) ? tool : 'exam';
+        localStorage.setItem(ACTIVE_KEY,activeTool);
+        api.open('lab');
+      },
+      current:() => activeTool
+    };
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,100));
   else setTimeout(init,100);

@@ -486,6 +486,13 @@
       const statusElement = document.getElementById('gh-status');
       status(copy.success, 'success', `${entries.length} ${fileCountLabel(entries.length)} \u00b7 ${base || copy.root}`, 100);
       if (statusElement) statusElement.innerHTML += `<span class="wdg-gh-detail"><a href="${escapeHtml(commitUrl)}" target="_blank" rel="noopener" style="color:#58a6ff">${copy.commit}: ${escapeHtml(commit.sha.slice(0, 7))}</a></span>`;
+      document.dispatchEvent(new CustomEvent('webdevgym:github-uploaded', { detail:{
+        username,
+        repo,
+        branch,
+        commitUrl,
+        files:entries.length
+      }}));
     } catch (error) {
       status(errorMessage(error), 'error');
     } finally {

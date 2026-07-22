@@ -320,24 +320,268 @@
     world.style.transform = 'translate(' + state.graph.x + 'px,' + state.graph.y + 'px) scale(' + state.graph.scale + ')';
   }
 
-  function updateGraphLines(host, data) {
+  function createGraphRuntime(host, data) {
+    const viewport = host.querySelector('.wdg-graph-viewport');
     const svg = host.querySelector('.wdg-graph-lines');
-    if (!svg) return;
-    const active = (typeof nexusActive === 'function' ? nexusActive() : null)?.title || '';
-    svg.innerHTML = data.edges.map(function (edge) {
-      const a = host.querySelector('[data-node-title="' + CSS.escape(edge[0]) + '"]');
-      const b = host.querySelector('[data-node-title="' + CSS.escape(edge[1]) + '"]');
-      if (!a || !b) return '';
-      const x1 = parseFloat(a.style.left) + a.offsetWidth / 2;
-      const y1 = parseFloat(a.style.top) + a.offsetHeight / 2;
-      const x2 = parseFloat(b.style.left) + b.offsetWidth / 2;
-      const y2 = parseFloat(b.style.top) + b.offsetHeight / 2;
-      const curve = Math.max(35, Math.abs(x2 - x1) * .22);
-      const isActive = edge.some(function (title) { return title.toLowerCase() === active.toLowerCase(); });
-      return '<path class="wdg-graph-line ' + (isActive ? 'active' : '') + '" d="M ' + x1 + ' ' + y1 + ' C ' + (x1 + curve) + ' ' + y1 + ', ' + (x2 - curve) + ' ' + y2 + ', ' + x2 + ' ' + y2 + '" />';
-    }).join('');
-  }
+    if (!viewport || !svg) return null;
 
+    const reducedMotion = document.body.classList.contains('wdgp-reduced-motion') ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const nodes = data.nodes.map(function (item) {
+      const element = host.querySelector('[data-node-title="' + CSS.escape(item.title) + '"]');
+      if (!element) return null;
+      const node = {
+        title: item.title,
+        data: item,
+        element: element,
+        x: parseFloat(element.style.left) || 0,
+        y: parseFloat(element.style.top) || 0,
+        vx: 0,
+        vy: 0,
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      };
+      element.style.left = '0px';
+      element.style.top = '0px';
+      return node;
+    }).filter(Boolean);
+    const byTitle = new Map(nodes.map(function (node) { return [node.title, node]; }));
+    const adjacency = new Map(nodes.map(function (node) { return [node.title, new Set()]; }));
+    const activeTitle = (typeof nexusActive === 'function' ? nexusActive() : null)?.title?.toLowerCase() || '';
+
+    svg.innerHTML = '';
+    const links = data.edges.map(function (edge) {
+      const source = byTitle.get(edge[0]);
+      const target = byTitle.get(edge[1]);
+      if (!source || !target) return null;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const isActive = edge.some(function (title) { return title.toLowerCase() === activeTitle; });
+      path.setAttribute('class', 'wdg-graph-line' + (isActive ? ' active' : ''));
+      svg.appendChild(path);
+      adjacency.get(source.title)?.add(target.title);
+      adjacency.get(target.title)?.add(source.title);
+      const dx = target.x + target.width / 2 - source.x - source.width / 2;
+      const dy = target.y + target.height / 2 - source.y - source.height / 2;
+      return { source: source, target: target, path: path, rest: Math.max(90, Math.hypot(dx, dy)) };
+    }).filter(Boolean);
+
+    let frameId = 0;
+    let lastFrame = performance.now();
+    let dragged = null;
+    let destroyed = false;
+
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        if (frameId) cancelAnimationFrame(frameId);
+        frameId = 0;
+      } else {
+        wake();
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    function draw() {
+      nodes.forEach(function (node) {
+        node.element.style.transform = 'translate3d(' + node.x.toFixed(2) + 'px,' + node.y.toFixed(2) + 'px,0) scale(var(--wdg-node-scale, 1))';
+      });
+      links.forEach(function (link) {
+        const x1 = link.source.x + link.source.width / 2;
+        const y1 = link.source.y + link.source.height / 2;
+        const x2 = link.target.x + link.target.width / 2;
+        const y2 = link.target.y + link.target.height / 2;
+        const curve = Math.max(35, Math.abs(x2 - x1) * .22);
+        link.path.setAttribute('d', 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) + ' C ' +
+          (x1 + curve).toFixed(2) + ' ' + y1.toFixed(2) + ', ' +
+          (x2 - curve).toFixed(2) + ' ' + y2.toFixed(2) + ', ' +
+          x2.toFixed(2) + ' ' + y2.toFixed(2));
+      });
+    }
+
+    function persist() {
+      nodes.forEach(function (node) {
+        state.graph.positions[node.title] = [Math.round(node.x * 100) / 100, Math.round(node.y * 100) / 100];
+      });
+      saveGraphState();
+    }
+
+    function highlight(title) {
+      const related = adjacency.get(title) || new Set();
+      nodes.forEach(function (node) {
+        node.element.classList.toggle('is-related', related.has(node.title));
+        node.element.classList.toggle('is-muted', node.title !== title && !related.has(node.title));
+      });
+      links.forEach(function (link) {
+        const connected = link.source.title === title || link.target.title === title;
+        link.path.classList.toggle('is-related', connected);
+        link.path.classList.toggle('is-muted', !connected);
+      });
+    }
+
+    function clearHighlight() {
+      nodes.forEach(function (node) { node.element.classList.remove('is-related', 'is-muted'); });
+      links.forEach(function (link) { link.path.classList.remove('is-related', 'is-muted'); });
+    }
+
+    function wake() {
+      if (!frameId && !destroyed && !document.hidden) {
+        lastFrame = performance.now();
+        frameId = requestAnimationFrame(step);
+      }
+    }
+
+    function step(now) {
+      frameId = 0;
+      if (destroyed || !host.isConnected) return;
+      const delta = Math.min(2, Math.max(.35, (now - lastFrame) / 16.667));
+      lastFrame = now;
+      let moving = false;
+
+      if (dragged?.dirty) {
+        const dx = dragged.targetX - dragged.node.x;
+        const dy = dragged.targetY - dragged.node.y;
+        dragged.node.x = dragged.targetX;
+        dragged.node.y = dragged.targetY;
+        dragged.node.vx = dragged.vx;
+        dragged.node.vy = dragged.vy;
+        dragged.dirty = false;
+        if (!reducedMotion && (dx || dy)) {
+          (adjacency.get(dragged.node.title) || new Set()).forEach(function (title) {
+            const neighbor = byTitle.get(title);
+            if (!neighbor) return;
+            neighbor.vx += dx * .055;
+            neighbor.vy += dy * .055;
+          });
+        }
+        moving = true;
+      }
+
+      if (!reducedMotion) {
+        links.forEach(function (link) {
+          const dx = link.target.x + link.target.width / 2 - link.source.x - link.source.width / 2;
+          const dy = link.target.y + link.target.height / 2 - link.source.y - link.source.height / 2;
+          const distance = Math.max(1, Math.hypot(dx, dy));
+          const force = (distance - link.rest) * .0032 * delta;
+          const fx = dx / distance * force;
+          const fy = dy / distance * force;
+          if (!dragged || dragged.node !== link.source) { link.source.vx += fx; link.source.vy += fy; }
+          if (!dragged || dragged.node !== link.target) { link.target.vx -= fx; link.target.vy -= fy; }
+        });
+
+        if (nodes.length <= 56) {
+          for (let i = 0; i < nodes.length; i += 1) {
+            for (let j = i + 1; j < nodes.length; j += 1) {
+              const a = nodes[i];
+              const b = nodes[j];
+              const dx = b.x + b.width / 2 - a.x - a.width / 2;
+              const dy = b.y + b.height / 2 - a.y - a.height / 2;
+              const distance = Math.max(1, Math.hypot(dx, dy));
+              if (distance >= 105) continue;
+              const force = (105 - distance) * .0018 * delta;
+              const fx = dx / distance * force;
+              const fy = dy / distance * force;
+              if (!dragged || dragged.node !== a) { a.vx -= fx; a.vy -= fy; }
+              if (!dragged || dragged.node !== b) { b.vx += fx; b.vy += fy; }
+            }
+          }
+        }
+
+        nodes.forEach(function (node) {
+          if (dragged?.node === node) return;
+          node.vx *= Math.pow(.82, delta);
+          node.vy *= Math.pow(.82, delta);
+          if (Math.abs(node.vx) + Math.abs(node.vy) < .015) {
+            node.vx = 0;
+            node.vy = 0;
+            return;
+          }
+          node.x += node.vx * delta;
+          node.y += node.vy * delta;
+          moving = true;
+        });
+      }
+
+      draw();
+      if (moving || dragged?.dirty) frameId = requestAnimationFrame(step);
+      else persist();
+    }
+
+    nodes.forEach(function (node) {
+      node.element.addEventListener('pointerenter', function () { if (!dragged) highlight(node.title); });
+      node.element.addEventListener('pointerleave', function () { if (!dragged) clearHighlight(); });
+      node.element.addEventListener('pointerdown', function (event) {
+        event.stopPropagation();
+        dragged = {
+          node: node,
+          pointerId: event.pointerId,
+          startClientX: event.clientX,
+          startClientY: event.clientY,
+          startX: node.x,
+          startY: node.y,
+          targetX: node.x,
+          targetY: node.y,
+          lastTargetX: node.x,
+          lastTargetY: node.y,
+          lastTime: performance.now(),
+          vx: 0,
+          vy: 0,
+          moved: false,
+          dirty: true
+        };
+        node.element.setPointerCapture(event.pointerId);
+        node.element.classList.add('is-dragging');
+        highlight(node.title);
+        wake();
+      });
+      node.element.addEventListener('pointermove', function (event) {
+        if (!dragged || dragged.node !== node || dragged.pointerId !== event.pointerId) return;
+        const targetX = dragged.startX + (event.clientX - dragged.startClientX) / state.graph.scale;
+        const targetY = dragged.startY + (event.clientY - dragged.startClientY) / state.graph.scale;
+        const now = performance.now();
+        const elapsed = Math.max(8, now - dragged.lastTime) / 16.667;
+        dragged.vx = dragged.vx * .45 + (targetX - dragged.lastTargetX) / elapsed * .55;
+        dragged.vy = dragged.vy * .45 + (targetY - dragged.lastTargetY) / elapsed * .55;
+        dragged.targetX = targetX;
+        dragged.targetY = targetY;
+        dragged.lastTargetX = targetX;
+        dragged.lastTargetY = targetY;
+        dragged.lastTime = now;
+        dragged.dirty = true;
+        if (Math.abs(targetX - dragged.startX) + Math.abs(targetY - dragged.startY) > 2) dragged.moved = true;
+        wake();
+      });
+
+      function finishDrag(event, cancelled) {
+        if (!dragged || dragged.node !== node || dragged.pointerId !== event.pointerId) return;
+        const moved = dragged.moved;
+        node.x = dragged.targetX;
+        node.y = dragged.targetY;
+        node.vx = reducedMotion ? 0 : dragged.vx * .7;
+        node.vy = reducedMotion ? 0 : dragged.vy * .7;
+        dragged = null;
+        node.element.classList.remove('is-dragging');
+        clearHighlight();
+        persist();
+        wake();
+        if (!moved && !cancelled) graphOpenNode(node.data);
+      }
+
+      node.element.addEventListener('pointerup', function (event) { finishDrag(event, false); });
+      node.element.addEventListener('pointercancel', function (event) { finishDrag(event, true); });
+    });
+
+    draw();
+    return {
+      nodes: nodes,
+      draw: draw,
+      persist: persist,
+      destroy: function () {
+        destroyed = true;
+        if (frameId) cancelAnimationFrame(frameId);
+        frameId = 0;
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
+    };
+  }
   function toneFor(title, index) {
     const tones = { JavaScript:'cyan', Events:'coral', localStorage:'orange', HTML:'cyan', CSS:'blue', DOM:'violet', React:'violet', TypeScript:'blue', Git:'coral', Vite:'violet', 'Node.js':'cyan', SQL:'orange' };
     return tones[title] || ['blue', 'cyan', 'coral', 'orange', 'violet'][index % 5];
@@ -374,15 +618,17 @@
 
   function fitGraph(host) {
     const viewport = host?.querySelector('.wdg-graph-viewport');
-    const nodes = Array.from(host?.querySelectorAll('.wdg-graph-node') || []);
+    const runtime = host?._wdgGraphRuntime;
+    const nodes = runtime?.nodes || Array.from(host?.querySelectorAll('.wdg-graph-node') || []);
     if (!viewport || !nodes.length) return;
     const bounds = nodes.reduce(function (acc, node) {
-      const left = parseFloat(node.style.left) || 0;
-      const top = parseFloat(node.style.top) || 0;
+      const element = node.element || node;
+      const left = node.element ? node.x : parseFloat(element.style.left) || 0;
+      const top = node.element ? node.y : parseFloat(element.style.top) || 0;
       acc.minX = Math.min(acc.minX, left);
       acc.minY = Math.min(acc.minY, top);
-      acc.maxX = Math.max(acc.maxX, left + node.offsetWidth);
-      acc.maxY = Math.max(acc.maxY, top + node.offsetHeight);
+      acc.maxX = Math.max(acc.maxX, left + (node.width || element.offsetWidth));
+      acc.maxY = Math.max(acc.maxY, top + (node.height || element.offsetHeight));
       return acc;
     }, { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity });
     const padding = 52;
@@ -394,11 +640,13 @@
     applyGraphCamera(host);
     saveGraphState();
   }
-
   function bindGraphInteractions(host, data) {
     const viewport = host.querySelector('.wdg-graph-viewport');
     const world = host.querySelector('.wdg-graph-world');
     if (!viewport || !world) return;
+    host._wdgGraphRuntime?.destroy();
+    const runtime = createGraphRuntime(host, data);
+    host._wdgGraphRuntime = runtime;
     let pan = null;
 
     viewport.addEventListener('pointerdown', function (event) {
@@ -413,8 +661,15 @@
       state.graph.y = pan.y + event.clientY - pan.py;
       applyGraphCamera(host);
     });
-    viewport.addEventListener('pointerup', function () { pan = null; viewport.classList.remove('dragging'); saveGraphState(); });
-    viewport.addEventListener('pointercancel', function () { pan = null; viewport.classList.remove('dragging'); });
+    viewport.addEventListener('pointerup', function () {
+      pan = null;
+      viewport.classList.remove('dragging');
+      saveGraphState();
+    });
+    viewport.addEventListener('pointercancel', function () {
+      pan = null;
+      viewport.classList.remove('dragging');
+    });
     viewport.addEventListener('wheel', function (event) {
       event.preventDefault();
       const oldScale = state.graph.scale;
@@ -429,42 +684,23 @@
       saveGraphState();
     }, { passive: false });
 
-    host.querySelectorAll('.wdg-graph-node').forEach(function (element) {
-      const node = data.nodes.find(function (item) { return item.title === element.dataset.nodeTitle; });
-      let drag = null;
-      element.addEventListener('pointerdown', function (event) {
-        event.stopPropagation();
-        drag = { px: event.clientX, py: event.clientY, left: parseFloat(element.style.left), top: parseFloat(element.style.top), moved: false };
-        element.setPointerCapture(event.pointerId);
-      });
-      element.addEventListener('pointermove', function (event) {
-        if (!drag) return;
-        const dx = (event.clientX - drag.px) / state.graph.scale;
-        const dy = (event.clientY - drag.py) / state.graph.scale;
-        if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
-        element.style.left = drag.left + dx + 'px';
-        element.style.top = drag.top + dy + 'px';
-        state.graph.positions[element.dataset.nodeTitle] = [drag.left + dx, drag.top + dy];
-        updateGraphLines(host, data);
-      });
-      element.addEventListener('pointerup', function () {
-        const moved = drag?.moved;
-        drag = null;
-        saveGraphState();
-        if (!moved && node) graphOpenNode(node);
-      });
-    });
-
     host.querySelector('[data-graph-action="zoom-in"]')?.addEventListener('click', function () { state.graph.scale = Math.min(2.1, state.graph.scale + .15); applyGraphCamera(host); saveGraphState(); });
     host.querySelector('[data-graph-action="zoom-out"]')?.addEventListener('click', function () { state.graph.scale = Math.max(.45, state.graph.scale - .15); applyGraphCamera(host); saveGraphState(); });
     host.querySelector('[data-graph-action="center"]')?.addEventListener('click', function () { state.graph.x = 0; state.graph.y = 0; state.graph.scale = 1; applyGraphCamera(host); saveGraphState(); });
     host.querySelector('[data-graph-action="fit"]')?.addEventListener('click', function () { fitGraph(host); });
-    host.querySelector('[data-graph-action="reset"]')?.addEventListener('click', function () { state.graph.positions = {}; localStorage.removeItem(GRAPH_POSITION_KEY); renderNexusGraph(); });
+    host.querySelector('[data-graph-action="reset"]')?.addEventListener('click', function () {
+      runtime?.destroy();
+      state.graph.positions = {};
+      localStorage.removeItem(GRAPH_POSITION_KEY);
+      renderNexusGraph();
+    });
   }
-
   function renderNexusGraph() {
     const host = document.getElementById('nexusGraph');
     if (!host) return;
+    host._wdgGraphRuntime?.destroy();
+    const renderId = (host._wdgGraphRenderId || 0) + 1;
+    host._wdgGraphRenderId = renderId;
     host.className = 'nexus-graph wdg-graph-host';
     const data = graphData();
     const activeTitle = (typeof nexusActive === 'function' ? nexusActive() : null)?.title || '';
@@ -483,7 +719,9 @@
         return '<button class="wdg-graph-node ' + (active ? 'active' : '') + (progress === 100 ? ' completed' : '') + '" type="button" data-tone="' + toneFor(node.title, index) + '" data-node-title="' + graphEscape(node.title) + '" style="left:' + pos[0] + 'px;top:' + pos[1] + 'px"><span>' + graphEscape(node.title) + '</span>' + (progress == null ? '' : '<small>' + progress + '%</small>') + '</button>';
       }).join('') + '</div><div class="wdg-graph-status">' + copy.openGraph + '</div></div></div>';
     applyGraphCamera(host);
-    requestAnimationFrame(function () { updateGraphLines(host, data); bindGraphInteractions(host, data); });
+    requestAnimationFrame(function () {
+      if (host._wdgGraphRenderId === renderId) bindGraphInteractions(host, data);
+    });
   }
 
   function enhanceNexus() {
