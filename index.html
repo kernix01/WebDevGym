@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-wdg-language="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,12 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#090d14">
+<script>
+try {
+  const priority = localStorage.getItem('wdgn_learning_priority_v1');
+  document.documentElement.dataset.learningPriority = priority === 'backend' ? 'backend' : 'frontend';
+} catch {}
+</script>
 <script src="js/modern-language-bootstrap-v2.js"></script>
 <link rel="stylesheet" href="css/modern-ui.css">
 <link rel="stylesheet" href="css/modern-ui-fixes.css">
@@ -21,45 +27,67 @@
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <link rel="stylesheet" href="css/webdevgym-features.css">
   <link rel="stylesheet" href="css/webdevgym-lab.css">
+  <link rel="stylesheet" href="css/webdevgym-trainers-v2.css?v=20260729-3">
   <link rel="stylesheet" href="css/webdevgym-personalization.css">
   <link rel="stylesheet" href="css/webdevgym-custom-sounds.css">
   <link rel="stylesheet" href="css/webdevgym-forge.css">
+  <link rel="stylesheet" href="css/webdevgym-forge-v2.css?v=20260803-1">
   <link rel="stylesheet" href="css/webdevgym-studio-suite.css">
+  <link rel="stylesheet" href="css/webdevgym-project-path.css?v=20260803-1">
   <link rel="stylesheet" href="css/webdevgym-today.css">
+  <link rel="stylesheet" href="css/webdevgym-today-v2.css">
   <link rel="stylesheet" href="css/webdevgym-growth.css">
+  <link rel="stylesheet" href="css/webdevgym-routes-v2.css">
   <link rel="stylesheet" href="css/webdevgym-nexus.css">
 <link rel="stylesheet" href="css/webdevgym-mobile.css">
 <link rel="stylesheet" href="css/webdevgym-ai-settings.css">
+<link rel="stylesheet" href="css/webdevgym-settings-v2.css?v=20260803-1">
 <link rel="stylesheet" href="css/webdevgym-splash.css">
 <link rel="stylesheet" href="css/webdevgym-github-token-vault.css">
 <link rel="stylesheet" href="css/webdevgym-github-workspace.css">
+<link rel="stylesheet" href="css/curriculum-depth-2026.css">
+<link rel="stylesheet" href="css/webdevgym-profile-redesign.css?v=20260809-9">
+<link rel="stylesheet" href="css/webdevgym-next.css">
+<link rel="stylesheet" href="css/webdevgym-calendar-v5.css?v=20260809-2">
+<link rel="stylesheet" href="css/webdevgym-nexus-v3.css">
+<link rel="stylesheet" href="css/webdevgym-learning-workspace.css">
+<link rel="stylesheet" href="css/webdevgym-playground-atlas.css?v=20260729-5">
 </head>
 <body>
 <div id="customBgLayer"></div>
 
 <!-- ===== SPLASH SCREEN ===== -->
-<div id="splash-screen" role="status" aria-live="polite" aria-label="WebDevGym loading">
+<div id="splash-screen" role="status" aria-live="polite" aria-label="WebDevGym загружается">
   <div class="splash-inner">
     <div class="splash-icon" aria-hidden="true">
-      <svg class="splash-logo" width="112" height="72" viewbox="0 0 112 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <lineargradient id="splashLogoGrad" x1="12" y1="12" x2="100" y2="60" gradientunits="userSpaceOnUse">
-            <stop stop-color="#a855f7"></stop>
-            <stop offset="0.58" stop-color="#7c3aed"></stop>
-            <stop offset="1" stop-color="#22d3ee"></stop>
-          </lineargradient>
-        </defs>
-        <path d="M31 18L11 36L31 54" stroke="url(#splashLogoGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M81 18L101 36L81 54" stroke="url(#splashLogoGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M39 24L48 49L56 31L64 49L73 24" stroke="url(#splashLogoGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+      <svg class="splash-logo" viewBox="0 0 70 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 8L4 24L17 40L28 25" stroke="#a855f7" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M26 25L35 37L44 17L54 31L64 17" stroke="#2dd4a8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle cx="64" cy="8" r="3.5" fill="#2dd4a8"></circle>
+        <path d="M64 11V17" stroke="#2dd4a8" stroke-width="3" stroke-linecap="round"></path>
       </svg>
     </div>
-    <div class="splash-title"><span>WebDev</span><strong>Gym</strong></div>
-    <div class="splash-sub">Роадмап</div>
-    <div class="splash-progress" aria-hidden="true">
-      <span></span><span></span><span></span>
+    <div class="splash-title">WebDev<strong>Gym</strong></div>
+    <div class="splash-sub wdgn-loader-copy wdgn-loader-copy-front">Собираем frontend-пространство</div>
+    <div class="splash-sub wdgn-loader-copy wdgn-loader-copy-back">Собираем backend-пространство</div>
+    <div class="wdgn-loader-route wdgn-loader-route-front" aria-hidden="true">
+      <span class="wdgn-loader-step done"><i></i>HTML</span>
+      <span class="wdgn-loader-step done"><i></i>CSS</span>
+      <span class="wdgn-loader-step active"><i></i>JS</span>
+      <span class="wdgn-loader-step"><i></i>GIT</span>
+      <span class="wdgn-loader-step"><i></i>VITE</span>
+      <span class="wdgn-loader-step"><i></i>TS</span>
+      <span class="wdgn-loader-step"><i></i>R</span>
     </div>
-    <span class="splash-sr-only">Loading WebDevGym</span>
+    <div class="wdgn-loader-route wdgn-loader-route-back" aria-hidden="true">
+      <span class="wdgn-loader-step done"><i></i>JS</span>
+      <span class="wdgn-loader-step done"><i></i>GIT</span>
+      <span class="wdgn-loader-step active"><i></i>NODE</span>
+      <span class="wdgn-loader-step"><i></i>SQL</span>
+      <span class="wdgn-loader-step"><i></i>PG</span>
+      <span class="wdgn-loader-step"><i></i>LNX</span>
+      <span class="wdgn-loader-step"><i></i>SRV</span>
+    </div>
   </div>
 </div>
 
@@ -208,12 +236,12 @@
     <div class="lang-section-hero" style="border-left-color:#14b8a6;">
       <div class="lang-section-hero-icon" style="background:linear-gradient(135deg,#0f766e,#14b8a6);">📅</div>
       <div>
-        <div class="lang-section-hero-title">Календарь развития до 31 декабря</div>
-        <div class="lang-section-hero-sub">Режим: 1 час учебы, потом 3 дня отдыха. План можно менять, отмечать, экспортировать и импортировать вместе с прогрессом WebDevGym.</div>
+        <div class="lang-section-hero-title">Календарь обучения</div>
+        <div class="lang-section-hero-sub">Режим: 1 час учёбы, потом 3 дня отдыха. План можно менять, отмечать, экспортировать и импортировать вместе с прогрессом WebDevGym.</div>
         <div class="lang-section-hero-badges">
           <span class="lang-section-hero-badge">1 час</span>
           <span class="lang-section-hero-badge">3 дня отдыха</span>
-          <span class="lang-section-hero-badge">localStorage</span>
+          <span class="lang-section-hero-badge">Автосохранение</span>
           <span class="lang-section-hero-badge">JSON</span>
         </div>
       </div>
@@ -296,7 +324,7 @@
         <div class="lang-section-hero-sub">JS оживляет страницы: кнопки работают, данные загружаются без перезагрузки, формы проверяются. Единственный язык, который понимает браузер.</div>
         <div class="lang-section-hero-badges">
           <span class="lang-section-hero-badge">Интерактивность</span>
-          <span class="lang-section-hero-badge">DOM / события</span>
+          <span class="lang-section-hero-badge">JavaScript / события</span>
           <span class="lang-section-hero-badge">Работа с API</span>
           <span class="lang-section-hero-badge">async / await</span>
           <span class="lang-section-hero-badge">Изучи после CSS</span>
@@ -304,7 +332,7 @@
       </div>
     </div>
 
-    <div data-curriculum-slot="sec-js" hidden=""></div><button class="try-btn" onclick="sendPrompt('Дай мне задание по JavaScript DOM для новичка с проверкой')">Получить задание по JS ↗</button>
+    <div data-curriculum-slot="sec-js" hidden=""></div><button class="try-btn" onclick="sendPrompt('Дай мне задание по JavaScript для новичка с проверкой')">Получить задание по JS ↗</button>
 
     </div>
 
@@ -418,7 +446,7 @@
         <div class="lang-section-hero-sub">Пиши заметки, связывай их через [[ссылки]], ищи идеи и экспортируй базу знаний. Небольшой инструмент в стиле Obsidian внутри WebDevGym.</div>
         <div class="lang-section-hero-badges">
           <span class="lang-section-hero-badge">[[links]]</span>
-          <span class="lang-section-hero-badge">localStorage</span>
+          <span class="lang-section-hero-badge">Автосохранение</span>
           <span class="lang-section-hero-badge">Markdown-lite</span>
           <span class="lang-section-hero-badge">JSON export</span>
         </div>
@@ -432,11 +460,11 @@
     <div class="lang-section-hero" style="background: linear-gradient(135deg, #1a0533 0%, #4c1d95 50%, #7c3aed 100%);">
       <div class="lang-section-hero-icon" style="font-size:2.5rem;">✨</div>
       <div>
-        <div class="lang-section-hero-title">ИИ-помощник — настройки</div>
-        <div class="lang-section-hero-sub">По умолчанию используется бесплатная модель Llama 3.3 70B. Если хочешь использовать свою модель — укажи свой API ключ. Он хранится только в твоём браузере.</div>
+        <div class="lang-section-hero-title">ИИ-помощник — подключение</div>
+        <div class="lang-section-hero-sub">Подключи свою OpenAI-совместимую модель. Встроенных ключей и моделей нет: настройки хранятся только в твоём браузере.</div>
         <div class="lang-section-hero-badges">
           <span class="lang-section-hero-badge">Свой API ключ</span>
-          <span class="lang-section-hero-badge">localStorage</span>
+          <span class="lang-section-hero-badge">Автосохранение</span>
           <span class="lang-section-hero-badge">OpenAI-совместимый</span>
         </div>
       </div>
@@ -1282,7 +1310,7 @@
   <div class="section" id="sec-sql">
     <div style="background:linear-gradient(135deg,#336791 0%,#4a7fa5 50%,#336791 100%);border-radius:18px;padding:2rem;margin-bottom:1.5rem;color:#fff;">
       <h2 style="margin:0 0 8px;font-size:1.6rem;">🗄️ SQL — базы данных</h2>
-      <p style="margin:0;opacity:.95;line-height:1.6;">localStorage хранит данные только в одном браузере. Чтобы данные жили <em>по-настоящему</em> — нужна <strong>база данных</strong>. SQL — это язык запросов к базам. Освоишь его — и сможешь хранить пользователей, посты, заказы, что угодно. Это обязательная часть бэкенда.</p>
+      <p style="margin:0;opacity:.95;line-height:1.6;">Данные браузера хранятся только на одном устройстве. Чтобы данные были доступны надёжно и с разных устройств, нужна <strong>база данных</strong>. SQL — это язык запросов к базам. Освоишь его — и сможешь хранить пользователей, посты, заказы и другие данные. Это обязательная часть бэкенда.</p>
     </div>
 
     <div data-curriculum-slot="sec-sql" hidden=""></div></div><!-- /sec-sql -->
@@ -2633,13 +2661,9 @@
     <div class="ai-chat-head-icon">✨</div>
     <div class="ai-chat-head-title">
       <div>ИИ-помощник</div>
-      <div id="aiModelLabel">Llama 3.3 70B</div>
+      <div id="aiModelLabel">Добавь модель в настройках ИИ</div>
     </div>
-    <select class="ai-model-select" id="aiModelSelect" onchange="aiOnModelChange()">
-      <option value="default" selected>Llama 3.3 70B ✓</option>
-      <option value="groq-vision">Llama 4 Scout Vision</option>
-      <option value="custom">⚙ Своя модель (API ключ)</option>
-    </select>
+    <select class="ai-model-select" id="aiModelSelect" onchange="aiOnModelChange()"><option value="" disabled selected>Добавь модель в настройках ИИ</option></select>
     <button class="ai-chat-clear" onclick="aiClearHistory()" title="Очистить историю чата">🧹</button>
     <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
   </div>
@@ -2682,8 +2706,10 @@
 </div>
 
 <script src="data/curriculum-ru.js"></script>
+<script src="data/curriculum-depth-2026.js"></script>
+<script src="data/curriculum-order-2026.js?v=20260810-1"></script>
 <script src="js/webdevgym-curriculum-renderer.js"></script>
-<script src="js/webdevgym-core-ru.js"></script>
+<script src="js/webdevgym-core-ru.js?v=20260809-1"></script>
 <script src="js/modern-ui-bootstrap.js"></script>
 <script src="js/modern-ui.js"></script>
 <script src="js/modern-ui-v2.js"></script>
@@ -2693,20 +2719,31 @@
 <script src="js/modern-ui-v6.js"></script>
 <script src="js/webdevgym-shared-runtime.js"></script>
 <script src="js/webdevgym-features.js"></script>
+<script src="js/webdevgym-profile-redesign.js?v=20260809-7"></script>
 <script src="js/webdevgym-today.js"></script>
+<script src="js/webdevgym-today-v2.js"></script>
 <script src="js/webdevgym-learning.js"></script>
 <script src="js/webdevgym-growth.js"></script>
 <script src="js/webdevgym-lab.js"></script>
+<script src="js/webdevgym-trainers-v2.js?v=20260729-3"></script>
 <script src="js/webdevgym-personalization.js"></script>
 <script src="js/webdevgym-custom-sounds.js"></script>
 <script src="js/webdevgym-forge.js"></script>
+<script src="js/webdevgym-forge-v2.js?v=20260803-1"></script>
 <script src="js/webdevgym-pwa.js"></script>
 <script src="js/webdevgym-mobile.js"></script>
 <script src="js/webdevgym-ai-settings.js"></script>
-<script src="js/webdevgym-github-token-vault.js"></script>
+<script src="js/webdevgym-settings-v2.js?v=20260803-1"></script>
+<script src="js/webdevgym-github-token-vault.js?v=20260809-1"></script>
 <script src="js/webdevgym-github-folder.js"></script>
 <script src="js/webdevgym-studio-suite.js"></script>
 <script src="js/webdevgym-github-workspace.js"></script>
 <script src="js/webdevgym-mobile-performance.js"></script>
+<script src="js/webdevgym-next.js?v=20260809-1"></script>
+<script src="js/webdevgym-calendar-v5.js?v=20260809-1"></script>
+<script src="js/webdevgym-nexus-v3.js"></script>
+<script src="js/webdevgym-learning-workspace.js"></script>
+<script src="js/vendor/emmet-browser.min.js?v=2.4.11"></script>
+<script src="js/webdevgym-playground-atlas.js?v=20260729-6"></script>
 </body>
 </html>

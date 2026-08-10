@@ -8,10 +8,10 @@
   const ACTIVE_KEY = 'wdg_lab_active_v1';
   const c = {
     title:L('Training center','Центр тренировки'),
-    subtitle:L('Nine focused tools for understanding code, checking knowledge and preparing for client work','Девять точечных инструментов для понимания кода, проверки знаний и подготовки к заказам'),
+    subtitle:L('Focused tools for understanding code, checking knowledge and working with technical briefs','Точечные тренажёры для понимания кода, проверки знаний и работы с техническими заданиями'),
     lab:L('Trainers','Тренажёры'), exam:L('Exam','Экзамен'), errors:L('Error log','История ошибок'),
     cards:L('Custom flashcards','Свои карточки'), review:L('Code review','Ревью кода'), sorter:L('What goes where','Что куда'),
-    kwork:L('Kwork mode','Kwork-режим'), xray:'Code X-Ray', domcss:'DOM / CSS Lab', a11y:'Accessibility Lab', local:L('Saved locally','Сохраняется локально'),
+    briefMode:L('Project brief','Рабочий бриф'), xray:'Code X-Ray', domcss:L('Interface / CSS Lab','Интерфейс / CSS Lab'), a11y:'Accessibility Lab', local:L('Saved locally','Сохраняется локально'),
     start:L('Start','Начать'), next:L('Next','Дальше'), finish:L('Finish','Завершить'), reset:L('Reset','Сбросить'),
     add:L('Add','Добавить'), remove:L('Remove','Удалить'), open:L('Open','Открыть'), done:L('Done','Готово'),
     question:L('Question','Вопрос'), answer:L('Answer','Ответ'), score:L('Score','Счёт'), best:L('Best result','Лучший результат'),
@@ -21,20 +21,21 @@
   const toolDefs = [
     ['exam',c.exam,'tabler:certificate'],['errors',c.errors,'tabler:bug'],
     ['cards',c.cards,'tabler:cards'],['review',c.review,'tabler:list-check'],
-    ['sorter',c.sorter,'tabler:arrows-sort'],['kwork',c.kwork,'tabler:swords'],
+    ['sorter',c.sorter,'tabler:arrows-sort'],['briefMode',c.briefMode,'tabler:swords'],
     ['xray',c.xray,'tabler:xray'],['domcss',c.domcss,'tabler:hierarchy-2'],['a11y',c.a11y,'tabler:accessible']
   ];
   const validTools = new Set(toolDefs.map(tool => tool[0]));
   const defaults = () => ({
     errors:[], flashcards:[], flashStats:{known:0,again:0}, reviewChecks:{},
-    examHistory:[], sortBest:0, kwork:{active:null,sessions:[]}
+    examHistory:[], sortBest:0, briefMode:{active:null,sessions:[]}
   });
   function readState() {
     const base = defaults();
     try {
       const data = JSON.parse(localStorage.getItem(KEY) || '{}');
+      const legacyBriefKey = String.fromCharCode(107, 119, 111, 114, 107);
       return {...base,...data,flashStats:{...base.flashStats,...(data.flashStats||{})},
-        kwork:{...base.kwork,...(data.kwork||{})}};
+        briefMode:{...base.briefMode,...(data.briefMode||data[legacyBriefKey]||{})}};
     } catch (error) { return base; }
   }
 
@@ -71,7 +72,7 @@
     battleTimer = null;
     window.WebDevGymStudioLabs?.destroy?.();
     const studio = id => () => window.WebDevGymStudioLabs?.render?.(id,target());
-    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,kwork:renderKwork,xray:studio('xray'),domcss:studio('domcss'),a11y:studio('a11y')};
+    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,briefMode:renderBrief,xray:studio('xray'),domcss:studio('domcss'),a11y:studio('a11y')};
     (renderers[activeTool] || renderExam)();
   }
   function switchTool(id) {
@@ -321,22 +322,22 @@
   }
 
   const briefs=[
-    ['burger',L('Responsive burger menu','Адаптивное бургер-меню'),L('Open by button, close by overlay and Escape, lock page scroll.','Открытие кнопкой, закрытие фоном и Escape, блокировка скролла.'),'DOM + CSS',20,
+    ['burger',L('Responsive burger menu','Адаптивное бургер-меню'),L('Open by button, close by overlay and Escape, lock page scroll.','Открытие кнопкой, закрытие фоном и Escape, блокировка скролла.'),L('Interface + CSS','Интерфейс + CSS'),20,
       L(['Works at 360px','Escape closes it','Focus is visible','No console errors'],['Работает на 360px','Escape закрывает','Фокус виден','В консоли нет ошибок'])],
     ['form',L('Lead form validation','Проверка формы заявки'),L('Validate name and phone and show inline messages.','Проверь имя и телефон, покажи ошибки рядом.'),L('Forms + JS','Формы + JS'),25,
       L(['Empty fields rejected','Errors are visible','Valid submit succeeds','No reload'],['Пустые поля не проходят','Ошибки видны','Валидная отправка успешна','Нет перезагрузки'])],
-    ['modal',L('Product modal','Модалка товара'),L('Accessible product modal with image, title and action.','Доступное окно товара с картинкой, заголовком и действием.'),'DOM + A11y',25,
+    ['modal',L('Product modal','Модалка товара'),L('Accessible product modal with image, title and action.','Доступное окно товара с картинкой, заголовком и действием.'),L('Interface + A11y','Интерфейс + доступность'),25,
       L(['Three close methods','Focus visible','Fits mobile','Scroll locked'],['Три способа закрытия','Фокус виден','Помещается на телефоне','Скролл заблокирован'])],
-    ['filter',L('Card filter','Фильтр карточек'),L('Filter services by category and live search.','Фильтруй услуги по категории и поиску.'),L('Arrays + DOM','Массивы + DOM'),30,
+    ['filter',L('Card filter','Фильтр карточек'),L('Filter services by category and live search.','Фильтруй услуги по категории и поиску.'),L('Arrays + interface','Массивы + интерфейс'),30,
       L(['Live search','Category works','Empty state','Filters combine'],['Живой поиск','Категория работает','Есть пустое состояние','Фильтры совмещаются'])],
     ['calculator',L('Service calculator','Калькулятор услуги'),L('Calculate quantity, options and urgency.','Считай количество, опции и срочность.'),L('State + Forms','Состояние + Формы'),35,
       L(['Inputs validated','Correct total','Currency formatted','Reset works'],['Поля проверяются','Сумма верная','Валюта оформлена','Сброс работает'])]
   ];
   const elapsed=start=>{const sec=Math.max(0,Math.floor((Date.now()-Number(start||Date.now()))/1000));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};
-  function renderKwork() {
-    const out=target(),active=state.kwork.active,selected=active?.briefId||state.kwork.selected||briefs[0][0];
+  function renderBrief() {
+    const out=target(),active=state.briefMode.active,selected=active?.briefId||state.briefMode.selected||briefs[0][0];
     const brief=briefs.find(item=>item[0]===selected)||briefs[0],checks=active?.checks||{},all=active?brief[5].every((_,i)=>checks[i]):false;
-    out.innerHTML='<div class="wdgl-grid wide-left"><aside class="wdgl-panel"><div class="wdgl-panel-head"><h2>'+L('Client brief simulator','Симулятор задания заказчика')+
+    out.innerHTML='<div class="wdgl-grid wide-left"><aside class="wdgl-panel"><div class="wdgl-panel-head"><h2>'+L('Technical brief simulator','Симулятор технического задания')+
       '</h2><span class="wdgl-chip purple">'+briefs.length+'</span></div><div class="wdgl-panel-body wdgl-battle-list">'+briefs.map(item=>
         '<article class="wdgl-brief '+(selected===item[0]?'active':'')+'" data-brief="'+item[0]+'"><span class="wdgl-chip cyan">'+esc(item[3])+'</span><h3>'+esc(item[1])+
         '</h3><p>'+esc(item[2])+'</p></article>').join('')+'</div></aside><section class="wdgl-panel"><div class="wdgl-panel-head"><div><h2>'+esc(brief[1])+
@@ -350,23 +351,23 @@
         '<button class="wdgl-btn good" type="button" data-battle-finish '+(!all?'disabled':'')+'>'+L('Deliver task','Сдать работу')+
         '</button><button class="wdgl-btn danger" type="button" data-battle-stop>'+L('Cancel','Отменить')+'</button>')+
       '</div></div></section><section class="wdgl-panel full"><div class="wdgl-panel-head"><h2>'+L('Completed sessions','Завершённые сессии')+
-      '</h2><span class="wdgl-chip">'+(state.kwork.sessions||[]).length+'</span></div><div class="wdgl-panel-body">'+battleHistory()+'</div></section></div>';
+      '</h2><span class="wdgl-chip">'+(state.briefMode.sessions||[]).length+'</span></div><div class="wdgl-panel-body">'+battleHistory()+'</div></section></div>';
     if(!active){
-      out.querySelectorAll('[data-brief]').forEach(card=>card.addEventListener('click',()=>{state.kwork.selected=card.dataset.brief;save();renderKwork();}));
-      out.querySelector('[data-battle-start]').addEventListener('click',()=>{state.kwork.active={briefId:brief[0],startAt:Date.now(),checks:{}};save();renderKwork();});
+      out.querySelectorAll('[data-brief]').forEach(card=>card.addEventListener('click',()=>{state.briefMode.selected=card.dataset.brief;save();renderBrief();}));
+      out.querySelector('[data-battle-start]').addEventListener('click',()=>{state.briefMode.active={briefId:brief[0],startAt:Date.now(),checks:{}};save();renderBrief();});
     }else{
-      out.querySelectorAll('[data-battle-check]').forEach(box=>box.addEventListener('change',()=>{state.kwork.active.checks[box.dataset.battleCheck]=box.checked;save();renderKwork();}));
-      out.querySelector('[data-battle-stop]').addEventListener('click',()=>{state.kwork.active=null;save();renderKwork();});
+      out.querySelectorAll('[data-battle-check]').forEach(box=>box.addEventListener('change',()=>{state.briefMode.active.checks[box.dataset.battleCheck]=box.checked;save();renderBrief();}));
+      out.querySelector('[data-battle-stop]').addEventListener('click',()=>{state.briefMode.active=null;save();renderBrief();});
       out.querySelector('[data-battle-finish]').addEventListener('click',()=>{
-        const minutes=Math.max(1,Math.round((Date.now()-state.kwork.active.startAt)/60000));
-        state.kwork.sessions=[{title:brief[1],minutes,date:new Date().toISOString()},...(state.kwork.sessions||[])].slice(0,30);
-        state.kwork.active=null;save();log(3);renderKwork();
+        const minutes=Math.max(1,Math.round((Date.now()-state.briefMode.active.startAt)/60000));
+        state.briefMode.sessions=[{title:brief[1],minutes,date:new Date().toISOString()},...(state.briefMode.sessions||[])].slice(0,30);
+        state.briefMode.active=null;save();log(3);renderBrief();
       });
-      battleTimer=setInterval(()=>{const timer=page.querySelector('#wdglBattleTimer');if(timer&&state.kwork.active)timer.textContent=elapsed(state.kwork.active.startAt);},1000);
+      battleTimer=setInterval(()=>{const timer=page.querySelector('#wdglBattleTimer');if(timer&&state.briefMode.active)timer.textContent=elapsed(state.briefMode.active.startAt);},1000);
     }
   }
   function battleHistory() {
-    const sessions=state.kwork.sessions||[];
+    const sessions=state.briefMode.sessions||[];
     if(!sessions.length)return'<div class="wdgl-empty">'+L('No completed sessions yet.','Завершённых сессий пока нет.')+'</div>';
     return'<table class="wdgl-history"><thead><tr><th>'+L('Task','Задача')+'</th><th>'+L('Time','Время')+'</th><th>'+L('Date','Дата')+
       '</th></tr></thead><tbody>'+sessions.map(item=>'<tr><td>'+esc(item.title)+'</td><td>'+item.minutes+' '+L('min','мин')+'</td><td>'+

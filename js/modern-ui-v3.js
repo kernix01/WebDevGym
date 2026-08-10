@@ -1,11 +1,13 @@
 (function () {
   'use strict';
 
-  const isEnglish = /index-en\.html$/i.test(location.pathname);
+  const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en') ||
+    /index-en\.html$/i.test(location.pathname) ||
+    /(?:^|\/)WebDevGym-EN(?:\/|$)/i.test(location.pathname);
   const copy = isEnglish ? {
-    library: 'All sections', search: 'Find a section...', close: 'Close', next: 'Next', current: 'In progress'
+    library: 'All sections', search: 'Find a section...', close: 'Close', next: 'Next', current: 'In progress', lessons: 'Learning paths', tools: 'Tools'
   } : {
-    library: 'Все разделы', search: 'Найти раздел...', close: 'Закрыть', next: 'Дальше', current: 'Изучается'
+    library: 'Все разделы', search: 'Найти раздел...', close: 'Закрыть', next: 'Дальше', current: 'Изучается', lessons: 'Учебные разделы', tools: 'Инструменты'
   };
   let currentIndex = 0;
   let currentSectionId = '';
@@ -28,7 +30,7 @@
     return clone.textContent.replace(/\s+/g, ' ').replace(/^[^\p{L}\p{N}]+/u, '').trim();
   }
 
-  function buildLibrary() {
+  function buildLibrary(){
     const sidebarNav = document.querySelector('.wdg-side-nav');
     if (!sidebarNav || document.getElementById('wdgLibraryBtn')) return;
     const button = document.createElement('button');
@@ -45,33 +47,49 @@
     panel.className = 'wdg-library-panel';
     panel.setAttribute('aria-label', copy.library);
     panel.innerHTML = '<div class="wdg-library-head"><h2>' + copy.library + '</h2><button type="button" id="wdgLibraryClose" title="' + copy.close + '">' + icon('tabler:x', 19) + '</button></div>' +
+      '<div class="wdg-library-switch"><button type="button" class="active" data-library-mode="lessons">' + icon('tabler:book-2',16) + copy.lessons + '</button><button type="button" data-library-mode="tools">' + icon('tabler:tool',16) + copy.tools + '</button></div>' +
       '<input class="wdg-library-search" id="wdgLibrarySearch" type="search" placeholder="' + copy.search + '">' +
       '<div class="wdg-library-grid" id="wdgLibraryGrid"></div>';
     document.body.append(backdrop, panel);
 
-    const sourceTabs = Array.from(document.querySelectorAll('.tabs-nav .tab')).filter(tab => {
-      const onclick = tab.getAttribute('onclick') || '';
-      return onclick.includes('switchTab(');
-    });
+    const sourceTabs = Array.from(document.querySelectorAll('.tabs-nav .tab')).filter(tab => (tab.getAttribute('onclick') || '').includes('switchTab('));
     const seen = new Set();
-    const entries = sourceTabs.map(tab => ({ tab, label: cleanTabLabel(tab) })).filter(entry => {
+    const lessonEntries = sourceTabs.map(tab => ({ target: tab, label: cleanTabLabel(tab), kind: 'lesson' })).filter(entry => {
       const key = entry.label.toLowerCase();
       if (!entry.label || seen.has(key)) return false;
       seen.add(key);
       return true;
     });
     const grid = panel.querySelector('#wdgLibraryGrid');
+    let mode = 'lessons';
 
-    function render(filter) {
+    function toolEntries(){
+      const ignored = new Set(['learn']);
+      const toolSeen = new Set();
+      return Array.from(document.querySelectorAll('.wdg-side-nav [data-wdg-nav]')).map(target => ({
+        target,
+        label: target.textContent.replace(/\s+/g,' ').trim(),
+        kind: 'tool'
+      })).filter(entry => {
+        const id = entry.target.dataset.wdgNav || '';
+        const key = entry.label.toLowerCase();
+        if (!entry.label || ignored.has(id) || toolSeen.has(key)) return false;
+        toolSeen.add(key);
+        return true;
+      });
+    }
+
+    function render(filter){
       const query = String(filter || '').trim().toLowerCase();
+      const entries = mode === 'lessons' ? lessonEntries : toolEntries();
       grid.innerHTML = '';
       entries.filter(entry => !query || entry.label.toLowerCase().includes(query)).forEach(entry => {
         const item = document.createElement('button');
         item.className = 'wdg-library-item';
         item.type = 'button';
-        item.innerHTML = icon('tabler:chevron-right', 15) + '<span>' + entry.label + '</span>';
+        item.innerHTML = icon(entry.kind === 'lesson' ? 'tabler:chevron-right' : 'tabler:arrow-up-right', 15) + '<span>' + entry.label + '</span>';
         item.addEventListener('click', () => {
-          entry.tab.click();
+          entry.target.click();
           close();
           currentIndex = 0;
           setTimeout(syncTopicNavigation, 80);
@@ -79,23 +97,20 @@
         grid.appendChild(item);
       });
     }
-
-    function open() {
-      panel.classList.add('open');
-      backdrop.classList.add('open');
-      button.classList.add('active');
-      panel.querySelector('#wdgLibrarySearch').focus();
-    }
-    function close() {
-      panel.classList.remove('open');
-      backdrop.classList.remove('open');
-      button.classList.remove('active');
-    }
+    function open(){ panel.classList.add('open'); backdrop.classList.add('open'); button.classList.add('active'); panel.querySelector('#wdgLibrarySearch').focus(); render(panel.querySelector('#wdgLibrarySearch').value); }
+    function close(){ panel.classList.remove('open'); backdrop.classList.remove('open'); button.classList.remove('active'); }
 
     button.addEventListener('click', open);
     backdrop.addEventListener('click', close);
     panel.querySelector('#wdgLibraryClose').addEventListener('click', close);
     panel.querySelector('#wdgLibrarySearch').addEventListener('input', event => render(event.target.value));
+    panel.querySelector('.wdg-library-switch').addEventListener('click', event => {
+      const modeButton = event.target.closest('[data-library-mode]');
+      if (!modeButton) return;
+      mode = modeButton.dataset.libraryMode;
+      panel.querySelectorAll('[data-library-mode]').forEach(item => item.classList.toggle('active', item === modeButton));
+      render(panel.querySelector('#wdgLibrarySearch').value);
+    });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
     render('');
   }

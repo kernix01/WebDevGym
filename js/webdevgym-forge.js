@@ -49,7 +49,7 @@
     {
       id: 'counter',
       title: L('Counter without negative values', 'Счётчик без отрицательных значений'),
-      level: L('DOM basics', 'Основа DOM'),
+      level: L('Interface basics', 'Основа интерфейса'),
       section: 'js',
       description: L('Connect three buttons to one state value and keep the interface synchronized.', 'Свяжи три кнопки с одним состоянием и не давай интерфейсу расходиться с данными.'),
       requirements: [
@@ -151,19 +151,19 @@
     },
     {
       id: 'theme',
-      title: L('Persistent theme', 'Тема с сохранением'),
-      level: 'localStorage',
+      title: L('Theme switcher', 'Переключатель темы'),
+      level: L('State and preferences', 'Состояние и настройки'),
       section: 'js',
-      description: L('Switch the page theme and restore the choice after reload.', 'Переключай оформление страницы и восстанавливай выбор после перезагрузки.'),
+      description: L('Build a clear two-state theme switcher. Choose the implementation yourself.', 'Сделай понятный переключатель двух тем. Способ реализации выбери самостоятельно.'),
       requirements: [
         L('The button changes the visible theme.', 'Кнопка визуально меняет тему.'),
-        L('The selected value is stored in localStorage.', 'Выбор записывается в localStorage.'),
-        L('The saved theme is applied when the script starts.', 'Сохранённая тема применяется при запуске скрипта.')
+        L('Repeated clicks switch predictably between two states.', 'Повторные клики предсказуемо переключают два состояния.'),
+        L('The control has a clear text or accessible label.', 'У переключателя есть понятный текст или доступная подпись.')
       ],
       hints: [
         L('Toggle one class on document.body.', 'Переключай один класс у document.body.'),
-        L('Save a string such as dark or light, not the DOM element itself.', 'Сохраняй строку dark или light, а не сам DOM-элемент.'),
-        L('Read localStorage before attaching the click listener.', 'Прочитай localStorage до подключения обработчика клика.')
+        L('Keep the current theme in one clear state value or class.', 'Храни текущую тему в одном понятном значении или классе состояния.'),
+        L('After a second click, the interface should return to the original theme.', 'После второго клика интерфейс должен вернуться к исходной теме.')
       ],
       starter: {
         html: lines(
@@ -189,7 +189,7 @@
         js: lines(
           'const themeBtn = document.querySelector(".theme-btn");',
           '',
-          '// Прочитай сохранённую тему',
+          '// Определи начальную тему',
           '// Затем добавь переключение по клику'
         )
       }
@@ -197,7 +197,7 @@
     {
       id: 'todo',
       title: L('Small task list', 'Небольшой список задач'),
-      level: L('DOM practice', 'Практика DOM'),
+      level: L('Interface practice', 'Практика интерфейса'),
       section: 'js',
       description: L('Create list elements from user input and remove them without reloading.', 'Создавай элементы списка из введённого текста и удаляй их без перезагрузки.'),
       requirements: [
@@ -250,7 +250,7 @@
     {
       id: 'tabs',
       title: L('Accessible tabs', 'Доступные вкладки'),
-      level: L('DOM and state', 'DOM и состояние'),
+      level: L('Interface and state', 'Интерфейс и состояние'),
       section: 'js',
       description: L('Connect tab controls to panels and keep one active state.', 'Свяжи кнопки вкладок с панелями и храни одно активное состояние.'),
       requirements: [
@@ -356,7 +356,7 @@
           '  <ul class="search-list">',
           '    <li class="search-item">HTML forms</li>',
           '    <li class="search-item">CSS Grid</li>',
-          '    <li class="search-item">JavaScript DOM</li>',
+          '    <li class="search-item">JavaScript interface</li>',
           '  </ul>',
           '  <p class="empty-state" hidden>Nothing found</p>',
           '</main>'
@@ -427,7 +427,7 @@
 
   const feedbackGuides = {
     counter: [
-      { file:'HTML', concept:L('DOM selectors', 'DOM-селекторы'), check:L('Check that the counter and all three controls use the classes expected by your JavaScript.', 'Проверь, что у числа и трёх кнопок есть классы, которые ищет JavaScript.') },
+      { file:'HTML', concept:L('Interface selectors', 'Селекторы интерфейса'), check:L('Check that the counter and all three controls use the classes expected by your JavaScript.', 'Проверь, что у числа и трёх кнопок есть классы, которые ищет JavaScript.') },
       { file:'JavaScript', concept:L('Single state and render function', 'Одно состояние и функция обновления'), check:L('Follow the value from the plus click to the variable, then from the variable to textContent.', 'Проследи путь: клик по плюсу → изменение переменной → вывод переменной через textContent.') },
       { file:'JavaScript', concept:L('Guard condition', 'Защитное условие'), check:L('Look at the minus handler and decide under which condition decrementing is allowed.', 'Посмотри на обработчик минуса и определи, при каком условии уменьшение вообще разрешено.') }
     ],
@@ -438,8 +438,8 @@
     ],
     theme: [
       { file:'CSS + JavaScript', concept:L('classList and matching selector', 'classList и совпадающий селектор'), check:L('The class toggled in JavaScript must match the theme selector in CSS exactly.', 'Класс из JavaScript должен полностью совпадать с селектором темы в CSS.') },
-      { file:'JavaScript', concept:'localStorage.setItem', check:L('Save a short string after the theme changes. Do not store a DOM element or an unquoted variable name.', 'После смены темы сохрани короткую строку. Не сохраняй DOM-элемент и не пиши имя строки без кавычек.') },
-      { file:'JavaScript', concept:'localStorage.getItem', check:L('Read the value before the click listener and apply the saved class during startup.', 'Прочитай значение до обработчика клика и примени сохранённый класс при запуске.') }
+      { file:'JavaScript', concept:L('Two-state switch', 'Переключение двух состояний'), check:L('Trace how one click enables a theme and the next click returns the original state.', 'Проследи, как первый клик включает тему, а следующий возвращает исходное состояние.') },
+      { file:'HTML + JavaScript', concept:L('Clear control label', 'Понятная подпись'), check:L('The theme control should have visible text or an aria-label that explains its action.', 'У переключателя должен быть видимый текст или aria-label, объясняющий действие.') }
     ],
     todo: [
       { file:'JavaScript', concept:L('trim and early validation', 'trim и ранняя проверка'), check:L('Check the trimmed value before createElement or append can run.', 'Проверь очищенное через trim значение до вызова createElement или append.') },
@@ -552,7 +552,7 @@
       '    removeItem(key){ key=String(key); values.delete(key); notify("remove",key); },',
       '    clear(){ values.clear(); notify("clear"); }',
       '  };',
-      '  Object.defineProperty(window,"localStorage",{configurable:true,value:storage});',
+      '  window.__wdgLocalStorage = storage;',
       '})();',
       '<\/script>'
     );
@@ -700,9 +700,20 @@
 
   function composeDocument(work, projectId, token) {
     const storageShim = buildStorageShim(projectId);
+    const consoleBridge = lines(
+      '<script>',
+      '(function(){',
+      '  const stringify = value => { try { return typeof value === "string" ? value : JSON.stringify(value); } catch (_) { return String(value); } };',
+      '  const send = (level, values) => parent.postMessage({channel:"wdg-forge-console",level,text:values.map(stringify).join(" ")},"*");',
+      '  ["log","warn","error"].forEach(level => { const original=console[level]; console[level]=(...values)=>{send(level,values);original.apply(console,values);}; });',
+      '  addEventListener("error", event => send("error",[event.message]));',
+      '})();',
+      '<\/script>'
+    );
     const harness = lines(
       '<script>',
       '(function(){',
+      '  const localStorage = window.__wdgLocalStorage;',
       '  const userSource = ' + scriptJson(work.js) + ';',
       '  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));',
       '  addEventListener("message", async event => {',
@@ -728,11 +739,8 @@
       '      }',
       '      if ("' + projectId + '" === "theme") {',
       '        const button=document.querySelector(".theme-btn,[data-theme-toggle]"); const body=document.body; const before=body.className+"|"+getComputedStyle(body).backgroundColor;',
-      '        const storageSnapshot=()=>{const entries=[];for(let index=0;index<localStorage.length;index+=1){const key=localStorage.key(index);entries.push([key,localStorage.getItem(key)]);}return JSON.stringify(entries.sort());};',
-      '        const beforeStored=storageSnapshot();',
-      '        if (button) { button.click(); await wait(30); results.push(before !== body.className+"|"+getComputedStyle(body).backgroundColor); } else results.push(false);',
-      '        results.push(beforeStored !== storageSnapshot() && localStorage.length > 0);',
-      '        results.push(/localStorage\s*\.\s*getItem/.test(userSource));',
+      '        if (button) { button.click(); await wait(30); const changed=body.className+"|"+getComputedStyle(body).backgroundColor; results.push(before !== changed); button.click(); await wait(30); results.push(before === body.className+"|"+getComputedStyle(body).backgroundColor); } else results.push(false,false);',
+      '        results.push(Boolean(button && (String(button.textContent || "").trim() || button.getAttribute("aria-label"))));',
       '      }',
 
       '      if ("' + projectId + '" === "tabs") {',
@@ -757,7 +765,7 @@
       '      }',
       '      if ("' + projectId + '" === "todo") {' ,
       '        const form=document.querySelector("form"); const input=form && form.querySelector("input"); const list=document.querySelector("ul,.todo-list,[data-task-list]");',
-      '        if (form && input && list) { const before=list.children.length; input.value=""; form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true})); await wait(20); results.push(list.children.length === before); input.value="Learn DOM"; form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true})); await wait(20); results.push(list.children.length === before + 1); const remove=list.querySelector(".delete,.remove,[data-delete],li button"); if(remove){remove.click();await wait(20);results.push(list.children.length===before);}else results.push(false); } else results.push(false,false,false);',
+      '        if (form && input && list) { const before=list.children.length; input.value=""; form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true})); await wait(20); results.push(list.children.length === before); input.value="Learn JavaScript"; form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true})); await wait(20); results.push(list.children.length === before + 1); const remove=list.querySelector(".delete,.remove,[data-delete],li button"); if(remove){remove.click();await wait(20);results.push(list.children.length===before);}else results.push(false); } else results.push(false,false,false);',
       '      }',
       '    } catch (error) { while (results.length < 3) results.push(false); }',
       '    parent.postMessage({type:"wdg-forge-results",token:data.token,results},"*");',
@@ -766,7 +774,7 @@
       '<\/script>'
     );
     return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>' +
-      work.css + '</style></head><body>' + work.html + storageShim + '<script>' + work.js + '<\/script>' + harness + '</body></html>';
+      work.css + '</style></head><body>' + work.html + storageShim + consoleBridge + '<script>(function(localStorage){' + work.js + '\n})(window.__wdgLocalStorage);<\/script>' + harness + '</body></html>';
   }
 
   function runPreview(token) {

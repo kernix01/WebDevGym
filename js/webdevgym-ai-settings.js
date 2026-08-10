@@ -6,10 +6,7 @@
     assistant: 'AI assistant', chats: 'Chats', chatSearch: 'Search chats...', newChat: 'New chat',
     today: 'Today', earlier: 'Earlier', connected: 'Connected', history: 'History', clear: 'Clear chat',
     context: 'Lesson context', currentTopic: 'Current topic', selectedFiles: 'Selected files',
-    learningGoal: 'Learning goal', goalText: 'Understand the topic and apply it without copying a complete solution.',
-    progress: 'Lesson progress', theory: 'Theory reviewed', practice: 'Practice in progress',
-    filesLocal: 'Files and chats are stored locally in this browser', ask: 'Ask about code or attach a file...',
-    hints: 'Hints', lesson: 'Lesson', noFiles: 'No files attached', untitled: 'New chat', deleteChat: 'Delete chat',
+    filesLocal: 'Files and chats are stored locally in this browser', ask: 'Ask about code or attach a file...', noFiles: 'No files attached', untitled: 'New chat', deleteChat: 'Delete chat',
     settings: 'Settings', settingsCopy: 'Adjust the interface and learning experience', reset: 'Reset', save: 'Save',
     appearance: 'Appearance', learning: 'Learning', sounds: 'Sounds', ai: 'AI assistant', data: 'Data and PWA',
     accessibility: 'Accessibility', interfaceTheme: 'Interface theme', dark: 'Dark', light: 'Light', system: 'System',
@@ -27,15 +24,12 @@
     pageTopic: 'Current WebDevGym lesson', openHistory: 'Open chat list', close: 'Close',
     soundPageCopy: 'Choose a built-in sound or upload your own short click.', appearancePageCopy: 'Theme, accent, fonts and background.',
     learningPageCopy: 'Control interface density and focus-friendly behavior.', dataPageCopy: 'Manage local progress and app data.',
-    accessibilityPageCopy: 'Reduce motion and use keyboard shortcuts.', aiPageCopy: 'Choose a model and open provider settings.'
+    accessibilityPageCopy: 'Reduce motion and use keyboard shortcuts.', aiPageCopy: 'Connect your own compatible model and explicitly enable its capabilities.', imageMode: 'Image', chatMode: 'Chat', imagePrompt: 'Describe the image you want to generate...', minimize: 'Minimize', maximize: 'Maximize', visionTitle: 'Image understanding', visionCopy: 'Only models with Vision support can inspect attached images. Other readable files are sent as text.', imageTitle: 'Image generation', imageCopy: 'Only models and providers with a dedicated image-generation endpoint can create images.'
   } : {
     assistant: 'ИИ-помощник', chats: 'Чаты', chatSearch: 'Поиск по чатам...', newChat: 'Новый чат',
     today: 'Сегодня', earlier: 'Ранее', connected: 'Подключено', history: 'История', clear: 'Очистить чат',
     context: 'Контекст урока', currentTopic: 'Текущая тема', selectedFiles: 'Выбранные файлы',
-    learningGoal: 'Цель урока', goalText: 'Понять тему и применить её самостоятельно, без копирования полного решения.',
-    progress: 'Прогресс урока', theory: 'Теория просмотрена', practice: 'Практика в процессе',
-    filesLocal: 'Файлы и чаты хранятся локально в этом браузере', ask: 'Спроси о коде или прикрепи файл...',
-    hints: 'Подсказки', lesson: 'Урок', noFiles: 'Файлы не прикреплены', untitled: 'Новый чат', deleteChat: 'Удалить чат',
+    filesLocal: 'Файлы и чаты хранятся локально в этом браузере', ask: 'Спроси о коде или прикрепи файл...', noFiles: 'Файлы не прикреплены', untitled: 'Новый чат', deleteChat: 'Удалить чат',
     settings: 'Настройки', settingsCopy: 'Настрой интерфейс и обучение под себя', reset: 'Сбросить', save: 'Сохранить',
     appearance: 'Внешний вид', learning: 'Обучение', sounds: 'Звуки', ai: 'ИИ-помощник', data: 'Данные и PWA',
     accessibility: 'Доступность', interfaceTheme: 'Тема интерфейса', dark: 'Тёмная', light: 'Светлая', system: 'Системная',
@@ -53,7 +47,7 @@
     pageTopic: 'Текущий урок WebDevGym', openHistory: 'Открыть список чатов', close: 'Закрыть',
     soundPageCopy: 'Выбери встроенный звук или загрузи свой короткий клик.', appearancePageCopy: 'Тема, акцент, шрифты и пользовательский фон.',
     learningPageCopy: 'Настрой плотность интерфейса и спокойный режим работы.', dataPageCopy: 'Управляй локальным прогрессом и данными приложения.',
-    accessibilityPageCopy: 'Уменьши движение и используй клавиатурную навигацию.', aiPageCopy: 'Выбери модель и открой настройки провайдера.'
+    accessibilityPageCopy: 'Уменьши движение и используй клавиатурную навигацию.', aiPageCopy: 'Подключи свою совместимую модель и явно укажи её возможности.', imageMode: 'Изображение', chatMode: 'Чат', imagePrompt: 'Опиши изображение, которое нужно создать...', minimize: 'Свернуть', maximize: 'Развернуть', visionTitle: 'Распознавание изображений', visionCopy: 'Прикреплённые изображения видят только модели с поддержкой Vision. Остальные читаемые файлы передаются как текст.', imageTitle: 'Генерация изображений', imageCopy: 'Создавать изображения умеют только специальные модели и провайдеры с отдельным endpoint генерации.'
   };
 
   const THREADS_KEY = 'wdgr_ai_threads_v1';
@@ -257,8 +251,7 @@
     const topicEl = document.getElementById('wdgrAiTopic');
     const contextButton = document.getElementById('wdgrAiContextButton');
     if (topicEl) topicEl.textContent = topic;
-    if (contextButton) contextButton.querySelector('span').textContent = topic.slice(0, 26);
-
+    if (contextButton) contextButton.title = topic;
     const fileList = document.getElementById('wdgrAiContextFiles');
     if (fileList) {
       const chips = Array.from(document.querySelectorAll('#aiAttachList .ai-attach-name')).map(node => node.textContent.trim());
@@ -266,14 +259,6 @@
         ? chips.map(name => `<span>${icon('tabler:file', 14)}${escapeHtml(name)}</span>`).join('')
         : `<small>${copy.noFiles}</small>`;
     }
-
-    const checkboxes = Array.from(document.querySelectorAll('.section.active .prog-cb'));
-    const checked = checkboxes.filter(box => box.checked).length;
-    const progress = checkboxes.length ? Math.round((checked / checkboxes.length) * 100) : 0;
-    const progressBar = document.getElementById('wdgrAiLessonProgress');
-    const progressValue = document.getElementById('wdgrAiLessonProgressValue');
-    if (progressBar) progressBar.style.width = `${progress}%`;
-    if (progressValue) progressValue.textContent = `${progress}%`;
   }
 
   function buildChat() {
@@ -304,13 +289,16 @@
         <div class="wdgr-ai-thread-list" id="wdgrAiThreadList"></div>
       </aside>
       <main class="wdgr-ai-main">
-        <header class="wdgr-ai-topbar">
+        <header class="wdgr-ai-topbar" data-ai-drag-handle>
           <button type="button" class="wdgr-icon-btn wdgr-ai-history-toggle" title="${copy.openHistory}" aria-label="${copy.openHistory}">${icon('tabler:messages', 19)}</button>
           <div class="wdgr-ai-title"><span class="wdgr-ai-title-icon">${icon('tabler:robot', 19)}</span><strong>${copy.assistant}</strong></div>
           <div class="wdgr-ai-model-slot"></div>
           <span class="wdgr-ai-status"><i></i>${copy.connected}</span>
           <div class="wdgr-ai-top-actions">
-            <button type="button" class="wdgr-icon-text" id="wdgrAiNewChatTop">${icon('tabler:square-plus', 18)}<span>${copy.newChat}</span></button>
+            <button type="button" class="wdgr-icon-text wdgr-ai-image-toggle" id="wdgrAiImageMode" title="${copy.imageMode}">${icon('tabler:photo-spark', 18)}<span>${copy.imageMode}</span></button>
+            <button type="button" class="wdgr-icon-btn" id="wdgrAiContextButton" title="${copy.context}" aria-label="${copy.context}">${icon('tabler:book-2', 18)}</button>
+            <button type="button" class="wdgr-icon-btn" id="wdgrAiMinimize" title="${copy.minimize}" aria-label="${copy.minimize}">${icon('tabler:minus', 18)}</button>
+            <button type="button" class="wdgr-icon-btn" id="wdgrAiMaximize" title="${copy.maximize}" aria-label="${copy.maximize}">${icon('tabler:maximize', 18)}</button>
             <button type="button" class="wdgr-icon-btn" id="wdgrAiClear" title="${copy.clear}" aria-label="${copy.clear}">${icon('tabler:trash', 18)}</button>
             <button type="button" class="wdgr-icon-btn" data-ai-close title="${copy.close}" aria-label="${copy.close}">${icon('tabler:x', 19)}</button>
           </div>
@@ -321,10 +309,7 @@
           <div class="wdgr-ai-attachment-slot"></div>
           <div class="wdgr-ai-compose-row">
             <button type="button" class="wdgr-icon-btn wdgr-ai-attach" title="${copy.upload}" aria-label="${copy.upload}">${icon('tabler:paperclip', 19)}</button>
-            <div class="wdgr-ai-input-slot"></div>
-            <button type="button" class="wdgr-ai-mode">${icon('tabler:bulb', 15)}<span>${copy.hints}</span></button>
-            <button type="button" class="wdgr-ai-context-button" id="wdgrAiContextButton">${icon('tabler:book-2', 15)}<span>${copy.lesson}</span></button>
-            <div class="wdgr-ai-send-slot"></div>
+            <div class="wdgr-ai-input-slot"></div><div class="wdgr-ai-send-slot"></div>
           </div>
           <div class="wdgr-ai-local-note">${icon('tabler:shield-lock', 13)}<span>${copy.filesLocal}</span></div>
         </div>
@@ -333,52 +318,53 @@
         <div class="wdgr-ai-context-head"><strong>${copy.context}</strong><button type="button" data-ai-context-close aria-label="${copy.close}">${icon('tabler:x', 17)}</button></div>
         <section><small>${copy.currentTopic}</small><strong id="wdgrAiTopic">${copy.pageTopic}</strong></section>
         <section><small>${copy.selectedFiles}</small><div class="wdgr-ai-context-files" id="wdgrAiContextFiles"><small>${copy.noFiles}</small></div></section>
-        <section><small>${copy.learningGoal}</small><p>${copy.goalText}</p></section>
-        <section class="wdgr-ai-progress-section">
-          <div><small>${copy.progress}</small><strong id="wdgrAiLessonProgressValue">0%</strong></div>
-          <div class="wdgr-ai-progress-track"><span id="wdgrAiLessonProgress"></span></div>
-          <ul><li class="done">${icon('tabler:circle-check-filled', 16)}${copy.theory}</li><li>${icon('tabler:circle', 16)}${copy.practice}</li></ul>
-        </section>
+        <section class="wdgr-ai-capability-note">${icon('tabler:eye', 18)}<div><strong>${copy.visionTitle}</strong><p>${copy.visionCopy}</p></div></section>
+        <section class="wdgr-ai-capability-note">${icon('tabler:photo-spark', 18)}<div><strong>${copy.imageTitle}</strong><p>${copy.imageCopy}</p></div></section>
         <div class="wdgr-ai-native-context"></div>
       </aside>`;
     win.appendChild(shell);
 
-    shell.querySelector('.wdgr-ai-model-slot').appendChild(modelSelect);
+    shell.querySelector('.wdgr-ai-model-slot').append(modelSelect);
     const label = document.createElement('span');
     label.id = 'aiModelLabel';
     label.className = 'wdgr-ai-model-label';
-    label.textContent = 'Llama 3.3 70B';
-    shell.querySelector('.wdgr-ai-model-slot').appendChild(label);
-    shell.querySelector('.wdgr-ai-message-stage').appendChild(messages);
-    shell.querySelector('.wdgr-ai-quick-slot').appendChild(quickRow);
-    shell.querySelector('.wdgr-ai-attachment-slot').appendChild(attachments);
-    shell.querySelector('.wdgr-ai-input-slot').appendChild(input);
-    shell.querySelector('.wdgr-ai-send-slot').appendChild(send);
-    shell.querySelector('.wdgr-ai-compose-row').appendChild(fileInput);
-    shell.querySelector('.wdgr-ai-native-context').appendChild(context);
+    label.textContent = copy.activeModel;
+    shell.querySelector('.wdgr-ai-model-slot').append(label);
+    shell.querySelector('.wdgr-ai-message-stage').append(messages);
+    shell.querySelector('.wdgr-ai-quick-slot').append(quickRow);
+    shell.querySelector('.wdgr-ai-attachment-slot').append(attachments);
+    shell.querySelector('.wdgr-ai-input-slot').append(input);
+    shell.querySelector('.wdgr-ai-send-slot').append(send);
+    shell.querySelector('.wdgr-ai-compose-row').append(fileInput);
+    shell.querySelector('.wdgr-ai-native-context').append(context);
 
+    if (typeof aiRebuildModelSelect === 'function') aiRebuildModelSelect();
     input.placeholder = copy.ask;
     send.innerHTML = icon('tabler:send-2', 19);
-    modelSelect.addEventListener('change', () => write('wdgr_ai_model_v1', modelSelect.value));
     const savedModel = read('wdgr_ai_model_v1');
     if (savedModel && Array.from(modelSelect.options).some(option => option.value === savedModel)) modelSelect.value = savedModel;
+    modelSelect.addEventListener('change', () => write('wdgr_ai_model_v1', modelSelect.value));
+
+    const setImageMode = enabled => {
+      window.wdgrAiImageMode = Boolean(enabled);
+      const button = shell.querySelector('#wdgrAiImageMode');
+      button.classList.toggle('active', window.wdgrAiImageMode);
+      button.querySelector('span').textContent = window.wdgrAiImageMode ? copy.imageMode : copy.chatMode;
+      input.placeholder = window.wdgrAiImageMode ? copy.imagePrompt : copy.ask;
+    };
+    setImageMode(false);
 
     shell.querySelector('.wdgr-ai-attach').addEventListener('click', () => fileInput.click());
+    shell.querySelector('#wdgrAiImageMode').addEventListener('click', () => setImageMode(!window.wdgrAiImageMode));
     shell.querySelectorAll('[data-ai-close]').forEach(button => button.addEventListener('click', () => window.toggleAiChat?.()));
     shell.querySelector('[data-ai-history-close]').addEventListener('click', () => win.classList.remove('wdgr-history-open'));
     shell.querySelector('[data-ai-context-close]').addEventListener('click', () => win.classList.remove('wdgr-context-open'));
     shell.querySelector('.wdgr-ai-history-toggle').addEventListener('click', () => win.classList.toggle('wdgr-history-open'));
-    shell.querySelector('#wdgrAiContextButton').addEventListener('click', () => {
-      updateChatContext();
-      win.classList.toggle('wdgr-context-open');
-    });
+    shell.querySelector('#wdgrAiContextButton').addEventListener('click', () => { updateChatContext(); win.classList.toggle('wdgr-context-open'); });
+    shell.querySelector('#wdgrAiMinimize').addEventListener('click', () => { win.classList.toggle('wdgr-ai-minimized'); win.classList.remove('wdgr-ai-maximized'); });
+    shell.querySelector('#wdgrAiMaximize').addEventListener('click', () => { win.classList.toggle('wdgr-ai-maximized'); win.classList.remove('wdgr-ai-minimized'); });
     shell.querySelector('#wdgrAiNewChat').addEventListener('click', newThread);
-    shell.querySelector('#wdgrAiNewChatTop').addEventListener('click', newThread);
-    shell.querySelector('#wdgrAiClear').addEventListener('click', () => {
-      if (!window.confirm(copy.clear + '?')) return;
-      setLegacyHistory([]);
-      syncActiveThread();
-    });
+    shell.querySelector('#wdgrAiClear').addEventListener('click', () => { if (window.confirm(copy.clear + '?')) { setLegacyHistory([]); syncActiveThread(); } });
     shell.querySelector('#wdgrAiThreadSearch').addEventListener('input', event => renderThreadList(event.target.value));
     shell.querySelector('#wdgrAiThreadList').addEventListener('click', event => {
       const openButton = event.target.closest('[data-thread-open]');
@@ -387,22 +373,49 @@
       if (deleteButton) deleteThread(deleteButton.dataset.threadDelete);
     });
 
+    const stateKey = 'wdgr_ai_window_v2';
+    const saveWindow = () => {
+      if (window.innerWidth <= 900 || win.classList.contains('wdgr-ai-maximized') || win.classList.contains('wdgr-ai-minimized')) return;
+      const rect = win.getBoundingClientRect();
+      write(stateKey, JSON.stringify({ width: Math.round(rect.width), height: Math.round(rect.height), left: Math.round(rect.left), top: Math.round(rect.top) }));
+    };
+    const state = parseJson(read(stateKey, '{}'), {});
+    if (window.innerWidth > 900 && state.width && state.height) {
+      win.style.width = Math.min(state.width, window.innerWidth - 20) + 'px';
+      win.style.height = Math.min(state.height, window.innerHeight - 70) + 'px';
+      win.style.left = Math.max(8, Math.min(Number(state.left) || 8, window.innerWidth - 260)) + 'px';
+      win.style.top = Math.max(62, Math.min(Number(state.top) || 62, window.innerHeight - 80)) + 'px';
+      win.style.right = 'auto';
+      win.style.bottom = 'auto';
+    }
+    const dragHandle = shell.querySelector('[data-ai-drag-handle]');
+    dragHandle.addEventListener('pointerdown', event => {
+      if (window.innerWidth <= 900 || event.button !== 0 || event.target.closest('button,select,input,textarea,a')) return;
+      const rect = win.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      Object.assign(win.style, { width: rect.width + 'px', height: rect.height + 'px', left: rect.left + 'px', top: rect.top + 'px', right: 'auto', bottom: 'auto' });
+      dragHandle.setPointerCapture(event.pointerId);
+      const move = moveEvent => {
+        win.style.left = Math.max(8, Math.min(moveEvent.clientX - offsetX, window.innerWidth - rect.width - 8)) + 'px';
+        win.style.top = Math.max(62, Math.min(moveEvent.clientY - offsetY, window.innerHeight - 64)) + 'px';
+      };
+      const stop = () => { dragHandle.removeEventListener('pointermove', move); dragHandle.removeEventListener('pointerup', stop); dragHandle.removeEventListener('pointercancel', stop); saveWindow(); };
+      dragHandle.addEventListener('pointermove', move);
+      dragHandle.addEventListener('pointerup', stop);
+      dragHandle.addEventListener('pointercancel', stop);
+    });
+    let resizeTimer = 0;
+    new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(saveWindow, 140); }).observe(win);
+
     loadThreads();
     const active = threads.find(thread => thread.id === activeThreadId);
     if (active) setLegacyHistory(active.messages);
     renderThreadList();
     updateChatContext();
-
     new MutationObserver(scheduleThreadSync).observe(messages, { childList: true, subtree: true, characterData: true });
     new MutationObserver(updateChatContext).observe(attachments, { childList: true, subtree: true });
-    new MutationObserver(() => {
-      const open = win.classList.contains('open');
-      document.body.classList.toggle('wdgr-ai-open', open);
-      if (open) {
-        updateChatContext();
-        renderThreadList(document.getElementById('wdgrAiThreadSearch')?.value || '');
-      }
-    }).observe(win, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(() => { if (win.classList.contains('open')) { updateChatContext(); renderThreadList(document.getElementById('wdgrAiThreadSearch')?.value || ''); } }).observe(win, { attributes: true, attributeFilter: ['class'] });
   }
 
   function settingsCategoryButton(id, label, iconName) {
@@ -475,6 +488,7 @@
           </div>
           <div class="wdgr-settings-page" data-settings-page="ai">
             <div class="wdgr-page-heading"><h3>${copy.aiSettings}</h3><p>${copy.aiPageCopy}</p></div>
+            <div class="wdgr-ai-capability-grid"><article class="wdgr-ai-capability-card">${icon('tabler:eye', 22)}<div><strong>${copy.visionTitle}</strong><p>${copy.visionCopy}</p></div></article><article class="wdgr-ai-capability-card">${icon('tabler:photo-spark', 22)}<div><strong>${copy.imageTitle}</strong><p>${copy.imageCopy}</p></div></article></div>
             <section class="wdgr-settings-section">
               ${settingRow(copy.activeModel, copy.apiNote, `<select id="wdgrSettingsModel"></select>`)}
               <div class="wdgr-security-note">${icon('tabler:shield-lock', 17)}<span>${copy.apiNote}</span></div>

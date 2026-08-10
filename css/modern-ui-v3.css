@@ -27,6 +27,44 @@
 .wdg-library-head h2 { margin: 0; color: #f3f5f8; font-size: 16px; }
 .wdg-library-head button { border: 0; background: transparent; color: #98a4b4; cursor: pointer; }
 
+.wdg-library-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 14px 0;
+  padding: 4px;
+  border: 1px solid var(--wdg-line);
+  border-radius: 7px;
+  background: #080e15;
+}
+
+.wdg-library-switch button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #8996a8;
+  font: 700 11px Inter, sans-serif;
+  cursor: pointer;
+}
+
+.wdg-library-switch button:hover {
+  color: #e7ecf4;
+  background: #111a25;
+}
+
+.wdg-library-switch button.active {
+  border-color: #7543a6;
+  background: #2c173d;
+  color: #f2ddff;
+}
+
+.wdg-library-switch iconify-icon { color: #c084fc; }
+
 .wdg-library-search {
   width: calc(100% - 28px);
   height: 38px;

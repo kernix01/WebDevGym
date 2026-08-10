@@ -197,23 +197,23 @@
   }
 
   const challenges = isEnglish ? [
-    ['Build a counter', 'DOM', 'Buttons plus, minus and reset. Keep zero from going negative.'],
+    ['Build a counter', 'Interface', 'Buttons plus, minus and reset. Keep zero from going negative.'],
     ['Validate a form', 'JavaScript', 'Show clear errors and clear the form only after success.'],
     ['Responsive navigation', 'CSS + JS', 'Open a mobile menu and close it on Escape.'],
-    ['Theme switcher', 'localStorage', 'Remember the selected theme after page reload.'],
+    ['Theme switcher', 'State', 'Build a clear two-state control and choose the implementation yourself.'],
     ['Live search', 'Arrays', 'Filter cards while the user types.'],
-    ['Accessible modal', 'DOM', 'Close by button, overlay and Escape; restore focus.'],
+    ['Accessible modal', 'Accessibility', 'Close by button, overlay and Escape; restore focus.'],
     ['Price calculator', 'Forms', 'Read inputs, calculate total and format the result.'],
     ['FAQ accordion', 'Events', 'Only one answer may stay open.'],
     ['Todo item', 'State', 'Add, complete and remove tasks.'],
     ['Fetch a user', 'Async', 'Render loading, success and error states.']
   ] : [
-    ['Собери счётчик', 'DOM', 'Кнопки плюс, минус и сброс. Не позволяй значению уйти ниже нуля.'],
+    ['Собери счётчик', 'Интерфейс', 'Кнопки плюс, минус и сброс. Не позволяй значению уйти ниже нуля.'],
     ['Проверь форму', 'JavaScript', 'Покажи понятные ошибки и очисти форму только после успешной отправки.'],
     ['Адаптивная навигация', 'CSS + JS', 'Открывай мобильное меню и закрывай его по Escape.'],
-    ['Переключатель темы', 'localStorage', 'Сохрани выбранную тему после перезагрузки страницы.'],
+    ['Переключатель темы', 'Состояние', 'Сделай понятное переключение двух тем и сам выбери реализацию.'],
     ['Живой поиск', 'Массивы', 'Фильтруй карточки во время ввода пользователя.'],
-    ['Доступная модалка', 'DOM', 'Закрывай кнопкой, кликом по фону и Escape; возвращай фокус.'],
+    ['Доступная модалка', 'Доступность', 'Закрывай кнопкой, кликом по фону и Escape; возвращай фокус.'],
     ['Калькулятор цены', 'Формы', 'Прочитай поля, посчитай сумму и отформатируй результат.'],
     ['FAQ-аккордеон', 'События', 'Открытым может оставаться только один ответ.'],
     ['Элемент Todo', 'Состояние', 'Добавляй, отмечай и удаляй задачи.'],
@@ -628,7 +628,7 @@
     if (id === 'focus') return toggleFocusMode(true);
     const renderers = { dashboard:dashboardPage, debug:() => debugPage(0), review:reviewPage, skills:skillsPage, profile:profilePage, diary:diaryPage, weak:weakPage };
     const extension = extensionFeatures.get(id);
-    const renderer = renderers[id] || extension?.renderer;
+    const renderer = extension?.renderer || renderers[id];
     if (renderer) showPage(id, renderer);
   }
 
@@ -963,7 +963,8 @@
       }
       if (event.key === 'Escape') {
         closeCommandPalette();
-        if (currentPage) closePage();
+        const openDialog = document.querySelector('dialog[open]');
+        if (!openDialog && currentPage) closePage();
       }
     }, true);
     document.addEventListener('change', event => {

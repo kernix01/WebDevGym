@@ -192,7 +192,7 @@ const WDG_CAL_TYPES = {
   practice: 'Practice',
   project: 'Mini-project',
   repeat: 'Review',
-  kwork: 'Kwork',
+  career: 'Career',
   rest: 'Rest'
 };
 
@@ -201,16 +201,20 @@ let wdgCalSelectedDate = wdgCalClampDate(wdgCalTodayISO());
 let wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
 
 function wdgCalTopics() {
-  return [
-    ['DOM: counter review', 'practice', 'Rebuild the counter in 1 hour without copying. Goal: state, render, click.'],
-    ['DOM: dark theme', 'practice', 'One button, classList.toggle on body, icon switching, saving to localStorage.'],
+    const orderedTopics = window.WebDevGymLearningPath?.calendarTopics?.en;
+    if (Array.isArray(orderedTopics) && orderedTopics.length) {
+      return orderedTopics.map(topic => topic.slice());
+    }
+    return [
+    ['Counter review', 'practice', 'Rebuild the counter in 1 hour without copying. Goal: state, rendering, and click handling.'],
+    ['Theme switcher', 'practice', 'Use one button to switch the body class and icon. Choose the persistence method yourself.'],
     ['Events: click, input, submit', 'practice', 'Note form: input, character counter, submit adds a card.'],
-    ['Arrays + DOM', 'project', 'Render cards from an array and delete one card with a button.'],
+    ['Arrays + interface', 'project', 'Render cards from an array and delete one card with a button.'],
     ['Conditions in the interface', 'practice', 'Form validation: empty, too few characters, valid. Different user messages.'],
-    ['Functions in DOM code', 'repeat', 'Split code into updateUI, validateForm, resetState.'],
+    ['Functions in interface code', 'repeat', 'Split code into updateUI, validateForm, and resetState.'],
     ['CSS: position and z-index', 'theory', 'Understand relative, absolute, fixed, sticky and build a floating button.'],
     ['Mini-project: FAQ', 'project', 'Click opens an answer. Harder version: only one question stays open.'],
-    ['localStorage', 'practice', 'Save theme, notes, or a card list after reload.'],
+    ['Data persistence', 'practice', 'Make selected project data survive a reload. Choose the persistence method yourself.'],
     ['Mini-project: tabs', 'project', 'Tabs through data-id: active button, active content, clean CSS.'],
     ['Forms HTML/CSS/JS', 'practice', 'Build a request form with basic name, phone, and message validation.'],
     ['Mini-project: burger menu', 'project', 'Open, close, close by link, and close by Escape.'],
@@ -222,7 +226,7 @@ function wdgCalTopics() {
     ['JS basics review', 'repeat', 'Rewrite variables, if/else, loop, array, and function without hints.'],
     ['Mini-project: calculator', 'project', 'Service/order price calculator with several field.'],
     ['Git: basic cycle', 'theory', 'init, add, commit, status, log. Create README for the mini-project.'],
-    ['Kwork: portfolio demo', 'kwork', 'Build one polished demo block: form, tabs, calculator, or FAQ.'],
+    ['Portfolio demo', 'career', 'Build one polished demo block: form, tabs, calculator, or FAQ.'],
     ['TypeScript: why it is you need', 'theory', 'Understand string, number, boolean, array, object. No deep dive.'],
     ['TypeScript: functions and types', 'practice', 'Type parameters and return values of simple functions.'],
     ['React: components and JSX', 'theory', 'Understand a component as a function and props as input data.'],
@@ -230,20 +234,20 @@ function wdgCalTopics() {
     ['React: lists with map', 'practice', 'Render cards from an array, do not forget key.'],
     ['React: controlled input', 'practice', 'value + onChange + state. Mini note form.'],
     ['React: useEffect', 'theory', 'Understand effect after render and dependencies.'],
-    ['React: mini Todo', 'project', 'Add, delete, done, filter, and save to localStorage.'],
+    ['React: mini Todo', 'project', 'Add, delete, mark done, filter, and restore state after reload.'],
     ['React Router', 'practice', 'Build 2-3 pages: home, projects, and contacts. Add navigation without page reload.'],
     ['Vite: project from scratch', 'theory', 'Create a Vite project and understand src, main, package.json.'],
     ['CSS architecture', 'practice', 'Split styles by blocks, remove chaos and repetition.'],
     ['Refactoring an old project', 'repeat', 'Take an old mini-project and clean up the code.'],
-    ['Portfolio: project card', 'kwork', 'Describe the task, stack, result, and make a screenshot.'],
+    ['Portfolio: project card', 'career', 'Describe the task, stack, result, and make a screenshot.'],
     ['API + UI project', 'project', 'Search/list through API: loading, error, cards.'],
     ['Deeper form validation', 'practice', 'Email/phone validation, error messages, disabled submit.'],
     ['Component approach without React', 'practice', 'createCard, createButton, renderList functions in plain JS.'],
     ['render() pattern', 'repeat', 'All changes go through state, then render updates the screen.'],
-    ['Mini-project: calendar/planner', 'project', 'Your small planner with localStorage and editing.'],
+    ['Mini-project: calendar/planner', 'project', 'Build a small editable planner and persist its data with a method you choose.'],
     ['Manual testing', 'theory', 'Checklist: desktop, mobile, empty field, errors, reload.'],
-    ['Order preparation', 'kwork', 'Create a client reply template and a list of clarifying questions.'],
-    ['React: custom hook', 'practice', 'Move localStorage or form state into a simple custom hook.'],
+    ['Technical brief analysis', 'career', 'Extract requirements, questions, risks, and acceptance criteria from a short brief.'],
+    ['React: custom hook', 'practice', 'Move data persistence or form state into a simple custom hook.'],
     ['React: useMemo/useCallback overview', 'theory', 'Understand optimization without fanaticism.'],
     ['TypeScript + React overview', 'theory', 'Type props, state, and input event.'],
     ['Final project 2026', 'project', 'Choose one project and bring it to a client-ready state.'],
@@ -292,11 +296,32 @@ function wdgCalCreatePlan() {
   return { version: 2, tasks };
 }
 
+function wdgCalNormalizeTask(task) {
+  if (!task || typeof task !== 'object') return task;
+  const next = { ...task };
+  const legacyCareerType = String.fromCharCode(107, 119, 111, 114, 107);
+  if (next.type === legacyCareerType) next.type = 'career';
+  next.title = String(next.title || '')
+    .replace(/^DOM:\s*/i, '')
+    .replace(/\s+\+\s+DOM/gi, ' + interface')
+    .replace(/DOM code/gi, 'interface code')
+    .replace(/^localStorage$/i, 'Data persistence');
+  next.description = String(next.description || '')
+    .replace(/\blocalStorage\b/gi, 'saved project data')
+    .replace(/\bDOM\b/g, 'interface');
+  return next;
+}
+
+function wdgCalNormalizeTasks(tasks) {
+  return tasks.map(wdgCalNormalizeTask);
+}
+
 function wdgCalLoadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(WDG_CAL_STORAGE) || 'null');
     if (saved && Array.isArray(saved.tasks)) {
-      wdgCalState = saved;
+      wdgCalState = { ...saved, tasks: wdgCalNormalizeTasks(saved.tasks) };
+      wdgCalSaveState();
       return;
     }
   } catch (e) {}
@@ -321,7 +346,7 @@ function wdgCalGetSnapshot() {
 
 function wdgCalApplySnapshot(snapshot) {
   if (!snapshot || !Array.isArray(snapshot.tasks)) return;
-  wdgCalState = { version: 2, tasks: snapshot.tasks };
+  wdgCalState = { version: 2, tasks: wdgCalNormalizeTasks(snapshot.tasks) };
   wdgCalSelectedDate = wdgCalClampDate(snapshot.selectedDate || wdgCalSelectedDate);
   wdgCalMonthCursor = wdgCalFromISO(wdgCalSelectedDate);
   if (typeof snapshot.note === 'string') localStorage.setItem(WDG_CAL_NOTE_STORAGE, snapshot.note);
@@ -493,7 +518,7 @@ function wdgCalAddTask() {
   if (!title || !title.trim()) return;
   const description = prompt('Description:', 'Additional task for the plan.') || '';
   const date = prompt('Date in YYYY-MM-DD format:', wdgCalSelectedDate) || wdgCalSelectedDate;
-  const type = prompt('Type: theory, practice, project, repeat, kwork, rest', 'practice') || 'practice';
+  const type = prompt('Type: theory, practice, project, repeat, career, rest', 'practice') || 'practice';
   const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? wdgCalClampDate(date) : wdgCalSelectedDate;
   const safeType = WDG_CAL_TYPES[type] ? type : 'practice';
   wdgCalState.tasks.push({
@@ -534,7 +559,7 @@ function wdgCalGoToday() {
 }
 
 function wdgCalResetPlan() {
-  if (!confirm('Reset the calendar to one hour of study followed by three rest days through December 31?')) return;
+  if (!confirm('Reset the calendar to the base plan: one study hour followed by three rest days?')) return;
   wdgCalState = wdgCalCreatePlan();
   wdgCalSaveState();
   wdgCalGoToday();
@@ -6633,7 +6658,7 @@ const CHALLENGES = [
   { name: 'Button hover effects', time: 10, desc: 'Create three buttons with different hover effects: lift, fill, and scale.' },
   { name: '3x3 gallery', time: 20, desc: 'Place nine images in a grid. Scale and darken them on hover, and use one column on mobile.' },
   { name: 'Countdown timer', time: 25, desc: 'Build a one-minute JavaScript timer with Start, Pause, Reset, MM:SS output, and a red state below ten seconds.' },
-  { name: 'Theme switcher', time: 15, desc: 'Create a Dark/Light button that toggles a class on body and saves the theme in localStorage.' },
+  { name: 'Theme switcher', time: 15, desc: 'Create a clear Dark/Light control. Choose the state and persistence approach yourself.' },
   { name: 'Click counter', time: 10, desc: 'Build a counter button and Reset button, then show the last five values.' },
   { name: 'Tip calculator', time: 20, desc: 'Add a bill amount field and a 5-25% tip slider, then display the total.' },
   { name: 'To-do list', time: 30, desc: 'Add an input and Add button. Clicking a task should mark it complete.' }
@@ -8023,17 +8048,7 @@ ${j}
       <div id="aiModelLabel">Выбери модель →</div>
     </div>
     <select class="ai-model-select" id="aiModelSelect" onchange="aiOnModelChange()">
-      <optgroup label="Groq (fast)">
-        <option value="groq:llama-3.3-70b-versatile">Llama 3.3 70B</option>
-        <option value="groq:llama3-8b-8192">Llama 3 8B (fast)</option>
-        <option value="groq:mixtral-8x7b-32768">Mixtral 8x7B</option>
-        <option value="groq:gemma2-9b-it">Gemma 2 9B</option>
-      </optgroup>
-      <optgroup label="Gemini">
-        <option value="gemini:gemini-1.5-flash">Gemini 1.5 Flash</option>
-        <option value="gemini:gemini-1.5-pro">Gemini 1.5 Pro</option>
-        <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
-      </optgroup>
+      <option value="" disabled selected>Add a model in AI settings</option>
     </select>
     <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
   </div>
@@ -8138,9 +8153,6 @@ function _pgDownload(filename, content) {
 
 
 // ===== AI CHAT =====
-const AI_KEYS = {
-  groq: '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' // встроенный ключ for модели by default (Llama 3.3 70B)
-};
 
 let aiHistory = [];
 let aiLoading = false;
@@ -8183,26 +8195,19 @@ function aiOnModelChange() {
   const sel = document.getElementById('aiModelSelect');
   const lbl = document.getElementById('aiModelLabel');
   if (!sel || !lbl) return;
-
-  // Список always актуален (перестраивается on сохранении/удалении моделей),
-  // здесь просто обновляем метки and активный ID
-  const val = sel.value;
-
-  if (val.startsWith('custom:')) {
-    const id = val.slice(7);
-    localStorage.setItem('ai_active_custom_model_id', id);
-    const model = aiGetCustomModels().find(m => m.id === id);
-    lbl.textContent = model ? '🔧 ' + model.model : '⚠ Model не найдена';
-  } else if (val === 'groq-vision') {
-    lbl.textContent = 'Llama 4 Scout Vision';
+  const value = sel.value || '';
+  const model = value.startsWith('custom:')
+    ? aiGetCustomModels().find(item => item.id === value.slice(7))
+    : null;
+  if (model) {
+    localStorage.setItem('ai_active_custom_model_id', model.id);
+    const capabilities = [model.vision ? 'Vision' : '', model.imageGeneration ? 'Image' : ''].filter(Boolean);
+    lbl.textContent = model.model + (capabilities.length ? ' · ' + capabilities.join(' · ') : '');
   } else {
-    lbl.textContent = 'Llama 3.3 70B';
+    lbl.textContent = "Select a model";
   }
-
-  // Обновляем галочки ✓ in названиях опций
-  Array.from(sel.options).forEach(opt => {
-    const base = opt.textContent.replace(/ ✓$/, '');
-    opt.textContent = base + (opt.value === val ? ' ✓' : '');
+  Array.from(sel.options).forEach(option => {
+    option.textContent = option.textContent.replace(/s+✓$/, '') + (option.value === value && value ? ' ✓' : '');
   });
 }
 // aiOnModelChange called on first open
@@ -8214,7 +8219,8 @@ function aiNormalizeHistory(history) {
     .map(msg => ({
       role: msg.role,
       content: msg.content.slice(0, 8000),
-      display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined
+      display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined,
+      image: typeof msg.image === 'string' ? msg.image : undefined
     }))
     .slice(-AI_HISTORY_LIMIT);
 }
@@ -8641,154 +8647,107 @@ async function aiSend() {
   const inp = document.getElementById('aiInp');
   const text = inp.value.trim();
   if (!text && !aiAttachments.length) return;
+
+  const modelChoice = document.getElementById('aiModelSelect')?.value || '';
+  const customCfg = modelChoice.startsWith('custom:')
+    ? aiGetCustomModels().find(model => model.id === modelChoice.slice(7))
+    : null;
+  if (!customCfg?.apiKey || !customCfg?.model || !customCfg?.baseUrl) {
+    aiAddMsg('bot', "Add an OpenAI-compatible model in the AI section first. There are no built-in keys or models.");
+    return;
+  }
+
+  const imageMode = Boolean(window.wdgrAiImageMode);
+  if (imageMode && !text) {
+    aiAddMsg('bot', "Describe the image you want to create.");
+    return;
+  }
+  if (imageMode && !customCfg.imageGeneration) {
+    aiAddMsg('bot', "Image generation is not enabled for the selected model. Enable this capability in the model settings.");
+    return;
+  }
+
   const sentAttachments = aiAttachments.slice();
   const visibleText = aiBuildVisibleUserText(text, sentAttachments);
   const userContent = aiBuildCurrentUserContent(text, sentAttachments);
-
   inp.value = '';
   inp.style.height = 'auto';
-  document.getElementById('aiQuickRow').style.display = 'none';
+  const quickRow = document.getElementById('aiQuickRow');
+  if (quickRow) quickRow.style.display = 'none';
 
   aiAddMsg('user', visibleText);
   aiHistory.push({ role: 'user', content: userContent, display: visibleText });
   aiSaveHistory();
   aiClearAttachments();
 
-  const typingID = 'aiTyping_' + Date.now();
+  const typingId = 'aiTyping_' + Date.now();
   const typEl = document.createElement('div');
   typEl.className = 'ai-msg bot';
-  typEl.id = typingID;
-  typEl.innerHTML = `<div class="ai-msg-av">✨</div><div class="ai-msg-bbl"><div class="ai-typing-bbl"><span></span><span></span><span></span></div></div>`;
-  document.getElementById('aiMsgs').appendChild(typEl);
+  typEl.id = typingId;
+  typEl.innerHTML = '<div class="ai-msg-av">AI</div><div class="ai-msg-bbl"><div class="ai-typing-bbl"><span></span><span></span><span></span></div></div>';
+  document.getElementById('aiMsgs')?.appendChild(typEl);
   aiScrollBottom();
-
   aiLoading = true;
-  document.getElementById('aiSendBtn').disabled = true;
+  const sendButton = document.getElementById('aiSendBtn');
+  if (sendButton) sendButton.disabled = true;
 
-  const systemPrompt = `Ты — экспертный Frontend Mentor, встроенный in интерактивный Roadmap. Отвечай строго on Russianком языке, кратко and by делу.
-
-Home role:
-- Помогай user учить HTML, CSS, JavaScript, TypeScript, React, Git, Node.js and смежные frontend-технологии.
-- Объясняй as наставник: сначала структура and механика, later short example, затем вопрос or next step.
-- Приоритет — обучение, а не просто выдача doneго решения.
-- Не пиши полный project immediately, if user явно не просит. Давай неlarge фрагменты, hints and направляющие questions.
-
-Custom skills:
-- Если in contextе appears активный external skill, for example "[ACTIVE SKILL: ...]", строго следуй it constraintsм, workflow and правилам.
-
-Code review and анализ files:
-- Пользователь может onкладывать .html, .css, .js, .tsx and другие frontend-files.
-- Проверяй баги, логические errors, архитектуру, DRY/KISS, accessibility, responsiveness and читаемость.
-- В ревью сначала называй проблемы and риски, later коротко объясняй исправления.
-
-Live Playground:
-Если user просит построить, open, исправить or check code in Live Playground, can отвечать специальным JSON-действием instead of usuallyго text:
-
-{"tool":"load_playground_template","args":{"template_name":"flexbox"}}
-{"tool":"update_playground_code","args":{"html":"...","css":"...","js":"..."}}
-{"tool":"trigger_code_validation","args":{"target":"all"}}
-
-Доступные template_name: "flexbox", "animation", "form", "todo".
-When используешь JSON-действие, выводи only one JSON-object without markdown and пояснений.
-Обычный code in responseах оформляй in тройные обратные кавычки with titleм языка.`;
-
-  const modelChoice = document.getElementById('aiModelSelect')?.value || 'default';
-  const customCfg = modelChoice.startsWith('custom:')
-    ? aiGetCustomModels().find(m => m.id === modelChoice.slice(7))
-    : null;
-  const canTryVision = Boolean(customCfg && customCfg.apiKey && customCfg.model);
-
+  const baseUrl = customCfg.baseUrl.replace(/\/$/, '');
   try {
-    let reply = '';
-
-    if (customCfg && customCfg.apiKey && customCfg.model) {
-      // ===== ПОЛЬЗОВАТЕЛЬСКИЙ API (OpenAI-compatible formт) =====
-      const baseUrl = customCfg.baseUrl || 'https://api.groq.com/openai/v1';
-      const res = await fetch(baseUrl.replace(/\/$/, '') + '/chat/completions', {
+    if (imageMode) {
+      const response = await fetch(baseUrl + '/images/generations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + customCfg.apiKey },
+        body: JSON.stringify({ model: customCfg.imageModel || customCfg.model, prompt: text, size: '1024x1024', n: 1 })
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) throw new Error(data.error?.message || 'HTTP ' + response.status);
+      const item = data.data?.[0];
+      const imageSource = item?.url || (item?.b64_json ? 'data:image/png;base64,' + item.b64_json : '');
+      if (!imageSource) throw new Error("The provider did not return an image.");
+      document.getElementById(typingId)?.remove();
+      aiHistory.push({ role: 'assistant', content: "Generated image", image: imageSource });
+      aiSaveHistory();
+      aiAddImageMsg(imageSource, "Generated image");
+    } else {
+      const response = await fetch(baseUrl + '/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + customCfg.apiKey,
-          ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'Frontend Roadmap' } : {})
+          ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'WebDevGym' } : {})
         },
         body: JSON.stringify({
           model: customCfg.model,
-          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, canTryVision),
+          messages: aiBuildMessagesForApi("You are the Frontend Mentor inside WebDevGym. Be concise, clear, and practical. Explain the mechanics first and give small hints. Do not provide a complete solution when the user is learning through practice.", userContent, sentAttachments, Boolean(customCfg.vision)),
           max_tokens: 1024,
           temperature: 0.7
         })
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-      reply = data.choices?.[0]?.message?.content || 'Нет responseа';
-
-    } else if (modelChoice === 'groq-vision') {
-      // ===== ВСТРОЕННАЯ VISION-МОДЕЛЬ (photo + text through Groq) =====
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + AI_KEYS.groq
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, true),
-          max_tokens: 1024,
-          temperature: 0.7
-        })
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-      reply = data.choices?.[0]?.message?.content || 'Нет responseа';
-
-    } else {
-      // ===== ДЕФОЛТНАЯ МОДЕЛЬ (Llama 3.3 70B through Groq) =====
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + AI_KEYS.groq
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: aiBuildMessagesForApi(systemPrompt, userContent, sentAttachments, false),
-          max_tokens: 1024,
-          temperature: 0.7
-        })
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-      reply = data.choices?.[0]?.message?.content || 'Нет responseа';
+      const data = await response.json();
+      if (!response.ok || data.error) throw new Error(data.error?.message || 'HTTP ' + response.status);
+      let reply = data.choices?.[0]?.message?.content || "Empty response";
+      document.getElementById(typingId)?.remove();
+      const toolReply = aiHandlePlaygroundToolCall(reply);
+      if (toolReply) reply = toolReply;
+      aiHistory.push({ role: 'assistant', content: reply });
+      aiSaveHistory();
+      aiAddMsg('bot', reply);
+      if (!toolReply) setTimeout(aiAddInsertButtons, 50);
     }
-
-    document.getElementById(typingID)?.remove();
-    const toolReply = aiHandlePlaygroundToolCall(reply);
-    if (toolReply) reply = toolReply;
-    aiHistory.push({ role: 'assistant', content: reply });
-    aiSaveHistory();
-    aiAddMsg('bot', reply);
-    if (!toolReply) setTimeout(aiAddInsertButtons, 50);
-
   } catch (err) {
-    document.getElementById(typingID)?.remove();
-    let errMsg = `❌ Error: ${err.message}`;
-    if (err.message.includes('401') || err.message.toLowerCase().includes('api key') || err.message.toLowerCase().includes('credentials') || err.message.toLowerCase().includes('invalid')) {
-      errMsg += '\n\n🔑 Неверный API key. Проверь it во вкладке «AI» in sectionе Other.';
-    } else if (err.message.includes('404') || err.message.toLowerCase().includes('not found') || err.message.includes('No endpoints')) {
-      errMsg += '\n\n🤖 Model не найдена. Проверь title модели во вкладке «AI».';
-    } else if (err.message.includes('429') || err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
-      errMsg += '\n\n⏱ Превышен лимит requestов. Подожди немного or укажи own API key во вкладке «AI».';
-    } else if (err.message.toLowerCase().includes('image') || err.message.toLowerCase().includes('vision') || err.message.toLowerCase().includes('content type') || err.message.toLowerCase().includes('invalid content')) {
-      errMsg += '\n\n🖼 Photo отправилось in API, но выбранная модель, похоже, не умеет анализировать images. Выбери vision-модель in своей модели/OpenRouter or отправь textовое description images.';
-    } else if (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network') || err.message.toLowerCase().includes('failed')) {
-      errMsg += '\n\n🌐 Problem with сетью or CORS. Если используешь own ключ — попробуй модель Groq/OpenRouter.';
-    }
+    document.getElementById(typingId)?.remove();
+    let errMsg = "Error: " + err.message;
+    const lower = String(err.message || '').toLowerCase();
+    if (lower.includes('401') || lower.includes('api key') || lower.includes('credentials') || lower.includes('invalid')) errMsg += '\n\n' + "Check the API key and access to the selected model.";
+    else if (lower.includes('404') || lower.includes('not found') || lower.includes('endpoint')) errMsg += '\n\n' + "Check the Base URL, model name, and endpoint support.";
+    else if (lower.includes('image') || lower.includes('vision') || lower.includes('content type')) errMsg += '\n\n' + "Check that Vision or image generation is enabled and supported by the provider.";
+    else if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed')) errMsg += '\n\n' + "Check the connection, CORS, and provider availability.";
     aiAddMsg('bot', errMsg);
+  } finally {
+    aiLoading = false;
+    if (sendButton) sendButton.disabled = false;
+    document.getElementById('aiInp')?.focus();
   }
-
-  aiLoading = false;
-  document.getElementById('aiSendBtn').disabled = false;
-  document.getElementById('aiInp').focus();
 }
 
 function aiEscapeHtml(value) {
@@ -8822,6 +8781,30 @@ function aiAddMsg(role, text) {
   aiScrollBottom();
 }
 
+function aiAddImageMsg(source, caption) {
+  const container = document.getElementById('aiMsgs');
+  if (!container) return;
+  const safeSource = String(source || '');
+  if (!/^https:\/\//i.test(safeSource) && !/^data:image\//i.test(safeSource)) return;
+  const el = document.createElement('div');
+  el.className = 'ai-msg bot ai-msg-image';
+  const avatar = document.createElement('div');
+  avatar.className = 'ai-msg-av';
+  avatar.textContent = 'AI';
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-msg-bbl';
+  const image = document.createElement('img');
+  image.src = safeSource;
+  image.alt = caption || "Generated image";
+  image.loading = 'lazy';
+  const label = document.createElement('span');
+  label.textContent = caption || "Generated image";
+  bubble.append(image, label);
+  el.append(avatar, bubble);
+  container.appendChild(el);
+  aiScrollBottom();
+}
+
 function aiScrollBottom() {
   const c = document.getElementById('aiMsgs');
   if (c) c.scrollTop = c.scrollHeight;
@@ -8835,207 +8818,164 @@ document.addEventListener('keydown', e => {
 });
 
 
-// ===== AI CUSTOM MODELS (localStorage — list из нескольких моделей) =====
+// ===== AI CUSTOM MODELS =====
 function aiGetCustomModels() {
   try {
     const raw = localStorage.getItem('ai_custom_models');
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
+    const models = raw ? JSON.parse(raw) : [];
+    return Array.isArray(models) ? models.map(model => ({
+      ...model,
+      vision: Boolean(model.vision),
+      imageGeneration: Boolean(model.imageGeneration),
+      imageModel: String(model.imageModel || '')
+    })) : [];
+  } catch (error) { return []; }
 }
 
 function aiSaveCustomModels(models) {
-  try { localStorage.setItem('ai_custom_models', JSON.stringify(models)); } catch(e) {}
+  try { localStorage.setItem('ai_custom_models', JSON.stringify(models)); } catch (error) {}
 }
 
-// Возвращает активную (выбранную in select) кастомную модель — используется переводом and др.
 function aiGetCustomConfig() {
   const sel = document.getElementById('aiModelSelect');
   const models = aiGetCustomModels();
   if (!models.length) return null;
-  if (sel && sel.value.startsWith('custom:')) {
-    const found = models.find(m => m.id === sel.value.slice(7));
+  if (sel?.value.startsWith('custom:')) {
+    const found = models.find(model => model.id === sel.value.slice(7));
     if (found) return found;
   }
-  const activeID = localStorage.getItem('ai_active_custom_model_id');
-  return models.find(m => m.id === activeID) || models[models.length - 1];
+  const activeId = localStorage.getItem('ai_active_custom_model_id');
+  return models.find(model => model.id === activeId) || models[models.length - 1];
 }
 
 const AI_PROVIDER_PRESETS = {
-  'https://api.groq.com/openai/v1':   { model: 'llama-3.3-70b-versatile' },
-  'https://openrouter.ai/api/v1':     { model: 'deepseek/deepseek-r1:free' },
-  'https://api.openai.com/v1':        { model: 'gpt-4o-mini' },
-  'https://api.together.xyz/v1':      { model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo' },
-  'https://api.mistral.ai/v1':        { model: 'mistral-small-latest' }
+  'https://openrouter.ai/api/v1': { model: '' },
+  'https://api.openai.com/v1': { model: '' },
+  'https://api.together.xyz/v1': { model: '' },
+  'https://api.mistral.ai/v1': { model: '' }
 };
 
 function aiProviderPreset() {
-  const sel = document.getElementById('ai-provider');
-  const baseUrlInp = document.getElementById('ai-baseurl');
-  const modelInp = document.getElementById('ai-modelname');
-  const wrap = document.getElementById('ai-baseurl-wrap');
-
-  if (sel.value === 'custom') {
-    baseUrlInp.value = '';
-    baseUrlInp.placeholder = 'https://...';
-    wrap.style.display = 'block';
-  } else {
-    baseUrlInp.value = sel.value;
-    wrap.style.display = 'block';
-    const preset = AI_PROVIDER_PRESETS[sel.value];
-    if (preset && !modelInp.value) modelInp.value = preset.model;
-  }
+  const provider = document.getElementById('ai-provider');
+  const baseUrl = document.getElementById('ai-baseurl');
+  const model = document.getElementById('ai-modelname');
+  if (!provider || !baseUrl) return;
+  baseUrl.value = provider.value === 'custom' ? '' : provider.value;
+  if (model && !model.value) model.placeholder = provider.value === 'custom' ? 'model-name' : 'Exact model name from provider';
 }
 
 function aiSaveCustomConfig() {
-  const baseUrl = document.getElementById('ai-baseurl').value.trim();
-  const apiKey  = document.getElementById('ai-apikey').value.trim();
-  const model   = document.getElementById('ai-modelname').value.trim();
+  const baseUrl = document.getElementById('ai-baseurl')?.value.trim() || '';
+  const apiKey = document.getElementById('ai-apikey')?.value.trim() || '';
+  const model = document.getElementById('ai-modelname')?.value.trim() || '';
+  const vision = Boolean(document.querySelector('[data-ai-capability=\"vision\"]')?.checked);
+  const imageGeneration = Boolean(document.querySelector('[data-ai-capability=\"image-generation\"]')?.checked);
+  const imageModel = document.getElementById('ai-image-model')?.value.trim() || '';
   const statusEl = document.getElementById('ai-config-status');
-
-  const show = (msg, ok) => {
+  const show = (message, ok) => {
+    if (!statusEl) return;
     statusEl.style.display = 'block';
-    statusEl.style.background = ok ? '#0d2d1a' : '#2d0d0d';
-    statusEl.style.border = '1px solid ' + (ok ? '#238636' : '#da3633');
-    statusEl.style.color = ok ? '#3fb950' : '#f85149';
-    statusEl.innerHTML = msg;
+    statusEl.className = 'ai-config-status ' + (ok ? 'success' : 'error');
+    statusEl.textContent = message;
   };
-
-  if (!baseUrl || !apiKey || !model) {
-    return show('❌ Заполни Base URL, API key and title модели', false);
-  }
+  if (!baseUrl || !apiKey || !model) return show("Fill in Base URL, API key, and model name", false);
 
   const models = aiGetCustomModels();
-
-  // Если такая же модель (baseUrl+model) уже есть — обновляем её, не дублируем
-  const existing = models.find(m => m.baseUrl === baseUrl && m.model === model);
-  let savedID;
-  if (existing) {
-    existing.apiKey = apiKey;
-    savedID = existing.id;
-  } else {
-    savedID = 'm_' + Date.now();
-    models.push({ id: savedID, baseUrl, apiKey, model });
-  }
-
+  const existing = models.find(item => item.baseUrl === baseUrl && item.model === model);
+  const savedId = existing?.id || 'm_' + Date.now();
+  const config = { id: savedId, baseUrl, apiKey, model, vision, imageGeneration, imageModel };
+  if (existing) Object.assign(existing, config);
+  else models.push(config);
   aiSaveCustomModels(models);
-  localStorage.setItem('ai_active_custom_model_id', savedID);
-  show(`✅ Model «${model}» сохранена! Sunit сохранено: ${models.length}`, true);
-
-  // Очищаем field for convenientго добавления следующей модели
-  document.getElementById('ai-apikey').value = '';
-  document.getElementById('ai-modelname').value = '';
-
+  localStorage.setItem('ai_active_custom_model_id', savedId);
+  show("Model saved" + ': ' + model, true);
+  aiRebuildModelSelect();
+  const select = document.getElementById('aiModelSelect');
+  if (select) select.value = 'custom:' + savedId;
+  aiOnModelChange();
   renderSavedModelsList();
-
-  // Обновляем select in чате
-  const sel = document.getElementById('aiModelSelect');
-  if (sel) {
-    aiRebuildModelSelect();
-    sel.value = 'custom:' + savedID;
-    aiOnModelChange();
-  }
 }
 
 function aiDeleteCustomModel(id) {
-  let models = aiGetCustomModels();
-  models = models.filter(m => m.id !== id);
+  const models = aiGetCustomModels().filter(model => model.id !== id);
   aiSaveCustomModels(models);
-
-  const activeID = localStorage.getItem('ai_active_custom_model_id');
-  if (activeID === id) {
-    localStorage.removeItem('ai_active_custom_model_id');
-  }
-
+  if (localStorage.getItem('ai_active_custom_model_id') === id) localStorage.removeItem('ai_active_custom_model_id');
   renderSavedModelsList();
   aiRebuildModelSelect();
-
-  const sel = document.getElementById('aiModelSelect');
-  if (sel) {
-    sel.value = 'default';
-    aiOnModelChange();
-  }
 }
 
 function aiClearCustomConfig() {
   aiSaveCustomModels([]);
   localStorage.removeItem('ai_active_custom_model_id');
-  document.getElementById('ai-apikey').value = '';
-  document.getElementById('ai-modelname').value = '';
-  const statusEl = document.getElementById('ai-config-status');
-  statusEl.style.display = 'block';
-  statusEl.style.background = '#1a1f2e';
-  statusEl.style.border = '1px solid #2d3348';
-  statusEl.style.color = '#94a3b8';
-  statusEl.innerHTML = '🗑 Sunе сохранённые модели удалены';
-
+  ['ai-apikey','ai-modelname','ai-image-model'].forEach(id => { const input = document.getElementById(id); if (input) input.value = ''; });
+  const status = document.getElementById('ai-config-status');
+  if (status) { status.style.display = 'block'; status.textContent = "All saved models were removed"; }
   renderSavedModelsList();
   aiRebuildModelSelect();
-
-  const sel = document.getElementById('aiModelSelect');
-  if (sel) {
-    sel.value = 'default';
-    aiOnModelChange();
-  }
 }
 
 function renderSavedModelsList() {
   const wrap = document.getElementById('ai-saved-models-wrap');
   const list = document.getElementById('ai-saved-models-list');
   if (!wrap || !list) return;
-
   const models = aiGetCustomModels();
-  if (!models.length) {
-    wrap.style.display = 'none';
-    return;
-  }
-  wrap.style.display = 'block';
-  const activeID = localStorage.getItem('ai_active_custom_model_id');
-
-  list.innerHTML = models.map(m => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#161b22;border:1px solid ${m.id===activeID ? '#7c3aed' : '#30363d'};border-radius:8px;">
-      <div style="flex:1;min-width:0;overflow:hidden;">
-        <div style="font-size:12.5px;color:#e6edf3;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.model}${m.id===activeID ? ' ✓' : ''}</div>
-        <div style="font-size:10.5px;color:#6e7681;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.baseUrl}</div>
-      </div>
-      <button onclick="aiDeleteCustomModel('${m.id}')" title="Delete" style="width:24px;height:24px;flex-shrink:0;background:rgba(248,81,73,.12);border:none;border-radius:6px;color:#f85149;cursor:pointer;font-size:13px;">✕</button>
-    </div>
-  `).join('');
+  wrap.style.display = models.length ? 'block' : 'none';
+  list.replaceChildren();
+  const activeId = localStorage.getItem('ai_active_custom_model_id');
+  models.forEach(model => {
+    const row = document.createElement('div');
+    row.className = 'ai-saved-model' + (model.id === activeId ? ' active' : '');
+    const info = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = model.model + (model.id === activeId ? ' ✓' : '');
+    const url = document.createElement('small');
+    url.textContent = model.baseUrl;
+    const capabilities = document.createElement('div');
+    capabilities.className = 'ai-model-capabilities';
+    if (model.vision) capabilities.append(Object.assign(document.createElement('span'), { textContent: 'Vision' }));
+    if (model.imageGeneration) capabilities.append(Object.assign(document.createElement('span'), { textContent: 'Image' }));
+    info.append(name, url, capabilities);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.title = "Delete";
+    remove.textContent = '×';
+    remove.addEventListener('click', () => aiDeleteCustomModel(model.id));
+    row.append(info, remove);
+    list.append(row);
+  });
 }
 
-// Восстанавливаем form + list on открытии tabs AI
 function aiRestoreConfigUI() {
   renderSavedModelsList();
-  // Поля forms оставляем пустыми for convenientго добавления следующей модели,
-  // но подставляем дефолтный провайдер/URL
-  const providerSel = document.getElementById('ai-provider');
-  const baseUrlInp = document.getElementById('ai-baseurl');
-  if (providerSel && baseUrlInp && !baseUrlInp.value) {
-    baseUrlInp.value = providerSel.value !== 'custom' ? providerSel.value : '';
-  }
+  const provider = document.getElementById('ai-provider');
+  const baseUrl = document.getElementById('ai-baseurl');
+  if (provider && baseUrl && !baseUrl.value) baseUrl.value = provider.value === 'custom' ? '' : provider.value;
 }
 
-// Перестраивает dropdown list моделей in the chat window on основе сохранённых
 function aiRebuildModelSelect() {
-  const sel = document.getElementById('aiModelSelect');
-  if (!sel) return;
-  const currentVal = sel.value;
+  const select = document.getElementById('aiModelSelect');
+  if (!select) return;
+  const previous = select.value;
   const models = aiGetCustomModels();
-  const activeID = localStorage.getItem('ai_active_custom_model_id');
-
-  let html = `
-    <option value="default">Llama 3.3 70B</option>
-    <option value="groq-vision">Llama 4 Scout Vision</option>
-  `;
-  models.forEach(m => {
-    html += `<option value="custom:${m.id}">🔧 ${m.model}</option>`;
-  });
-  sel.innerHTML = html;
-
-  // Восстанавливаем выбор if опция everything ещё существует
-  const stillExists = Array.from(sel.options).some(o => o.value === currentVal);
-  sel.value = stillExists ? currentVal : (activeID ? 'custom:' + activeID : 'default');
+  const activeId = localStorage.getItem('ai_active_custom_model_id');
+  select.innerHTML = '';
+  if (!models.length) {
+    const option = new Option("Add a model in AI settings", '', true, true);
+    option.disabled = true;
+    select.add(option);
+  } else {
+    models.forEach(model => {
+      const capabilities = [model.vision ? 'Vision' : '', model.imageGeneration ? 'Image' : ''].filter(Boolean);
+      const label = model.model + (capabilities.length ? ' · ' + capabilities.join(' · ') : '');
+      select.add(new Option(label, 'custom:' + model.id));
+    });
+    const desired = models.some(model => 'custom:' + model.id === previous)
+      ? previous
+      : (models.some(model => model.id === activeId) ? 'custom:' + activeId : 'custom:' + models[0].id);
+    select.value = desired;
+  }
+  aiOnModelChange();
 }
-
 
 function ghSaveField(id, value) {
   try {
@@ -9058,14 +8998,15 @@ function ghRestoreFields() {
 
 // ===== GITHUB CREATE REPO =====
 async function githubCreateRepo() {
-  const token   = document.getElementById('ghc-token').value.trim();
-  const name    = document.getElementById('ghc-name').value.trim();
-  const isPriv  = document.getElementById('ghc-visibility').value === 'true';
-  const desc    = document.getElementById('ghc-desc').value.trim();
-  const addReadme = document.getElementById('ghc-readme').checked;
+  const tokenInput = document.getElementById('ghc-token');
+  const nameInput = document.getElementById('ghc-name');
+  const visibilityInput = document.getElementById('ghc-visibility');
+  const descInput = document.getElementById('ghc-desc');
+  const readmeInput = document.getElementById('ghc-readme');
   const statusEl = document.getElementById('ghc-status');
 
   const show = (msg, ok) => {
+    if (!statusEl) return;
     statusEl.style.display = 'block';
     statusEl.style.background = ok ? '#0d2d1a' : '#2d0d0d';
     statusEl.style.border = '1px solid ' + (ok ? '#238636' : '#da3633');
@@ -9073,11 +9014,27 @@ async function githubCreateRepo() {
     statusEl.innerHTML = msg;
   };
 
-  if (!token) return show('❌ Укажи Personal Access Token', false);
-  if (!name)  return show('❌ Укажи name репозитория', false);
-  if (!/^[\w.\-]+$/.test(name)) return show('❌ Name может содержать only буквы, цифры, - _ .', false);
+  if (!nameInput || !visibilityInput) {
+    show('❌ The repository form did not load. Refresh the page and try again.', false);
+    return;
+  }
 
-  show('⏳ Созgive репозиторий...', true);
+  let token = tokenInput?.value.trim() || '';
+  if (!token && window.WebDevGymGitHubTokenVault?.restore) {
+    token = await window.WebDevGymGitHubTokenVault.restore();
+  }
+  token = token || window.WebDevGymGitHubTokenVault?.getToken?.() || '';
+
+  const name = nameInput.value.trim();
+  const isPriv = visibilityInput.value === 'true';
+  const desc = descInput?.value.trim() || '';
+  const addReadme = readmeInput?.checked !== false;
+
+  if (!token) return show('❌ Enter a Personal Access Token or unlock the saved token.', false);
+  if (!name)  return show('❌ Enter a repository name.', false);
+  if (!/^[\w.\-]+$/.test(name)) return show('❌ The name may contain only letters, numbers, hyphens, underscores and dots.', false);
+
+  show('⏳ Creating repository...', true);
 
   try {
     const res = await fetch('https://api.github.com/user/repos', {
@@ -9096,13 +9053,16 @@ async function githubCreateRepo() {
       })
     });
 
-    const result = await res.json();
+    const responseText = await res.text();
+    let result = {};
+    try { result = responseText ? JSON.parse(responseText) : {}; }
+    catch (error) { result = { message: responseText || `HTTP ${res.status}` }; }
 
     if (res.ok) {
       const repoUrl = result.html_url;
       const pagesUrl = `https://${result.owner.login}.github.io/${result.name}/`;
-      show(`✅ Репозиторий создан! <a href="${repoUrl}" target="_blank" style="color:#58a6ff">${result.full_name}</a><br>
-            🌐 После загрузки index.html, GitHub Pages: <a href="${pagesUrl}" target="_blank" style="color:#58a6ff">${pagesUrl}</a>`, true);
+      show(`✅ Repository created! <a href="${repoUrl}" target="_blank" rel="noopener" style="color:#58a6ff">${result.full_name}</a><br>
+            🌐 After uploading index.html, GitHub Pages: <a href="${pagesUrl}" target="_blank" rel="noopener" style="color:#58a6ff">${pagesUrl}</a>`, true);
 
       // Автозаполняем field загрузки file ниже
       const ghUsername = document.getElementById('gh-username');
@@ -9112,18 +9072,29 @@ async function githubCreateRepo() {
       if (ghRepo)     { ghRepo.value = result.name; ghSaveField('gh-repo', result.name); }
       if (ghToken && !ghToken.value) { ghToken.value = token; ghSaveField('gh-token', token); }
 
+      document.dispatchEvent(new CustomEvent('webdevgym:github-repository-created', {
+        detail: { username: result.owner.login, repo: result.name, url: repoUrl }
+      }));
+
     } else {
-      const msg = result.message || '';
-      if (msg.includes('Bad credentials')) {
-        show('❌ Неверный token. Needs scope <b>repo</b>', false);
+      const msg = String(result.message || `HTTP ${res.status}`);
+      const details = Array.isArray(result.errors)
+        ? result.errors.map(error => error.message || error.code).filter(Boolean).join('; ')
+        : '';
+      if (res.status === 401 || /bad credentials/i.test(msg)) {
+        show('❌ The token is invalid, expired or revoked. Create a new token and save it in WebDevGym.', false);
+      } else if (res.status === 403) {
+        show('❌ GitHub allows file uploads but denied repository creation.<br><b>Fine-grained token:</b> enable Repository permissions → Administration → Read and write.<br><b>Classic token:</b> enable the <code>repo</code> scope (or <code>public_repo</code> for public repositories only).<br><a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:#58a6ff">Open GitHub token settings</a>', false);
       } else if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('name already exists')) {
-        show(`❌ Репозиторий <b>${name}</b> уже существует on твоём аккаунте`, false);
+        show(`❌ Repository <b>${name}</b> already exists in your account.`, false);
+      } else if (res.status === 422) {
+        show(`❌ GitHub rejected the repository data: ${details || msg}`, false);
       } else {
-        show('❌ Error: ' + msg, false);
+        show(`❌ GitHub API (${res.status}): ${details || msg}`, false);
       }
     }
   } catch(err) {
-    show('❌ Сетевая error: ' + err.message, false);
+    show('❌ Network error: ' + err.message, false);
   }
 }
 
@@ -9328,7 +9299,6 @@ const WDG_TEXT_EN = {
   'advanced': 'advanced',
   'practice': 'practice',
   'next steps': 'next steps',
-  'until 12/31/2026': 'until 12/31/2026',
   'tip of the day': 'tip of the day',
   'Daily challenge': 'Daily challenge',
   'Start': 'Start',
@@ -9354,9 +9324,9 @@ const WDG_TEXT_EN = {
   'Plan': 'Plan',
   'Mark day complete': 'Mark day complete',
   'study days completed': 'study days completed',
-  'days until December 31': 'days until December 31',
+  'days remaining in plan': 'days remaining in plan',
   'upcoming topics': 'topics ahead',
-  'What is important to remember about study, Kwork, or projects?': 'What should you remember about studying, Kwork, or projects?',
+  'What is important to remember about study, Career, or projects?': 'What should you remember about studying, Career, or projects?',
   'The calendar is preparing the next step.': 'The calendar is preparing the next step.',
   'Learning plan': 'Learning plan',
   'Upcoming route': 'Nearest route',
@@ -9711,7 +9681,7 @@ Object.assign(WDG_TEXT_EN, {
   'дня': 'days',
   'отдыха': 'of rest',
   'развития': 'development',
-  'до 31 декабря': 'until December 31',
+  'гибкий план': 'flexible plan',
   'next step': 'next step',
   'next steps': 'next steps',
   'маршрут': 'route',
@@ -9988,8 +9958,6 @@ Object.assign(WDG_TEXT_EN, {
   'From the creator of jQuery. A deep look at closures, prototypes, this, and events, with exercises that test your understanding.': 'From the creator of jQuery. Closures, prototypes, this, events — deeply explained with knowledge-checking tests.',
   'The quick brown fox jumps over the lazy dog.': 'The quick brown fox jumps over the lazy dog.',
   'Один for заголовков, one for text — этого хватает in 95% случаев. Каждый font = +30-100 КБ загрузки.': 'One font for headings and one for body text is enough in 95% of cases. Every font adds 30-100 KB of loading.',
-  'Without any settings, the AI assistant already works on the free Llama 3.3 70B model (through Groq). Just open the chat with the 💬 button in the bottom-right corner or select text on the page.': 'Without any setup, the AI assistant already works with the free Llama 3.3 70B model through Groq. Open the chat with the button in the bottom-right corner or select text on the page.',
-  'By default: Llama 3.3 70B built in': 'Default: Llama 3.3 70B is built in',
   'Своя модель and API key': 'Your own model and API key',
   'optional': 'optional',
   'Provider settings examples': 'Provider setup examples',
@@ -10020,7 +9988,7 @@ const WDG_EN_NORMALIZE_REPLACEMENTS = [
   [/Понимаю/g, 'I understand'], [/Знаю/g, 'I know'], [/зачем/g, 'why'], [/разницу/g, 'the difference'], [/visible/g, 'visible'], [/Не забываю/g, 'I do not forget'], [/иначе/g, 'otherwise'], [/вместо/g, 'instead of'],
   [/Text/g, 'Text'], [/text/g, 'text'], [/text/g, 'text'], [/Lists/g, 'Lists'], [/tables/g, 'tables'], [/Tables/g, 'Tables'], [/forms/g, 'forms'], [/Формы/g, 'Forms'],
   [/учебы/g, 'study'], [/учёбы/g, 'study'], [/развития/g, 'development'], [/next steps/g, 'next steps'], [/tip of the day/g, 'tip of the day'], [/Daily challenge/g, 'Daily challenge'], [/минут/g, 'minutes'], [/Click to change time/g, 'Click to change time'], [/Свёрстай card/g, 'Build a card'], [/Start/g, 'Start'], [/Another/g, 'Another'], [/Pause/g, 'Pause'],
-  [/календаря/g, 'calendar'], [/Development calendar until December 31/g, 'Development calendar until December 31'], [/The calendar is preparing the next step/g, 'The calendar is preparing the next step'],
+  [/календаря/g, 'calendar'], [/Learning calendar/g, 'Learning calendar'], [/The calendar is preparing the next step/g, 'The calendar is preparing the next step'],
   [/ПРОГРЕСС/g, 'PROGRESS'], [/ВКЛАДКИ/g, 'TABS'], [/БЛОКИ/g, 'BLOCKS'], [/КОД/g, 'CODE'], [/ЧЕКБОКСЫ/g, 'CHECKBOXES'], [/КНИГИ/g, 'BOOKS'], [/ТРЕНАЖЕР/g, 'TRAINER'], [/ПОИСК/g, 'SEARCH'], [/ПОДСКАЗКИ/g, 'TIPS'], [/СЕКЦИИ/g, 'SECTIONS'], [/БЕЙДЖИ/g, 'BADGES'],
   [/Мобильная адаптация/g, 'Mobile adaptation'], [/МОБИЛЬНАЯ ОПТИМИЗАЦИЯ/g, 'MOBILE OPTIMIZATION'], [/Очень маленькие/g, 'Very small'], [/горизонтальный скролл/g, 'horizontal scroll'], [/переноса/g, 'wrapping'], [/увеличиваем зоны касания/g, 'increase touch zones'], [/Hide/g, 'Hide'], [/нет hover/g, 'no hover'],
   [/ГАЙДЫ/g, 'GUIDES'], [/гайда/g, 'guide'], [/ЖИВЫЕ ПРИМЕРЫ/g, 'LIVE EXAMPLES'], [/живые демо/g, 'live demos'], [/Animation/g, 'Animation'], [/Спиннер/g, 'Spinner'], [/Шаги/g, 'Steps'], [/Горячие клавиши/g, 'Hotkeys'], [/Types слоёв/g, 'Layer types'], [/Инспектор/g, 'Inspector'],
@@ -10274,14 +10242,11 @@ function createQuickNav() {
 }
 
 function startMockInterview() {
-  const checked = Array.from(document.querySelectorAll('.prog-cb:checked'))
-    .map(cb => cb.closest('.item')?.innerText.trim())
-    .filter(Boolean)
-    .slice(0, 12);
-  const topics = checked.length ? checked.join('; ') : 'HTML, CSS, JavaScript, React, accessibility, Git';
-  const prompt = 'Give me a mock interview on completed topics. Ask one question at a time, wait for my answer, grade it, and make it harder. Topics: ' + topics;
-  if (typeof sendPrompt === 'function') sendPrompt(prompt);
-  else alert(prompt);
+  if (window.WebDevGymTrainers?.openInterview) {
+    window.WebDevGymTrainers.openInterview();
+    return;
+  }
+  window.dispatchEvent(new CustomEvent('wdg:open-interview'));
 }
 
 function calcSpecificity(selector) {

@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  const isEnglish = /index-en\.html$/i.test(location.pathname);
+  const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en') ||
+    /index-en\.html$/i.test(location.pathname) ||
+    /(?:^|\/)WebDevGym-EN(?:\/|$)/i.test(location.pathname);
   const ui = isEnglish ? {
     all: 'All topics', collapse: 'Collapse', next: 'Next', current: 'In progress',
     license: 'All rights reserved', topics: 'topics'

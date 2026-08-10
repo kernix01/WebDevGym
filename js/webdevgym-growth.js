@@ -6,7 +6,7 @@
   const STORE_KEY = isEnglish ? 'wdg_mastery_en_v1' : 'wdg_mastery_ru_v1';
   const PATH_KEY = isEnglish ? 'wdg_active_path_en_v1' : 'wdg_active_path_ru_v1';
   const CHECKPOINT_KEY = isEnglish ? 'wdg_checkpoints_en_v1' : 'wdg_checkpoints_ru_v1';
-  const COURSE_SECTIONS = ['html','css','js','ts','react','git','node','sql','devops','linux','pg','vite'];
+  const COURSE_SECTIONS = ['html','css','js','git','vite','ts','react','node','sql','pg','linux','devops'];
   const LEVELS = [
     { value:0, label:L('Not started','Не начато'), short:'0' },
     { value:1, label:L('Read','Прочитал'), short:'1' },
@@ -44,11 +44,11 @@
       steps:[
         step('html',0,'HTML structure','Структура HTML',/doctype|структур|page structure/i),
         step('css',0,'CSS selectors and box model','Селекторы и блочная модель',/selector|селектор|box model|блочн/i),
-        step('css',4,'Flexbox and responsive layout','Flexbox и адаптив',/flex|адаптив|responsive/i),
+        step('css',7,'Flexbox and responsive layout','Flexbox и адаптив',/flex|адаптив|responsive/i),
         step('js',0,'Variables and data types','Переменные и типы данных',/переменн|variable|let|const/i),
         step('js',2,'Conditions and comparison','Условия и сравнение',/услов|condition|\bif\b|\belse\b/i),
-        step('js',8,'DOM and events','DOM и события',/dom|event|событ|queryselector/i),
-        step('js',12,'Storage and persistence','Хранение состояния',/localstorage|storage|хранил/i),
+        step('js',8,'Interface and events','Интерфейс и события',/dom|event|событ|queryselector/i),
+        step('js',11,'Project data','Данные проекта',/localstorage|storage|хранил/i),
         step('git',0,'Git basics','Основа Git',/commit|репозитор|repository|git/i)
       ]
     },
@@ -58,10 +58,10 @@
       description:L('The minimum practical stack for small client fixes and interface features.','Минимальный практический стек для небольших клиентских правок и интерфейсных функций.'),
       steps:[
         step('html',3,'Forms and accessible fields','Формы и доступные поля',/form|форм/i),
-        step('css',4,'Responsive layout','Адаптивная верстка',/media|адаптив|responsive/i),
-        step('js',8,'DOM selectors','DOM-селекторы',/queryselector|dom|селектор/i),
+        step('css',10,'Responsive layout','Адаптивная верстка',/media|адаптив|responsive/i),
+        step('js',8,'Element selectors','Селекторы элементов',/queryselector|dom|селектор/i),
         step('js',9,'Events and form submit','События и submit формы',/event|submit|событ/i),
-        step('js',12,'Saving user choices','Сохранение выбора',/localstorage|storage/i),
+        step('js',11,'User preferences','Настройки пользователя',/localstorage|storage/i),
         step('git',1,'Safe changes with Git','Безопасные изменения через Git',/branch|commit|ветк/i)
       ]
     },
@@ -70,11 +70,12 @@
       title:L('Route to React','Путь к React'),
       description:L('Strengthen JavaScript first, then add TypeScript, tooling and React.','Сначала укрепи JavaScript, затем добавь TypeScript, сборку и React.'),
       steps:[
-        step('js',5,'Functions','Функции',/function|функц/i),
-        step('js',6,'Arrays and transformations','Массивы и преобразования',/array|массив|map|filter/i),
-        step('js',11,'Async code and fetch','Асинхронность и fetch',/async|fetch|promise|асинхрон/i),
-        step('ts',0,'Types and interfaces','Типы и интерфейсы',/type|interface|тип|интерфейс/i),
+        step('js',4,'Functions','Функции',/function|функц/i),
+        step('js',5,'Arrays and transformations','Массивы и преобразования',/array|массив|map|filter/i),
+        step('js',16,'Async code and fetch','Асинхронность и fetch',/async|fetch|promise|асинхрон/i),
+        step('git',0,'Git workflow','Работа с Git',/commit|branch|git/i),
         step('vite',0,'Vite and modules','Vite и модули',/vite|module|модул/i),
+        step('ts',0,'Types and interfaces','Типы и интерфейсы',/type|interface|тип|интерфейс/i),
         step('react',0,'Components and props','Компоненты и props',/component|компонент|props/i),
         step('react',2,'State and effects','Состояние и эффекты',/state|effect|состояни|эффект/i)
       ]
@@ -87,14 +88,28 @@
         step('js',0,'Variables','Переменные',/variable|переменн|let|const/i),
         step('js',2,'Conditions','Условия',/condition|услов|\bif\b|\belse\b/i),
         step('js',3,'Loops','Циклы',/loop|цикл|for|while/i),
-        step('js',4,'Arrays','Массивы',/array|массив/i),
-        step('js',5,'Functions','Функции',/function|функц/i),
-        step('js',8,'DOM','DOM',/dom|queryselector/i),
+        step('js',4,'Functions','Функции',/function|функц/i),
+        step('js',5,'Arrays','Массивы',/array|массив/i),
+        step('js',8,'Interface','Интерфейс',/dom|queryselector/i),
         step('js',9,'Events','События',/event|событ|submit|click/i),
-        step('js',12,'localStorage','localStorage',/localstorage|storage/i)
+        step('js',11,'Data persistence','Сохранение данных',/localstorage|storage/i)
       ]
-    }
-  ];
+    },
+    {
+      id:'backend', icon:'tabler:server',
+      title:L('Backend foundation','Основа Backend'),
+      description:L('From JavaScript on the server to databases, Linux and deployment basics.','От JavaScript на сервере до баз данных, Linux и основ развёртывания.'),
+      steps:[
+        step('js',4,'Functions and scope','Функции и область видимости',/function|scope|функц|област/i),
+        step('git',0,'Git workflow','Работа с Git',/commit|branch|git/i),
+        step('node',0,'Node.js runtime','Среда Node.js',/node|runtime|сервер/i),
+        step('node',6,'HTTP and routing','HTTP и маршрутизация',/http|route|маршрут|request/i),
+        step('sql',0,'SQL foundations','Основы SQL',/select|sql|таблиц|query/i),
+        step('pg',0,'PostgreSQL','PostgreSQL',/postgres|database|баз/i),
+        step('linux',0,'Linux basics','Основы Linux',/linux|terminal|команд/i),
+        step('devops',0,'Servers and deploy','Серверы и деплой',/server|deploy|сервер|деплой/i)
+      ]
+    }  ];
 
   const checkpointTasks = {
     html:[L('Create a semantic article page with navigation, image, list and feedback form.','Собери семантическую страницу статьи: навигация, изображение, список и форма обратной связи.'), L('The structure remains clear without CSS; every input has a label; the image has useful alt text.','Структура понятна без CSS; у каждого поля есть label; у изображения полезный alt.')],
@@ -107,6 +122,10 @@
 
   let api = null;
   let activePathId = localStorage.getItem(PATH_KEY) || 'frontend';
+  let activeRouteStep = 0;
+  let activeRoutePathId = '';
+  let routeZoom = 1;
+  let routePan = { x:0, y:0 };
 
   function step(section, index, en, ru, match) {
     return { section, index, title:L(en,ru), match };
@@ -233,25 +252,164 @@
   }
 
   function renderPaths() {
-    const path = paths.find(item => item.id === activePathId) || paths[0];
-    const body = '<div class="wdg-growth-layout"><aside class="wdg-growth-paths">' + paths.map(item => {
-      const progress = pathProgress(item);
-      return '<button type="button" class="wdg-growth-path-card ' + (item.id === path.id ? 'active' : '') + '" data-growth-path="' + item.id + '"><span>' + icon(item.icon,20) + '</span><div><strong>' + escapeHtml(item.title) + '</strong><small>' + progress.percent + '%</small></div><i><b style="width:' + progress.percent + '%"></b></i></button>';
-    }).join('') + '</aside><main class="wdg-growth-route"><header><div><span>' + (path.id === activePathId ? copy.active : copy.choose) + '</span><h2>' + escapeHtml(path.title) + '</h2><p>' + escapeHtml(path.description) + '</p></div><div class="wdg-growth-score"><strong>' + pathProgress(path).independent + '/' + path.steps.length + '</strong><span>' + copy.stats + '</span></div></header><ol class="wdg-growth-steps">' + path.steps.map((item,index) => {
+    const routeCopy = {
+      title:L('Learning routes','Маршруты обучения'),
+      subtitle:L('See the whole path, choose the next skill and move at your own pace.','Весь путь перед глазами: выбирай следующий навык и двигайся в своём темпе.'),
+      plan:L('Development plan','План развития'),
+      custom:L('My route','Свой маршрут'),
+      current:L('Current stage','Текущий этап'),
+      progress:L('Route progress','Прогресс маршрута'),
+      next:L('Next target','Следующая цель'),
+      duration:L('Estimated time','Оценка времени'),
+      map:L('Skill map','Карта навыков'),
+      inspector:L('Stage inspector','Инспектор этапа'),
+      prerequisites:L('Prerequisites','Перед началом'),
+      nextSteps:L('Next in route','Дальше по маршруту'),
+      continue:L('Continue learning','Продолжить обучение'),
+      practice:L('Practice in Forge','Практика в Forge'),
+      mastered:L('Mastered','Освоено'),
+      studying:L('In progress','Изучается'),
+      available:L('Available','Доступно'),
+      locked:L('Later','Позже'),
+      weeks:L('weeks','недель'),
+      lessons:L('topics','тем'),
+      reset:L('Reset view','Сбросить вид'),
+      hint:L('Drag the map to move around. Click a node to inspect it.','Перетаскивай карту мышью и нажимай на узлы, чтобы открыть подробности.'),
+      milestones:L('Route milestones','Контрольные точки'),
+      recommendation:L('Recommended next step','Следующий полезный шаг'),
+      recommendationText:L('Finish the current topic, then rebuild its main example without looking at the lesson.','Закончи текущую тему, затем собери её главный пример без подсматривания в урок.'),
+      open:L('Open topic','Открыть тему')
+    };
+
+    const allPaths = paths;
+    const path = allPaths.find(item => item.id === activePathId) || allPaths[0];
+    if (activeRoutePathId !== path.id) {
+      const firstOpen = path.steps.findIndex(item => mastery(findTopic(item)?.id || '').level < 4);
+      activeRouteStep = firstOpen < 0 ? Math.max(0,path.steps.length - 1) : firstOpen;
+      activeRoutePathId = path.id;
+    }
+    activeRouteStep = Math.max(0,Math.min(activeRouteStep,path.steps.length - 1));
+
+    const customPaths = allPaths.filter(item => item.id !== 'frontend' && item.id !== 'backend');
+    const mode = path.id === 'frontend' || path.id === 'backend' ? path.id : 'custom';
+    const progress = pathProgress(path);
+    const values = path.steps.map(item => mastery(findTopic(item)?.id || '').level || 0);
+    const currentIndex = values.findIndex(value => value < 4);
+    const routeCurrentIndex = currentIndex < 0 ? path.steps.length - 1 : currentIndex;
+    const selectedStep = path.steps[activeRouteStep];
+    const selectedTopic = findTopic(selectedStep);
+    const selectedMastery = mastery(selectedTopic?.id || '');
+    const nextStep = path.steps[Math.min(routeCurrentIndex + 1,path.steps.length - 1)];
+    const nextTopic = findTopic(nextStep);
+    const points = [
+      {x:78,y:245},{x:250,y:245},{x:422,y:245},{x:594,y:245},
+      {x:770,y:145},{x:770,y:345},{x:948,y:245},{x:1122,y:245},
+      {x:1122,y:425},{x:948,y:425}
+    ];
+    const statusFor = (value,index) => value === 4 ? 'done' : index === routeCurrentIndex ? 'current' : index < routeCurrentIndex + 2 ? 'available' : 'locked';
+    const statusLabel = status => ({done:routeCopy.mastered,current:routeCopy.studying,available:routeCopy.available,locked:routeCopy.locked})[status];
+    const routeEdges = path.steps.slice(1).map((item,index) => {
+      const from = points[index] || points[points.length - 2];
+      const to = points[index + 1] || points[points.length - 1];
+      return '<line x1="' + (from.x + 42) + '" y1="' + (from.y + 42) + '" x2="' + (to.x + 42) + '" y2="' + (to.y + 42) + '" class="' + (values[index] === 4 ? 'is-done' : '') + '"></line>';
+    }).join('');
+    const routeNodes = path.steps.map((item,index) => {
       const topic = findTopic(item);
-      const value = mastery(topic?.id || '');
-      return '<li class="level-' + value.level + '"><span class="wdg-growth-step-number">' + (index + 1) + '</span><div><small>' + item.section.toUpperCase() + '</small><strong>' + escapeHtml(topic?.title || item.title) + '</strong><span>' + (topic ? LEVELS[value.level].label : copy.noTopic) + '</span></div><button class="wdgf-btn" type="button" data-growth-open="' + escapeHtml(topic?.id || item.section + '-0') + '">' + icon('tabler:arrow-up-right',15) + ' ' + copy.open + '</button></li>';
-    }).join('') + '</ol></main></div>';
-    const page = api.pageShell('paths', copy.title, copy.subtitle, body);
-    page.querySelectorAll('[data-growth-path]').forEach(button => button.addEventListener('click', () => {
-      activePathId = button.dataset.growthPath;
-      localStorage.setItem(PATH_KEY, activePathId);
+      const value = mastery(topic?.id || '').level || 0;
+      const status = statusFor(value,index);
+      const point = points[index] || {x:1122,y:425};
+      const section = item.section === 'js' ? 'JS' : item.section.toUpperCase();
+      return '<button type="button" class="wdg-route-node is-' + status + ' ' + (index === activeRouteStep ? 'is-selected' : '') + '" style="left:' + point.x + 'px;top:' + point.y + 'px" data-route-node="' + index + '">' +
+        '<span class="wdg-route-node-icon">' + escapeHtml(section.slice(0,3)) + '</span>' +
+        '<span class="wdg-route-node-copy"><strong>' + escapeHtml(topic?.title || item.title) + '</strong><small>' + statusLabel(status) + (value ? ' · ' + value + '/4' : '') + '</small></span>' +
+        '<i>' + (status === 'done' ? icon('tabler:check',14) : status === 'locked' ? icon('tabler:lock',13) : index + 1) + '</i></button>';
+    }).join('');
+
+    const milestoneIndexes = [0,Math.floor((path.steps.length - 1) / 2),path.steps.length - 1].filter((value,index,array) => array.indexOf(value) === index);
+    const milestones = milestoneIndexes.map((index,position) => {
+      const item = path.steps[index];
+      const topic = findTopic(item);
+      const done = values.slice(0,index + 1).every(value => value === 4);
+      return '<div class="wdg-route-milestone ' + (done ? 'is-done' : index === routeCurrentIndex ? 'is-current' : '') + '"><span>' + (done ? icon('tabler:check',14) : position + 1) + '</span><div><small>' + L('Milestone','Этап') + ' ' + (position + 1) + '</small><strong>' + escapeHtml(topic?.title || item.title) + '</strong></div></div>';
+    }).join('');
+
+    const customSelect = '<select class="wdg-route-custom-select" data-route-custom aria-label="' + routeCopy.custom + '">' +
+      customPaths.map(item => '<option value="' + item.id + '" ' + (item.id === path.id ? 'selected' : '') + '>' + escapeHtml(item.title) + '</option>').join('') + '</select>';
+    const selectedStatus = statusFor(selectedMastery.level || 0,activeRouteStep);
+    const prerequisite = path.steps[Math.max(0,activeRouteStep - 1)];
+    const following = path.steps.slice(activeRouteStep + 1,activeRouteStep + 3);
+
+    const body = '<div class="wdg-route-atlas">' +
+      '<section class="wdg-route-command"><div class="wdg-route-command-copy"><span>' + routeCopy.plan + '</span><strong>' + escapeHtml(path.title) + '</strong><small>' + escapeHtml(path.description) + '</small></div>' +
+      '<div class="wdg-route-modes mode-' + mode + '" role="group"><button type="button" class="' + (mode === 'frontend' ? 'active' : '') + '" data-route-mode="frontend">' + icon('tabler:layout',15) + ' Frontend</button><button type="button" class="' + (mode === 'backend' ? 'active' : '') + '" data-route-mode="backend">' + icon('tabler:server',15) + ' Backend</button><button type="button" class="' + (mode === 'custom' ? 'active' : '') + '" data-route-mode="custom">' + icon('tabler:route',15) + ' ' + routeCopy.custom + '</button>' + customSelect + '</div></section>' +
+      '<section class="wdg-route-summary"><article><small>' + routeCopy.current + '</small><strong>' + escapeHtml(findTopic(path.steps[routeCurrentIndex])?.title || path.steps[routeCurrentIndex].title) + '</strong><span>' + (routeCurrentIndex + 1) + ' / ' + path.steps.length + '</span></article><article><small>' + routeCopy.progress + '</small><strong>' + progress.percent + '%</strong><i><b style="width:' + progress.percent + '%"></b></i></article><article><small>' + routeCopy.next + '</small><strong>' + escapeHtml(nextTopic?.title || nextStep.title) + '</strong><span>' + escapeHtml(nextStep.section.toUpperCase()) + '</span></article><article><small>' + routeCopy.duration + '</small><strong>~' + Math.max(1,Math.ceil((path.steps.length - progress.independent) * 1.4)) + ' ' + routeCopy.weeks + '</strong><span>' + path.steps.length + ' ' + routeCopy.lessons + '</span></article></section>' +
+      '<div class="wdg-route-workspace"><section class="wdg-route-map-panel"><header><div><small>' + routeCopy.map + '</small><strong>' + escapeHtml(path.title) + '</strong></div><div class="wdg-route-map-tools"><button type="button" data-route-zoom="-0.1" title="Zoom out">' + icon('tabler:minus',16) + '</button><span data-route-zoom-label>' + Math.round(routeZoom * 100) + '%</span><button type="button" data-route-zoom="0.1" title="Zoom in">' + icon('tabler:plus',16) + '</button><button type="button" data-route-reset title="' + routeCopy.reset + '">' + icon('tabler:focus-2',16) + '</button></div></header>' +
+      '<div class="wdg-route-map-viewport" data-route-viewport><div class="wdg-route-map-world" data-route-world style="transform:translate(' + routePan.x + 'px,' + routePan.y + 'px) scale(' + routeZoom + ')"><svg viewBox="0 0 1260 560" aria-hidden="true">' + routeEdges + '</svg>' + routeNodes + '</div></div><footer><span>' + icon('tabler:hand-move',15) + ' ' + routeCopy.hint + '</span><div><i class="done"></i>' + routeCopy.mastered + '<i class="current"></i>' + routeCopy.studying + '<i></i>' + routeCopy.locked + '</div></footer></section>' +
+      '<aside class="wdg-route-inspector"><header><span>' + routeCopy.inspector + '</span><b class="is-' + selectedStatus + '">' + statusLabel(selectedStatus) + '</b></header><div class="wdg-route-inspector-hero"><i>' + escapeHtml(selectedStep.section.toUpperCase().slice(0,3)) + '</i><div><small>' + escapeHtml(selectedStep.section.toUpperCase()) + '</small><h2>' + escapeHtml(selectedTopic?.title || selectedStep.title) + '</h2><p>' + escapeHtml(selectedStep.title) + '</p></div></div><div class="wdg-route-inspector-progress"><span><b>' + selectedMastery.level + '/4</b> ' + routeCopy.progress + '</span><i><b style="width:' + (selectedMastery.level / 4 * 100) + '%"></b></i></div>' +
+      '<section><h3>' + routeCopy.prerequisites + '</h3><div class="wdg-route-prerequisite">' + icon(activeRouteStep === 0 || values[activeRouteStep - 1] === 4 ? 'tabler:circle-check' : 'tabler:circle-dashed',17) + '<span>' + (activeRouteStep === 0 ? L('You can start immediately','Можно начинать сразу') : escapeHtml(findTopic(prerequisite)?.title || prerequisite.title)) + '</span></div></section>' +
+      '<section><h3>' + routeCopy.nextSteps + '</h3>' + (following.length ? following.map((item,index) => '<button type="button" data-route-node="' + (activeRouteStep + index + 1) + '"><span>' + (activeRouteStep + index + 2) + '</span>' + escapeHtml(findTopic(item)?.title || item.title) + icon('tabler:chevron-right',15) + '</button>').join('') : '<p>' + L('This is the final stage of the route.','Это финальный этап маршрута.') + '</p>') + '</section>' +
+      '<div class="wdg-route-inspector-actions"><button type="button" class="primary" data-route-open="' + activeRouteStep + '">' + routeCopy.continue + ' ' + icon('tabler:arrow-right',16) + '</button><button type="button" data-route-forge>' + icon('tabler:hammer',16) + ' ' + routeCopy.practice + '</button></div></aside></div>' +
+      '<section class="wdg-route-milestones"><header><span>' + routeCopy.milestones + '</span><small>' + progress.independent + ' / ' + path.steps.length + '</small></header><div>' + milestones + '</div></section>' +
+      '<section class="wdg-route-recommendation"><span>' + icon('tabler:sparkles',18) + '</span><div><small>' + routeCopy.recommendation + '</small><strong>' + routeCopy.recommendationText + '</strong></div><button type="button" data-route-open="' + routeCurrentIndex + '">' + routeCopy.open + ' ' + icon('tabler:arrow-up-right',15) + '</button></section></div>';
+
+    const page = api.pageShell('paths', routeCopy.title, routeCopy.subtitle, body);
+    const world = page.querySelector('[data-route-world]');
+    const viewport = page.querySelector('[data-route-viewport]');
+    const applyTransform = () => {
+      if (world) world.style.transform = 'translate(' + routePan.x + 'px,' + routePan.y + 'px) scale(' + routeZoom + ')';
+      const label = page.querySelector('[data-route-zoom-label]');
+      if (label) label.textContent = Math.round(routeZoom * 100) + '%';
+    };
+    page.querySelectorAll('[data-route-mode]').forEach(button => button.addEventListener('click', () => {
+      const target = button.dataset.routeMode;
+      activePathId = target === 'custom' ? (customPaths[0]?.id || 'frontend') : target;
+      localStorage.setItem(PATH_KEY,activePathId);
+      activeRoutePathId = '';
       renderPaths();
     }));
-    page.querySelectorAll('[data-growth-open]').forEach(button => button.addEventListener('click', () => {
-      const topic = topics().find(item => item.id === button.dataset.growthOpen);
-      openTopic(topic);
+    page.querySelector('[data-route-custom]')?.addEventListener('change', event => {
+      activePathId = event.target.value;
+      localStorage.setItem(PATH_KEY,activePathId);
+      activeRoutePathId = '';
+      renderPaths();
+    });
+    page.querySelectorAll('[data-route-node]').forEach(button => button.addEventListener('click', event => {
+      event.stopPropagation();
+      activeRouteStep = Number(button.dataset.routeNode) || 0;
+      renderPaths();
     }));
+    page.querySelectorAll('[data-route-open]').forEach(button => button.addEventListener('click', () => {
+      const index = Number(button.dataset.routeOpen) || 0;
+      openTopic(findTopic(path.steps[index]));
+    }));
+    page.querySelector('[data-route-forge]')?.addEventListener('click', () => api.open('forge'));
+    page.querySelectorAll('[data-route-zoom]').forEach(button => button.addEventListener('click', () => {
+      routeZoom = Math.max(.7,Math.min(1.45,routeZoom + Number(button.dataset.routeZoom)));
+      applyTransform();
+    }));
+    page.querySelector('[data-route-reset]')?.addEventListener('click', () => {
+      routeZoom = 1;
+      routePan = {x:0,y:0};
+      applyTransform();
+    });
+    if (viewport) {
+      let drag = null;
+      viewport.addEventListener('pointerdown', event => {
+        if (event.target.closest('button')) return;
+        drag = {x:event.clientX,y:event.clientY,startX:routePan.x,startY:routePan.y};
+        viewport.classList.add('is-dragging');
+        viewport.setPointerCapture?.(event.pointerId);
+      });
+      viewport.addEventListener('pointermove', event => {
+        if (!drag) return;
+        routePan.x = drag.startX + event.clientX - drag.x;
+        routePan.y = drag.startY + event.clientY - drag.y;
+        applyTransform();
+      });
+      const stopDrag = () => { drag = null; viewport.classList.remove('is-dragging'); };
+      viewport.addEventListener('pointerup', stopDrag);
+      viewport.addEventListener('pointercancel', stopDrag);
+    }
     return page;
   }
 

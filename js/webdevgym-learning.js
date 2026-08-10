@@ -464,7 +464,10 @@
   }
 
   function enhanceBlocks() {
+    const learningSections = new Set(['html', 'css', 'js', 'ts', 'react', 'vite', 'node', 'sql', 'pg', 'linux', 'devops', 'git']);
     document.querySelectorAll('.section > .block').forEach(block => {
+      const sectionId = block.closest('.section')?.id?.replace(/^sec-/, '');
+      if (!learningSections.has(sectionId)) return;
       if (block.dataset.wdgDeepReady === '1') return;
       const title = block.querySelector('.block-title');
       if (!title) return;
