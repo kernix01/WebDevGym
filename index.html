@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@400;500;700&amp;family=Onest:wght@400;500;700&amp;family=Rubik:wght@400;500;700&amp;family=Poppins:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;family=Open+Sans:wght@400;500;700&amp;family=Nunito:wght@400;600;700&amp;family=Raleway:wght@400;500;700&amp;family=Space+Grotesk:wght@400;500;700&amp;family=DM+Sans:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;family=Lexend:wght@400;500;700&amp;family=Work+Sans:wght@400;500;700&amp;family=Source+Sans+3:wght@400;600;700&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;family=Mulish:wght@400;500;700&amp;family=Cabin:wght@400;500;700&amp;family=Karla:wght@400;500;700&amp;family=Quicksand:wght@400;500;700&amp;family=Mukta:wght@400;500;700&amp;family=Playfair+Display:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Lora:wght@400;500;700&amp;family=Cormorant+Garamond:wght@400;500;700&amp;family=Crimson+Pro:wght@400;500;700&amp;family=PT+Serif:wght@400;700&amp;family=EB+Garamond:wght@400;500;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Bitter:wght@400;500;700&amp;family=Source+Serif+4:wght@400;600;700&amp;family=Spectral:wght@400;500;700&amp;family=Bebas+Neue:wght@400&amp;family=Anton:wght@400&amp;family=Oswald:wght@400;500;700&amp;family=Archivo+Black:wght@400&amp;family=Righteous:wght@400&amp;family=Abril+Fatface:wght@400&amp;family=Fjalla+One:wght@400&amp;family=Russo+One:wght@400&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Fira+Code:wght@400;500&amp;family=Source+Code+Pro:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500;700&amp;family=Roboto+Mono:wght@400;500;700&amp;family=Caveat:wght@400;500;700&amp;family=Pacifico:wght@400&amp;family=Dancing+Script:wght@400;500;700&amp;family=Kalam:wght@400;700&amp;display=swap" rel="stylesheet">
 <title>WebDevGym</title>
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.svg?v=20260812-1" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#090d14">
 <script>
@@ -52,6 +52,8 @@ try {
 <link rel="stylesheet" href="css/webdevgym-nexus-v3.css">
 <link rel="stylesheet" href="css/webdevgym-learning-workspace.css">
 <link rel="stylesheet" href="css/webdevgym-playground-atlas.css?v=20260729-5">
+<link rel="stylesheet" href="css/webdevgym-usability.css?v=20260811-2">
+<link rel="stylesheet" href="css/webdevgym-project-mode.css?v=20260812-1">
 </head>
 <body>
 <div id="customBgLayer"></div>
@@ -60,11 +62,10 @@ try {
 <div id="splash-screen" role="status" aria-live="polite" aria-label="WebDevGym загружается">
   <div class="splash-inner">
     <div class="splash-icon" aria-hidden="true">
-      <svg class="splash-logo" viewBox="0 0 70 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17 8L4 24L17 40L28 25" stroke="#a855f7" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M26 25L35 37L44 17L54 31L64 17" stroke="#2dd4a8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        <circle cx="64" cy="8" r="3.5" fill="#2dd4a8"></circle>
-        <path d="M64 11V17" stroke="#2dd4a8" stroke-width="3" stroke-linecap="round"></path>
+      <svg class="splash-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 15 7 32l12 17" stroke="#a855f7" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"></path>
+        <path d="m45 15 12 17-12 17" stroke="#a855f7" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"></path>
+        <path d="m24 41 8-19 8 19" stroke="#2dd4a8" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"></path>
       </svg>
     </div>
     <div class="splash-title">WebDev<strong>Gym</strong></div>
@@ -93,7 +94,7 @@ try {
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  <div class="app-brand" aria-label="WebDevGym"><span class="app-brand-mark">&lt;/&gt;</span><span class="app-brand-copy"><strong>WebDevGym</strong><small>Тренажер frontend-разработчика</small></span></div>
+  <div class="app-brand" aria-label="WebDevGym"><span class="app-brand-mark"><img src="favicon.svg?v=20260812-1" alt=""></span><span class="app-brand-copy"><strong>WebDevGym</strong><small>Тренажер frontend-разработчика</small></span></div>
   <button class="top-btn" onclick="toggleDark()" id="darkBtn" data-i18n="top.dark"><iconify-icon icon="tabler:moon-stars" width="14" height="14" style="vertical-align:middle"></iconify-icon> Тёмная</button>
   <button class="top-btn" id="bmFilterBtn" onclick="toggleBmFilter()" title="Показать только закладки" data-i18n="top.bookmarks">🔖 Закладки</button>
   <button class="top-btn" onclick="startMockInterview()" title="Вопросы по отмеченным темам" data-i18n="top.interview">🎙️ Мок-интервью</button>
@@ -2707,6 +2708,8 @@ try {
 
 <script src="data/curriculum-ru.js"></script>
 <script src="data/curriculum-depth-2026.js"></script>
+<script src="data/curriculum-audit-2026.js?v=20260811-1"></script>
+<script src="data/curriculum-corrections-2026.js?v=20260811-1"></script>
 <script src="data/curriculum-order-2026.js?v=20260810-1"></script>
 <script src="js/webdevgym-curriculum-renderer.js"></script>
 <script src="js/webdevgym-core-ru.js?v=20260809-1"></script>
@@ -2745,5 +2748,7 @@ try {
 <script src="js/webdevgym-learning-workspace.js"></script>
 <script src="js/vendor/emmet-browser.min.js?v=2.4.11"></script>
 <script src="js/webdevgym-playground-atlas.js?v=20260729-6"></script>
+<script src="js/webdevgym-usability.js?v=20260811-2"></script>
+<script src="js/webdevgym-project-mode.js?v=20260812-1"></script>
 </body>
 </html>
