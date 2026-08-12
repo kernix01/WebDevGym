@@ -181,6 +181,7 @@
   const SIDEBAR_KEY = 'wdgp_sidebar_collapsed_v1';
   const HIDDEN_ACHIEVEMENTS_KEY = 'wdgp_hidden_achievements_v1';
   const objectUrls = new Set();
+  let renderGeneration = 0;
 
   function readJson(key, fallback) {
     try {
@@ -703,6 +704,7 @@
 
   function renderMedia(container, blob, options) {
     if (!container || !blob) return;
+    clearMediaPreview(container);
     const url = blobUrl(blob);
     const isVideo = blob.type.startsWith('video/');
     const className = options?.cover ? 'wdgp-cover-media' : 'wdgp-media-object';
@@ -832,11 +834,12 @@
     applyPreviewSettings(form, editorName);
   }
 
-  async function hydrateEditorPreview(form, editorName, key) {
+  async function hydrateEditorPreview(form, editorName, key, generation) {
     const preview = form?.querySelector('[data-media-preview="' + editorName + '"]');
     if (!preview) return;
     clearMediaPreview(preview);
     const blob = await assetGet(key);
+    if (generation != null && (generation !== renderGeneration || !form?.isConnected)) return;
     if (blob) {
       renderMedia(preview, blob);
       const fileName = form.querySelector('[data-file-name="' + editorName + '"]');
@@ -844,35 +847,39 @@
     }
   }
 
-  async function hydrateImages(page, profile, projects) {
+  async function hydrateImages(page, profile, projects, generation) {
     try {
       const [cover, avatar] = await Promise.all([assetGet('cover'), assetGet('avatar')]);
+      if (generation !== renderGeneration || !page.isConnected) return;
       if (cover) {
         const coverElement = page.querySelector('[data-cover-preview]');
+        if (!coverElement) return;
         coverElement.style.cssText += mediaStyle(mediaSettings(profile, 'cover'));
         renderMedia(coverElement, cover, { cover:true });
       }
       if (avatar) {
         const element = page.querySelector('[data-avatar-preview]');
+        if (!element) return;
         element.style.cssText = mediaStyle(mediaSettings(profile, 'avatar'));
-        element.innerHTML = '';
         renderMedia(element, avatar);
       } else if (profile.avatar) {
         const element = page.querySelector('[data-avatar-preview]');
+        if (!element) return;
         element.style.cssText = mediaStyle(mediaSettings(profile, 'avatar'));
         element.innerHTML = '<img class="wdgp-media-object" src="' + escapeHtml(profile.avatar) + '" alt="">';
       }
       await Promise.all(projects.map(async project => {
         const blob = await assetGet('project:' + project.id);
-        if (!blob) return;
+        if (!blob || generation !== renderGeneration || !page.isConnected) return;
         const media = page.querySelector('[data-project-image="' + CSS.escape(project.id) + '"]');
         if (!media) return;
         renderMedia(media, blob);
       }));
+      if (generation !== renderGeneration || !page.isConnected) return;
       const profileForm = page.querySelector('[data-profile-form]');
       await Promise.all([
-        hydrateEditorPreview(profileForm, 'avatar', 'avatar'),
-        hydrateEditorPreview(profileForm, 'cover', 'cover')
+        hydrateEditorPreview(profileForm, 'avatar', 'avatar', generation),
+        hydrateEditorPreview(profileForm, 'cover', 'cover', generation)
       ]);
     } catch (error) {
       console.warn('Profile images are unavailable:', error);
@@ -1162,6 +1169,7 @@
   }
 
   function renderProfile() {
+    const generation = ++renderGeneration;
     revokeObjectUrls();
     const profile = profileData();
     const projects = portfolioData();
@@ -1169,7 +1177,7 @@
     page.classList.add('wdgp-page');
     page.querySelector('.wdgf-page-head [data-feature-close]')?.remove();
     bindPage(page, profile, projects);
-    hydrateImages(page, profile, projects);
+    hydrateImages(page, profile, projects, generation);
     return page;
   }
 

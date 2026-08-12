@@ -672,9 +672,26 @@
 
   function openAiConfiguration() {
     setSettingsOpen(false);
-    const tab = Array.from(document.querySelectorAll('.tab')).find(button => button.getAttribute('onclick')?.includes("switchTab('ai'"));
-    if (typeof window.switchTab === 'function') window.switchTab('ai', tab || null);
-    document.getElementById('block-ai-custom')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (typeof window.WebDevGymNext?.open === 'function') {
+      window.WebDevGymNext.open('ai');
+    } else if (typeof window.switchTabByName === 'function') {
+      window.switchTabByName('ai');
+    } else {
+      const tab = Array.from(document.querySelectorAll('.tab')).find(button => button.getAttribute('onclick')?.includes("switchTab('ai'"));
+      if (typeof window.switchTab === 'function') window.switchTab('ai', tab || null);
+    }
+
+    let attempts = 0;
+    const focusConfiguration = () => {
+      const block = document.getElementById('block-ai-custom');
+      if (block) {
+        block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      attempts += 1;
+      if (attempts < 12) window.setTimeout(focusConfiguration, 50);
+    };
+    window.requestAnimationFrame(focusConfiguration);
   }
 
   function setSettingsOpen(force) {

@@ -8219,7 +8219,7 @@ function aiNormalizeHistory(history) {
       role: msg.role,
       content: msg.content.slice(0, 8000),
       display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined,
-      image: typeof msg.image === 'string' ? msg.image : undefined
+      image: typeof msg.image === 'string' && !msg.image.startsWith('data:') ? msg.image : undefined
     }))
     .slice(-AI_HISTORY_LIMIT);
 }
@@ -8322,6 +8322,28 @@ function aiReadAsDataUrl(file) {
   });
 }
 
+async function aiPrepareVisionDataUrl(file) {
+  if (file.size <= AI_ATTACH_VISION_MAX_BYTES) return aiReadAsDataUrl(file);
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 2048;
+    const ratio = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+    canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const compressed = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.82));
+    if (!compressed || compressed.size > AI_ATTACH_VISION_MAX_BYTES) return '';
+    return aiReadAsDataUrl(compressed);
+  } catch (error) {
+    return '';
+  }
+}
+
 async function aiHandleFiles(fileList) {
   const files = Array.from(fileList || []);
   if (!files.length) return;
@@ -8347,8 +8369,11 @@ async function aiHandleFiles(fileList) {
       textTruncated: false
     };
 
-    if (isImage && file.size <= AI_ATTACH_VISION_MAX_BYTES) {
-      att.dataUrl = await aiReadAsDataUrl(file);
+    if (isImage) {
+      att.dataUrl = await aiPrepareVisionDataUrl(file);
+      if (!att.dataUrl && typeof showToast === 'function') {
+        showToast('Не удалось подготовить изображение для vision-модели. Выбери меньший JPG, PNG или WebP файл.');
+      }
     }
 
     if (aiCanReadAsText(file)) {
@@ -8644,6 +8669,55 @@ function aiHandlePlaygroundToolCall(text) {
   }
 }
 
+function aiIsClaudeHub(baseUrl) {
+  try {
+    return new URL(String(baseUrl || '').trim()).hostname.toLowerCase() === 'api.claudehub.fun';
+  } catch (_) {
+    return /(^|\/)api\.claudehub\.fun(\/|$)/i.test(String(baseUrl || ''));
+  }
+}
+
+function aiNormalizeOpenAiBaseUrl(baseUrl) {
+  let clean = String(baseUrl || '').trim().replace(/\/+$/, '');
+  clean = clean.replace(/\/(?:chat\/completions|images\/generations)$/i, '');
+  if (aiIsClaudeHub(clean) && !/\/v1$/i.test(clean)) clean += '/v1';
+  return clean;
+}
+
+function aiCreateProviderError(response, payload) {
+  const error = payload?.error;
+  const message = typeof error === 'string' ? error
+    : error?.message || payload?.message || payload?.detail || ('HTTP ' + response.status);
+  const result = new Error(Array.isArray(message) ? JSON.stringify(message) : String(message));
+  result.status = response.status;
+  return result;
+}
+
+function aiProviderErrorMessage(error, customCfg) {
+  const status = Number(error?.status || 0);
+  const endpoint = aiNormalizeOpenAiBaseUrl(customCfg?.baseUrl) + '/chat/completions';
+  const model = customCfg?.model || 'unknown';
+  const lower = String(error?.message || '').toLowerCase();
+  let advice = '';
+  if (status === 401 || status === 403 || lower.includes('api key') || lower.includes('credentials')) {
+    advice = '\u041f\u0440\u043e\u0432\u0435\u0440\u044c API-\u043a\u043b\u044e\u0447 \u0438 \u0434\u043e\u0441\u0442\u0443\u043f \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u043e\u0439 \u043c\u043e\u0434\u0435\u043b\u0438.';
+  } else if (status === 402) {
+    advice = '\u041f\u0440\u043e\u0432\u0435\u0440\u044c \u0431\u0430\u043b\u0430\u043d\u0441 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u0430 \u0443 \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0430.';
+  } else if (status === 404 || lower.includes('not found') || lower.includes('endpoint')) {
+    advice = '\u041f\u0440\u043e\u0432\u0435\u0440\u044c Base URL, \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043c\u043e\u0434\u0435\u043b\u0438 \u0438 endpoint.';
+  } else if (status === 400 || status === 422 || lower.includes('invalid request parameter') || lower.includes('validation')) {
+    advice = aiIsClaudeHub(customCfg?.baseUrl)
+      ? '\u0421\u0435\u0440\u0432\u0435\u0440 \u043e\u0442\u043a\u043b\u043e\u043d\u0438\u043b \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b. \u0414\u043b\u044f ClaudeHub: Base URL https://api.claudehub.fun/v1, \u043c\u043e\u0434\u0435\u043b\u044c ch-5o \u0438\u043b\u0438 claude-opus-5.'
+      : '\u0421\u0435\u0440\u0432\u0435\u0440 \u043e\u0442\u043a\u043b\u043e\u043d\u0438\u043b \u0434\u0430\u0436\u0435 \u043c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u044b\u0439 OpenAI-\u0441\u043e\u0432\u043c\u0435\u0441\u0442\u0438\u043c\u044b\u0439 \u0437\u0430\u043f\u0440\u043e\u0441. \u041f\u0440\u043e\u0432\u0435\u0440\u044c Base URL, \u0442\u043e\u0447\u043d\u043e\u0435 \u0438\u043c\u044f \u043c\u043e\u0434\u0435\u043b\u0438 \u0438 \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0430.';
+  } else if (lower.includes('image') || lower.includes('vision') || lower.includes('content type')) {
+    advice = '\u041f\u0440\u043e\u0432\u0435\u0440\u044c \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0443 Vision \u0438 \u0444\u043e\u0440\u043c\u0430\u0442 \u0432\u043b\u043e\u0436\u0435\u043d\u0438\u0439.';
+  } else if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed')) {
+    advice = '\u041f\u0440\u043e\u0432\u0435\u0440\u044c \u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435, CORS \u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u044c \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u0430.';
+  }
+  const diagnostic = (status ? `HTTP ${status}\n` : '') + `Endpoint: ${endpoint}\nModel: ${model}`;
+  return '\u041e\u0448\u0438\u0431\u043a\u0430: ' + (error?.message || '\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f \u043e\u0448\u0438\u0431\u043a\u0430') + '\n\n' + diagnostic + (advice ? '\n\n' + advice : '');
+}
+
 // ---- Send message ----
 async function aiSend() {
   if (aiLoading) return;
@@ -8694,7 +8768,7 @@ async function aiSend() {
   const sendButton = document.getElementById('aiSendBtn');
   if (sendButton) sendButton.disabled = true;
 
-  const baseUrl = customCfg.baseUrl.replace(/\/$/, '');
+  const baseUrl = aiNormalizeOpenAiBaseUrl(customCfg.baseUrl);
   try {
     if (imageMode) {
       const response = await fetch(baseUrl + '/images/generations', {
@@ -8712,22 +8786,33 @@ async function aiSend() {
       aiSaveHistory();
       aiAddImageMsg(imageSource, "Сгенерированное изображение");
     } else {
-      const response = await fetch(baseUrl + '/chat/completions', {
+      const endpoint = baseUrl + '/chat/completions';
+      const messages = aiBuildMessagesForApi("Ты Frontend Mentor внутри WebDevGym. Отвечай кратко, понятно и по делу. Сначала объясняй механику и давай небольшие подсказки. Не выдавай полное решение, если пользователь просит обучение через практику.", userContent, sentAttachments, Boolean(customCfg.vision));
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + customCfg.apiKey,
+        ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'WebDevGym' } : {})
+      };
+      let response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + customCfg.apiKey,
-          ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'WebDevGym' } : {})
-        },
+        headers,
         body: JSON.stringify({
           model: customCfg.model,
-          messages: aiBuildMessagesForApi("Ты Frontend Mentor внутри WebDevGym. Отвечай кратко, понятно и по делу. Сначала объясняй механику и давай небольшие подсказки. Не выдавай полное решение, если пользователь просит обучение через практику.", userContent, sentAttachments, Boolean(customCfg.vision)),
+          messages,
           max_tokens: 1024,
-          temperature: 0.7
+          ...(aiIsClaudeHub(baseUrl) ? {} : { temperature: 0.7 })
         })
       });
-      const data = await response.json();
-      if (!response.ok || data.error) throw new Error(data.error?.message || 'HTTP ' + response.status);
+      let data = await response.json();
+      if ((!response.ok || data.error) && [400, 422].includes(response.status)) {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ model: customCfg.model, messages })
+        });
+        data = await response.json();
+      }
+      if (!response.ok || data.error) throw aiCreateProviderError(response, data);
       let reply = data.choices?.[0]?.message?.content || "Пустой ответ";
       document.getElementById(typingId)?.remove();
       const toolReply = aiHandlePlaygroundToolCall(reply);
@@ -8739,13 +8824,7 @@ async function aiSend() {
     }
   } catch (err) {
     document.getElementById(typingId)?.remove();
-    let errMsg = "Ошибка: " + err.message;
-    const lower = String(err.message || '').toLowerCase();
-    if (lower.includes('401') || lower.includes('api key') || lower.includes('credentials') || lower.includes('invalid')) errMsg += '\n\n' + "Проверь API-ключ и доступ выбранной модели.";
-    else if (lower.includes('404') || lower.includes('not found') || lower.includes('endpoint')) errMsg += '\n\n' + "Проверь Base URL, название модели и поддержку нужного endpoint.";
-    else if (lower.includes('image') || lower.includes('vision') || lower.includes('content type')) errMsg += '\n\n' + "Проверь, что у модели включены Vision или генерация изображений и что провайдер поддерживает эту функцию.";
-    else if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed')) errMsg += '\n\n' + "Проверь соединение, CORS и доступность провайдера.";
-    aiAddMsg('bot', errMsg);
+    aiAddMsg('bot', aiProviderErrorMessage(err, customCfg));
   } finally {
     aiLoading = false;
     if (sendButton) sendButton.disabled = false;
@@ -8853,22 +8932,38 @@ function aiGetCustomConfig() {
 
 const AI_PROVIDER_PRESETS = {
   'https://openrouter.ai/api/v1': { model: '' },
+  'https://api.claudehub.fun/v1': { model: '', placeholder: 'ch-5o или claude-opus-5' },
   'https://api.openai.com/v1': { model: '' },
   'https://api.together.xyz/v1': { model: '' },
   'https://api.mistral.ai/v1': { model: '' }
 };
 
+function aiEnsureProviderOptions() {
+  const provider = document.getElementById('ai-provider');
+  if (!provider || [...provider.options].some(option => option.value === 'https://api.claudehub.fun/v1')) return;
+  const option = document.createElement('option');
+  option.value = 'https://api.claudehub.fun/v1';
+  option.textContent = 'ClaudeHub';
+  const custom = [...provider.options].find(item => item.value === 'custom');
+  provider.insertBefore(option, custom || null);
+}
+
 function aiProviderPreset() {
+  aiEnsureProviderOptions();
   const provider = document.getElementById('ai-provider');
   const baseUrl = document.getElementById('ai-baseurl');
   const model = document.getElementById('ai-modelname');
   if (!provider || !baseUrl) return;
   baseUrl.value = provider.value === 'custom' ? '' : provider.value;
-  if (model && !model.value) model.placeholder = provider.value === 'custom' ? 'model-name' : 'Exact model name from provider';
+  const preset = AI_PROVIDER_PRESETS[provider.value];
+  if (model && !model.value) model.placeholder = provider.value === 'custom'
+    ? 'model-name'
+    : (preset?.placeholder || 'Exact model name from provider');
 }
 
 function aiSaveCustomConfig() {
-  const baseUrl = document.getElementById('ai-baseurl')?.value.trim() || '';
+  aiEnsureProviderOptions();
+  const baseUrl = aiNormalizeOpenAiBaseUrl(document.getElementById('ai-baseurl')?.value || '');
   const apiKey = document.getElementById('ai-apikey')?.value.trim() || '';
   const model = document.getElementById('ai-modelname')?.value.trim() || '';
   const vision = Boolean(document.querySelector('[data-ai-capability=\"vision\"]')?.checked);
@@ -8949,6 +9044,7 @@ function renderSavedModelsList() {
 }
 
 function aiRestoreConfigUI() {
+  aiEnsureProviderOptions();
   renderSavedModelsList();
   const provider = document.getElementById('ai-provider');
   const baseUrl = document.getElementById('ai-baseurl');

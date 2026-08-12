@@ -146,15 +146,12 @@ body.has-custom-bg > :is(
   .top-bar,
   .wrap,
   .wdg-commandbar,
-  .wdg-rightbar,
-  .wdgn-top,
-  .wdgn-overview,
-  .wdgn-sections-page,
-  .wdgf-feature-page
+  .wdg-rightbar
 ) { position: relative; z-index: 1; }
 body.has-custom-bg .wrap { background: rgba(7, 11, 18, .48) !important; backdrop-filter: none !important; }
 body.has-custom-bg .wdgf-feature-page { backdrop-filter: none !important; }
 body.wdgf-page-open .section.active { visibility: hidden !important; }
+body.wdgf-page-open.has-custom-bg .wrap { visibility: hidden !important; }
 body.wdgf-page-open .wdgf-feature-page:not(.open) { display: none !important; }
 
 @media (max-width: 760px) {

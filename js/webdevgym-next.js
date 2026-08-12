@@ -670,6 +670,12 @@ function continueLearning() {
     if (!learningPriority) setTimeout(openPriorityPicker, 980);
   }
 
+  window.WebDevGymNext = Object.freeze({
+    open: openView,
+    overview: showOverview,
+    current: () => currentView
+  });
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init,260), { once:true });
   else setTimeout(init,260);
 })();

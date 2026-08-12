@@ -8220,7 +8220,7 @@ function aiNormalizeHistory(history) {
       role: msg.role,
       content: msg.content.slice(0, 8000),
       display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined,
-      image: typeof msg.image === 'string' ? msg.image : undefined
+      image: typeof msg.image === 'string' && !msg.image.startsWith('data:') ? msg.image : undefined
     }))
     .slice(-AI_HISTORY_LIMIT);
 }
@@ -8266,7 +8266,10 @@ function aiRenderHistory() {
     if (quick) quick.style.display = 'flex';
     return;
   }
-  aiHistory.forEach(msg => aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.display || msg.content));
+  aiHistory.forEach(msg => {
+    if (msg.image) aiAddImageMsg(msg.image, msg.content);
+    else aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.display || msg.content);
+  });
   const quick = document.getElementById('aiQuickRow');
   if (quick) quick.style.display = 'none';
   aiScrollBottom();
@@ -8320,6 +8323,28 @@ function aiReadAsDataUrl(file) {
   });
 }
 
+async function aiPrepareVisionDataUrl(file) {
+  if (file.size <= AI_ATTACH_VISION_MAX_BYTES) return aiReadAsDataUrl(file);
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 2048;
+    const ratio = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+    canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const compressed = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.82));
+    if (!compressed || compressed.size > AI_ATTACH_VISION_MAX_BYTES) return '';
+    return aiReadAsDataUrl(compressed);
+  } catch (error) {
+    return '';
+  }
+}
+
 async function aiHandleFiles(fileList) {
   const files = Array.from(fileList || []);
   if (!files.length) return;
@@ -8345,8 +8370,11 @@ async function aiHandleFiles(fileList) {
       textTruncated: false
     };
 
-    if (isImage && file.size <= AI_ATTACH_VISION_MAX_BYTES) {
-      att.dataUrl = await aiReadAsDataUrl(file);
+    if (isImage) {
+      att.dataUrl = await aiPrepareVisionDataUrl(file);
+      if (!att.dataUrl && typeof showToast === 'function') {
+        showToast('The image could not be prepared for the vision model. Try a smaller JPG, PNG or WebP file.');
+      }
     }
 
     if (aiCanReadAsText(file)) {
@@ -8641,6 +8669,55 @@ function aiHandlePlaygroundToolCall(text) {
   }
 }
 
+function aiIsClaudeHub(baseUrl) {
+  try {
+    return new URL(String(baseUrl || '').trim()).hostname.toLowerCase() === 'api.claudehub.fun';
+  } catch (_) {
+    return /(^|\/)api\.claudehub\.fun(\/|$)/i.test(String(baseUrl || ''));
+  }
+}
+
+function aiNormalizeOpenAiBaseUrl(baseUrl) {
+  let clean = String(baseUrl || '').trim().replace(/\/+$/, '');
+  clean = clean.replace(/\/(?:chat\/completions|images\/generations)$/i, '');
+  if (aiIsClaudeHub(clean) && !/\/v1$/i.test(clean)) clean += '/v1';
+  return clean;
+}
+
+function aiCreateProviderError(response, payload) {
+  const error = payload?.error;
+  const message = typeof error === 'string' ? error
+    : error?.message || payload?.message || payload?.detail || ('HTTP ' + response.status);
+  const result = new Error(Array.isArray(message) ? JSON.stringify(message) : String(message));
+  result.status = response.status;
+  return result;
+}
+
+function aiProviderErrorMessage(error, customCfg) {
+  const status = Number(error?.status || 0);
+  const endpoint = aiNormalizeOpenAiBaseUrl(customCfg?.baseUrl) + '/chat/completions';
+  const model = customCfg?.model || 'unknown';
+  const lower = String(error?.message || '').toLowerCase();
+  let advice = '';
+  if (status === 401 || status === 403 || lower.includes('api key') || lower.includes('credentials')) {
+    advice = 'Check the API key and access to the selected model.';
+  } else if (status === 402) {
+    advice = 'Check the balance of your provider account.';
+  } else if (status === 404 || lower.includes('not found') || lower.includes('endpoint')) {
+    advice = 'Check the Base URL, model name, and endpoint.';
+  } else if (status === 400 || status === 422 || lower.includes('invalid request parameter') || lower.includes('validation')) {
+    advice = aiIsClaudeHub(customCfg?.baseUrl)
+      ? 'The server rejected the parameters. For ClaudeHub use Base URL https://api.claudehub.fun/v1 and model ch-5o or claude-opus-5.'
+      : 'The server rejected even the minimal OpenAI-compatible request. Check the Base URL, exact model name, and provider documentation.';
+  } else if (lower.includes('image') || lower.includes('vision') || lower.includes('content type')) {
+    advice = 'Check Vision support and the attachment format.';
+  } else if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed')) {
+    advice = 'Check the connection, CORS, and provider availability.';
+  }
+  const diagnostic = (status ? `HTTP ${status}\n` : '') + `Endpoint: ${endpoint}\nModel: ${model}`;
+  return 'Error: ' + (error?.message || 'unknown error') + '\n\n' + diagnostic + (advice ? '\n\n' + advice : '');
+}
+
 // ---- Send message ----
 async function aiSend() {
   if (aiLoading) return;
@@ -8691,7 +8768,7 @@ async function aiSend() {
   const sendButton = document.getElementById('aiSendBtn');
   if (sendButton) sendButton.disabled = true;
 
-  const baseUrl = customCfg.baseUrl.replace(/\/$/, '');
+  const baseUrl = aiNormalizeOpenAiBaseUrl(customCfg.baseUrl);
   try {
     if (imageMode) {
       const response = await fetch(baseUrl + '/images/generations', {
@@ -8709,22 +8786,33 @@ async function aiSend() {
       aiSaveHistory();
       aiAddImageMsg(imageSource, "Generated image");
     } else {
-      const response = await fetch(baseUrl + '/chat/completions', {
+      const endpoint = baseUrl + '/chat/completions';
+      const messages = aiBuildMessagesForApi("You are the Frontend Mentor inside WebDevGym. Be concise, clear, and practical. Explain the mechanics first and give small hints. Do not provide a complete solution when the user is learning through practice.", userContent, sentAttachments, Boolean(customCfg.vision));
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + customCfg.apiKey,
+        ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'WebDevGym' } : {})
+      };
+      let response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + customCfg.apiKey,
-          ...(baseUrl.includes('openrouter') ? { 'HTTP-Referer': window.location.href, 'X-Title': 'WebDevGym' } : {})
-        },
+        headers,
         body: JSON.stringify({
           model: customCfg.model,
-          messages: aiBuildMessagesForApi("You are the Frontend Mentor inside WebDevGym. Be concise, clear, and practical. Explain the mechanics first and give small hints. Do not provide a complete solution when the user is learning through practice.", userContent, sentAttachments, Boolean(customCfg.vision)),
+          messages,
           max_tokens: 1024,
-          temperature: 0.7
+          ...(aiIsClaudeHub(baseUrl) ? {} : { temperature: 0.7 })
         })
       });
-      const data = await response.json();
-      if (!response.ok || data.error) throw new Error(data.error?.message || 'HTTP ' + response.status);
+      let data = await response.json();
+      if ((!response.ok || data.error) && [400, 422].includes(response.status)) {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ model: customCfg.model, messages })
+        });
+        data = await response.json();
+      }
+      if (!response.ok || data.error) throw aiCreateProviderError(response, data);
       let reply = data.choices?.[0]?.message?.content || "Empty response";
       document.getElementById(typingId)?.remove();
       const toolReply = aiHandlePlaygroundToolCall(reply);
@@ -8736,13 +8824,7 @@ async function aiSend() {
     }
   } catch (err) {
     document.getElementById(typingId)?.remove();
-    let errMsg = "Error: " + err.message;
-    const lower = String(err.message || '').toLowerCase();
-    if (lower.includes('401') || lower.includes('api key') || lower.includes('credentials') || lower.includes('invalid')) errMsg += '\n\n' + "Check the API key and access to the selected model.";
-    else if (lower.includes('404') || lower.includes('not found') || lower.includes('endpoint')) errMsg += '\n\n' + "Check the Base URL, model name, and endpoint support.";
-    else if (lower.includes('image') || lower.includes('vision') || lower.includes('content type')) errMsg += '\n\n' + "Check that Vision or image generation is enabled and supported by the provider.";
-    else if (lower.includes('fetch') || lower.includes('network') || lower.includes('failed')) errMsg += '\n\n' + "Check the connection, CORS, and provider availability.";
-    aiAddMsg('bot', errMsg);
+    aiAddMsg('bot', aiProviderErrorMessage(err, customCfg));
   } finally {
     aiLoading = false;
     if (sendButton) sendButton.disabled = false;
@@ -8850,22 +8932,38 @@ function aiGetCustomConfig() {
 
 const AI_PROVIDER_PRESETS = {
   'https://openrouter.ai/api/v1': { model: '' },
+  'https://api.claudehub.fun/v1': { model: '', placeholder: 'ch-5o or claude-opus-5' },
   'https://api.openai.com/v1': { model: '' },
   'https://api.together.xyz/v1': { model: '' },
   'https://api.mistral.ai/v1': { model: '' }
 };
 
+function aiEnsureProviderOptions() {
+  const provider = document.getElementById('ai-provider');
+  if (!provider || [...provider.options].some(option => option.value === 'https://api.claudehub.fun/v1')) return;
+  const option = document.createElement('option');
+  option.value = 'https://api.claudehub.fun/v1';
+  option.textContent = 'ClaudeHub';
+  const custom = [...provider.options].find(item => item.value === 'custom');
+  provider.insertBefore(option, custom || null);
+}
+
 function aiProviderPreset() {
+  aiEnsureProviderOptions();
   const provider = document.getElementById('ai-provider');
   const baseUrl = document.getElementById('ai-baseurl');
   const model = document.getElementById('ai-modelname');
   if (!provider || !baseUrl) return;
   baseUrl.value = provider.value === 'custom' ? '' : provider.value;
-  if (model && !model.value) model.placeholder = provider.value === 'custom' ? 'model-name' : 'Exact model name from provider';
+  const preset = AI_PROVIDER_PRESETS[provider.value];
+  if (model && !model.value) model.placeholder = provider.value === 'custom'
+    ? 'model-name'
+    : (preset?.placeholder || 'Exact model name from provider');
 }
 
 function aiSaveCustomConfig() {
-  const baseUrl = document.getElementById('ai-baseurl')?.value.trim() || '';
+  aiEnsureProviderOptions();
+  const baseUrl = aiNormalizeOpenAiBaseUrl(document.getElementById('ai-baseurl')?.value || '');
   const apiKey = document.getElementById('ai-apikey')?.value.trim() || '';
   const model = document.getElementById('ai-modelname')?.value.trim() || '';
   const vision = Boolean(document.querySelector('[data-ai-capability=\"vision\"]')?.checked);
@@ -8946,6 +9044,7 @@ function renderSavedModelsList() {
 }
 
 function aiRestoreConfigUI() {
+  aiEnsureProviderOptions();
   renderSavedModelsList();
   const provider = document.getElementById('ai-provider');
   const baseUrl = document.getElementById('ai-baseurl');

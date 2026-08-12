@@ -30,7 +30,6 @@ body.wdgn-ready.dark {
 }
 body.wdgn-ready::before,
 body.wdgn-ready::after { display: none !important; }
-body.wdgn-ready #customBgLayer,
 body.wdgn-ready .top-bar,
 body.wdgn-ready .wdg-commandbar,
 body.wdgn-ready .wdg-rightbar,
@@ -40,6 +39,16 @@ body.wdgn-ready .wdg-mobile-dock,
 body.wdgn-ready .wdg-mobile-backdrop,
 body.wdgn-ready .wdg-mobile-tools,
 body.wdgn-ready .settings-btn { display: none !important; }
+
+body.wdgn-ready.has-custom-bg #customBgLayer {
+  display: block !important;
+}
+
+body.wdgn-ready.has-custom-bg .wdgn-overview,
+body.wdgn-ready.has-custom-bg .wdgn-sections-page,
+body.wdgn-ready.has-custom-bg .wdgf-feature-page {
+  background: rgba(8, 10, 15, .76) !important;
+}
 
 body.wdgn-ready .wdgr-settings-view,
 body.wdgn-ready .ai-chat-win.wdgr-ai {

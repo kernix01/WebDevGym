@@ -53,7 +53,7 @@
     const sidebar = document.createElement('aside');
     sidebar.className = 'wdg-sidebar';
     sidebar.innerHTML =
-      '<div class="wdg-brand"><img class="wdg-brand-mark" src="favicon.svg?v=20260812-1" alt=""><span>WebDev<em>Gym</em></span></div>' +
+      '<div class="wdg-brand"><img class="wdg-brand-mark" src="favicon.svg?v=20260812-2" alt=""><span>WebDev<em>Gym</em></span></div>' +
       '<div class="wdg-progress-card">' +
         '<div class="wdg-progress-label">' + copy.progress + '</div>' +
         '<div class="wdg-progress-ring" id="wdgProgressRing"><div class="wdg-progress-copy"><strong id="wdgProgressPct">0%</strong><span>' + copy.course + '</span></div></div>' +
@@ -122,15 +122,7 @@
   }
 
   function buildBottomDock() {
-    const dock = document.createElement('div');
-    dock.className = 'wdg-bottom-dock';
-    dock.innerHTML =
-      '<button class="wdg-dock-btn" type="button" id="wdgPrev">' + icon('tabler:arrow-left', 15) + ' ' + copy.previous + '</button>' +
-      '<div class="wdg-dock-track"><div class="wdg-dock-fill" id="wdgDockFill"></div><span class="wdg-dock-dot" id="wdgDockDot"></span></div>' +
-      '<button class="wdg-dock-btn primary" type="button" id="wdgNext">' + copy.next + ' ' + icon('tabler:arrow-right', 15) + '</button>';
-    document.body.appendChild(dock);
-    dock.querySelector('#wdgPrev').addEventListener('click', function () { moveBlock(-1); });
-    dock.querySelector('#wdgNext').addEventListener('click', function () { moveBlock(1); });
+    document.querySelectorAll('.wdg-bottom-dock').forEach(dock => dock.remove());
   }
 
   function activeSection() {
