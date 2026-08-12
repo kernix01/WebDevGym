@@ -913,7 +913,11 @@
 }
 
 .wdga-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: auto !important;
   width: min(560px, calc(100vw - 28px));
+  max-height: min(760px, calc(100dvh - 28px));
   border: 1px solid var(--wdga-border);
   border-radius: 5px;
   background: var(--wdga-sidebar);
@@ -951,7 +955,7 @@
 }
 
 .wdga-dialog-body {
-  max-height: min(60vh, 520px);
+  max-height: min(68dvh, 560px);
   overflow: auto;
   padding: 14px;
 }

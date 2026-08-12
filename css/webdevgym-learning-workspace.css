@@ -511,8 +511,8 @@ body:not(.dark).wdgn-ready .wdgl-notes textarea { background: #fff; color: #1118
   .wdgl-title-row h1 { font-size: 21px; }
   .wdgl-icon-btn { width: 30px; height: 30px; }
   .wdgl-timeline {
-    margin-right: -16px;
-    padding: 2px 16px 8px 0;
+    margin-right: 0;
+    padding: 2px 12px 8px 0;
     display: flex;
     gap: 16px;
     overflow-x: auto;

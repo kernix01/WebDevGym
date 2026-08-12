@@ -53,7 +53,7 @@
     const sidebar = document.createElement('aside');
     sidebar.className = 'wdg-sidebar';
     sidebar.innerHTML =
-      '<div class="wdg-brand"><span class="wdg-brand-mark">&lt;&gt;</span><span>WebDev<em>Gym</em></span></div>' +
+      '<div class="wdg-brand"><img class="wdg-brand-mark" src="favicon.svg?v=20260812-1" alt=""><span>WebDev<em>Gym</em></span></div>' +
       '<div class="wdg-progress-card">' +
         '<div class="wdg-progress-label">' + copy.progress + '</div>' +
         '<div class="wdg-progress-ring" id="wdgProgressRing"><div class="wdg-progress-copy"><strong id="wdgProgressPct">0%</strong><span>' + copy.course + '</span></div></div>' +

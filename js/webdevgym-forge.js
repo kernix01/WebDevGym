@@ -97,7 +97,7 @@
           '',
           'let score = 0;',
           '',
-          '// Продолжи самостоятельно'
+          L('// Continue independently', '// \u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438 \u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u043e')
         )
       }
     },
@@ -521,7 +521,21 @@
       };
       saveForge();
     }
-    return forgeState.workspaces[id];
+    const current = forgeState.workspaces[id];
+    if (id === 'counter' && typeof current.js === 'string') {
+      const correctedLine = L('// Continue independently', '// \u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438 \u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u043e');
+      const migrated = current.js.split('\n').map(line => (
+        /(?:Continue independently|\u041f\u0440\u043e\u0434\u043e\u043b\u0436[^\n]*\u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u043e)/i.test(line)
+          ? correctedLine
+          : line
+      )).join('\n');
+      if (migrated !== current.js) {
+        current.js = migrated;
+        current.updatedAt = Date.now();
+        saveForge();
+      }
+    }
+    return current;
   }
 
   function saveForge() {

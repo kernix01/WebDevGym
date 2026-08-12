@@ -7,6 +7,14 @@ const extensionSource = fs.readFileSync(
   path.join(root, 'data', 'curriculum-depth-2026.js'),
   'utf8'
 );
+const auditSource = fs.readFileSync(
+  path.join(root, 'data', 'curriculum-audit-2026.js'),
+  'utf8'
+);
+const correctionsSource = fs.readFileSync(
+  path.join(root, 'data', 'curriculum-corrections-2026.js'),
+  'utf8'
+);
 const orderSource = fs.readFileSync(
   path.join(root, 'data', 'curriculum-order-2026.js'),
   'utf8'
@@ -20,6 +28,8 @@ function load(locale) {
     context
   );
   vm.runInContext(extensionSource, context);
+  vm.runInContext(auditSource, context);
+  vm.runInContext(correctionsSource, context);
   vm.runInContext(orderSource, context);
   return {
     data: context.window.WebDevGymCurriculumData,
@@ -44,8 +54,8 @@ const enLessons = lessons(en);
 const ruIds = ruLessons.map(lesson => lesson.id);
 const enIds = enLessons.map(lesson => lesson.id);
 
-if (ruLessons.length !== 222 || enLessons.length !== 222) {
-  errors.push(`Expected 222 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
+if (ruLessons.length !== 255 || enLessons.length !== 255) {
+  errors.push(`Expected 255 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
 }
 
 if (new Set(ruIds).size !== ruIds.length) errors.push('RU contains duplicate lesson ids.');
@@ -102,6 +112,52 @@ for (const lesson of depthLessons) {
   }
   if (!lesson.html.includes('prog-cb')) {
     errors.push(`${lesson.sectionId}/${lesson.id} has no mastery checklist.`);
+  }
+}
+
+const auditedLessons = [...ruLessons, ...enLessons].filter(lesson => (
+  lesson.html.includes('wdg-audited-lesson')
+));
+
+if (auditedLessons.length !== 66) {
+  errors.push(`Expected 66 localized audit lessons, got ${auditedLessons.length}.`);
+}
+
+for (const lesson of auditedLessons) {
+  if (!lesson.html.includes(`id="${lesson.id}"`)) {
+    errors.push(`${lesson.sectionId}/${lesson.id} does not render its own id.`);
+  }
+  if (!lesson.html.includes('class="code"')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} has no code/example block.`);
+  }
+  if (!lesson.html.includes('class="explain"')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} has no detailed explanation.`);
+  }
+  if (!lesson.html.includes('prog-cb')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} has no mastery checklist.`);
+  }
+  if (!lesson.html.includes('wdg-depth-docs') || !lesson.html.includes('https://')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} has no official documentation link.`);
+  }
+}
+
+const correctedLessons = [...ruLessons, ...enLessons].filter(lesson => (
+  lesson.html.includes('wdg-fact-checked-lesson')
+));
+
+if (correctedLessons.length !== 12) {
+  errors.push(`Expected 12 localized fact-checked lessons, got ${correctedLessons.length}.`);
+}
+
+for (const lesson of correctedLessons) {
+  if (!lesson.html.includes('class="code"') || !lesson.html.includes('class="explain"')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} is missing its corrected example or explanation.`);
+  }
+  if (!lesson.html.includes('prog-cb')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} lost its existing progress checklist.`);
+  }
+  if (!lesson.html.includes('wdg-depth-docs') || !lesson.html.includes('https://')) {
+    errors.push(`${lesson.sectionId}/${lesson.id} has no official source after correction.`);
   }
 }
 

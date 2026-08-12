@@ -172,11 +172,10 @@
   }
 
   function logoMarkup(className = 'wdgn-brand-mark') {
-    return `<svg class="${className}" viewBox="0 0 70 48" fill="none" aria-hidden="true">
-      <path d="M17 8L4 24L17 40L28 25" stroke="#a855f7" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M26 25L35 37L44 17L54 31L64 17" stroke="#2dd4a8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="64" cy="8" r="3.5" fill="#2dd4a8"/>
-      <path d="M64 11V17" stroke="#2dd4a8" stroke-width="3" stroke-linecap="round"/>
+    return `<svg class="${className}" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M19 15 7 32l12 17" stroke="#a855f7" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"/>
+      <path d="m45 15 12 17-12 17" stroke="#a855f7" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"/>
+      <path d="m24 41 8-19 8 19" stroke="#2dd4a8" stroke-width="6" stroke-linecap="square" stroke-linejoin="round"/>
     </svg>`;
   }
 

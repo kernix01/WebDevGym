@@ -34,15 +34,15 @@ body.wdg-modern:not(.dark) #splash-screen.splash-hidden {
 }
 
 #splash-screen .splash-icon {
-  width: 112px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   margin-bottom: 22px;
   filter: drop-shadow(0 0 22px rgba(124, 58, 237, .28));
 }
 
 #splash-screen .splash-logo {
   display: block;
-  width: 112px;
+  width: 72px;
   height: 72px;
 }
 
@@ -135,8 +135,8 @@ body.wdg-modern:not(.dark) #splash-screen.splash-hidden {
 @media (max-width: 480px) {
   #splash-screen .splash-icon,
   #splash-screen .splash-logo {
-    width: 96px;
-    height: 62px;
+    width: 64px;
+    height: 64px;
   }
 
   #splash-screen .splash-icon { margin-bottom: 18px; }
@@ -155,4 +155,3 @@ body.wdg-modern:not(.dark) #splash-screen.splash-hidden {
 
   #splash-screen .splash-progress span:first-child::after { transform: scaleX(1); }
 }
-

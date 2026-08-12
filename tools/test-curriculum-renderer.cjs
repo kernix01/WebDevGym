@@ -14,6 +14,14 @@ const depthSource = fs.readFileSync(
   path.join(ROOT, 'data', 'curriculum-depth-2026.js'),
   'utf8'
 );
+const auditSource = fs.readFileSync(
+  path.join(ROOT, 'data', 'curriculum-audit-2026.js'),
+  'utf8'
+);
+const correctionsSource = fs.readFileSync(
+  path.join(ROOT, 'data', 'curriculum-corrections-2026.js'),
+  'utf8'
+);
 const orderSource = fs.readFileSync(
   path.join(ROOT, 'data', 'curriculum-order-2026.js'),
   'utf8'
@@ -26,6 +34,8 @@ for (const locale of ['ru', 'en']) {
     dataSandbox
   );
   vm.runInNewContext(depthSource, dataSandbox);
+  vm.runInNewContext(auditSource, dataSandbox);
+  vm.runInNewContext(correctionsSource, dataSandbox);
   vm.runInNewContext(orderSource, dataSandbox);
   const data = dataSandbox.window.WebDevGymCurriculumData;
   const sections = new Map();

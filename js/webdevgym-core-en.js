@@ -8441,11 +8441,11 @@ function aiBuildCurrentUserContent(text, attachments) {
 }
 
 function aiBuildUserApiContent(textContent, attachments, allowVision) {
-  const imageParts = allowVision
-    ? attachments
-        .filter(att => att.isImage && att.dataUrl)
-        .map(att => ({ type: 'image_url', image_url: { url: att.dataUrl } }))
-    : [];
+  // Send every image that was successfully read. Vision providers require
+  // image_url content; a stale or missing capability checkbox must not strip it.
+  const imageParts = attachments
+    .filter(att => att.isImage && att.dataUrl)
+    .map(att => ({ type: 'image_url', image_url: { url: att.dataUrl } }));
   if (!imageParts.length) return textContent;
   return [{ type: 'text', text: textContent }, ...imageParts];
 }

@@ -896,11 +896,18 @@
 
   function safeExportKeys() {
     const safe = {};
-    const prefixes = ['prog_','quiz_passed_','book_','note_','wdg_','webdevgym_calendar','webdevgym_calendar_note','webdevgym_nexus'];
+    const prefixes = [
+      'prog_','quiz_passed_','book_','note_','cb_','bm_',
+      'wdg_','wdgl_','wdgn_','wdgr_','wdgp_',
+      'webdevgym_','webdevgym_calendar','webdevgym_calendar_note','webdevgym_nexus'
+    ];
     const sensitive = /(token|api.?key|secret|password|credential|vault)/i;
     Object.keys(localStorage).forEach(key => {
       if (sensitive.test(key) || key === 'wdg_recovery_v1') return;
-      if (prefixes.some(prefix => key.startsWith(prefix)) || ['darkMode','theme','custom_css'].includes(key)) safe[key] = localStorage.getItem(key);
+      if (prefixes.some(prefix => key.startsWith(prefix)) || [
+        'darkMode','theme','custom_css','customBgOpacity','customBgPosX','customBgPosY','customBgSize',
+        'pomo_durations','clickSounds'
+      ].includes(key)) safe[key] = localStorage.getItem(key);
     });
     return safe;
   }
@@ -942,8 +949,10 @@
               Object.entries(data.quizzes || {}).forEach(([id,value]) => value === '1' && localStorage.setItem('quiz_passed_' + id,'1'));
             }
             if (typeof window.restoreProgressCheckboxes === 'function') window.restoreProgressCheckboxes();
+            document.dispatchEvent(new CustomEvent('webdevgym:progress-imported', { detail: { storage: data.storage || {} } }));
             notify(t.imported);
             refreshProfileNav();
+            window.setTimeout(() => window.location.reload(), 180);
           } catch (error) { notify(isEnglish ? 'Invalid WebDevGym backup' : 'Это не резервная копия WebDevGym'); }
         };
         reader.readAsText(file);

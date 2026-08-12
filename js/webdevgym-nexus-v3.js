@@ -87,6 +87,8 @@
     dragging: null,
     panning: null,
     frame: 0,
+    miniFrame: 0,
+    searchFrame: 0,
     timer: 0,
     wasActive: false,
     compact: false
@@ -339,13 +341,20 @@
     nodeLayer.innerHTML = [...state.nodes.values()].filter(node => visible.has(node.id)).map(node => nodeMarkup(node, path)).join('');
     applyCamera();
     bindGraphNodes();
-    renderMinimap();
   }
 
   function applyCamera() {
     const world = state.root?.querySelector('[data-nx-world]');
     if (world) world.setAttribute('transform', `translate(${state.camera.x} ${state.camera.y}) scale(${state.camera.zoom})`);
-    renderMinimap();
+    scheduleMinimap();
+  }
+
+  function scheduleMinimap() {
+    if (state.miniFrame || document.hidden || !state.root?.classList.contains('active')) return;
+    state.miniFrame = requestAnimationFrame(() => {
+      state.miniFrame = 0;
+      renderMinimap();
+    });
   }
 
   function clientToWorld(clientX, clientY) {
@@ -383,7 +392,7 @@
         node.x = nextX; node.y = nextY;
         state.dragging.moved ||= Math.hypot(point.x - state.dragging.lastX, point.y - state.dragging.lastY) > 2;
         state.dragging.lastX = point.x; state.dragging.lastY = point.y; state.dragging.lastTime = now;
-        updateNode(node); renderMinimap();
+        updateNode(node); scheduleMinimap();
       });
       const finish = event => {
         if (!state.dragging || state.dragging.node.id !== element.dataset.nxNode) return;
@@ -400,12 +409,22 @@
 
   function startInertia(node) {
     cancelAnimationFrame(state.frame);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      saveGraph();
+      return;
+    }
+    let frames = 0;
     const tick = () => {
+      if (document.hidden || !state.root?.classList.contains('active')) {
+        saveGraph();
+        return;
+      }
       node.vx *= 0.84; node.vy *= 0.84;
       node.x = Math.max(70, Math.min(1430, node.x + node.vx));
       node.y = Math.max(70, Math.min(790, node.y + node.vy));
-      updateNode(node); renderMinimap();
-      if (Math.hypot(node.vx, node.vy) > 0.18) state.frame = requestAnimationFrame(tick);
+      updateNode(node); scheduleMinimap();
+      frames += 1;
+      if (frames < 90 && Math.hypot(node.vx, node.vy) > 0.18) state.frame = requestAnimationFrame(tick);
       else saveGraph();
     };
     state.frame = requestAnimationFrame(tick);
@@ -650,8 +669,16 @@
 
     root.addEventListener('input', event => {
       if (event.target.matches('[data-nx-search]')) {
-        state.query = event.target.value; renderExplorer(); renderGraph();
-        requestAnimationFrame(() => { const input = root.querySelector('[data-nx-search]'); input?.focus(); input?.setSelectionRange(state.query.length, state.query.length); });
+        state.query = event.target.value;
+        cancelAnimationFrame(state.searchFrame);
+        state.searchFrame = requestAnimationFrame(() => {
+          state.searchFrame = 0;
+          renderExplorer();
+          renderGraph();
+          const input = root.querySelector('[data-nx-search]');
+          input?.focus();
+          input?.setSelectionRange(state.query.length, state.query.length);
+        });
       }
       if (event.target.matches('[data-nx-note-title], [data-nx-note-body]')) saveEditor();
     });
@@ -688,7 +715,7 @@
           renderInspector();
         }
         state.compact = compact;
-        renderMinimap();
+        scheduleMinimap();
       }, 120);
     });
   }
@@ -697,17 +724,26 @@
     setTimeout(() => {
       if (installShell() && state.root?.classList.contains('active')) setTimeout(fitGraph, 100);
       state.wasActive = Boolean(state.root?.classList.contains('active'));
-      const observer = new MutationObserver(() => {
-        const section = document.getElementById('sec-nexus');
-        if (section && section.dataset.nexusV3 !== '1') {
-          setTimeout(installShell, 260);
-          return;
-        }
+      const watchSection = section => {
+        const observer = new MutationObserver(() => {
         const isActive = Boolean(section?.classList.contains('active'));
         if (isActive && !state.wasActive) setTimeout(fitGraph, 80);
         state.wasActive = isActive;
-      });
-      observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+        });
+        observer.observe(section, { attributes: true, attributeFilter: ['class'] });
+      };
+      const section = document.getElementById('sec-nexus');
+      if (section) watchSection(section);
+      else {
+        const mountObserver = new MutationObserver(() => {
+          const mounted = document.getElementById('sec-nexus');
+          if (!mounted) return;
+          installShell();
+          watchSection(mounted);
+          mountObserver.disconnect();
+        });
+        mountObserver.observe(document.body, { childList: true, subtree: true });
+      }
       window.WebDevGymNexusV3 = { fit: fitGraph, refresh: () => { state.root?.removeAttribute('data-nexus-v3'); installShell(); }, version: 3 };
     }, 440);
   }

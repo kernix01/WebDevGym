@@ -680,6 +680,7 @@ body.wdgp-media-fullscreen-open {
 }
 
 .wdgp-achievement {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -689,6 +690,25 @@ body.wdgp-media-fullscreen-open {
   padding: 10px;
   opacity: 0.46;
 }
+
+.wdgp-achievement-hide {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  flex: 0 0 26px;
+  place-items: center;
+  margin-left: auto;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--wdgp-muted);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.wdgp-achievement:hover .wdgp-achievement-hide,
+.wdgp-achievement:focus-within .wdgp-achievement-hide { opacity: 1; }
+.wdgp-achievement-hide:hover { color: #fb7185; background: rgba(251, 113, 133, .1); }
 
 .wdgp-achievement.earned {
   border-color: #5d2b82;

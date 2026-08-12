@@ -8443,11 +8443,12 @@ function aiBuildCurrentUserContent(text, attachments) {
 }
 
 function aiBuildUserApiContent(textContent, attachments, allowVision) {
-  const imageParts = allowVision
-    ? attachments
-        .filter(att => att.isImage && att.dataUrl)
-        .map(att => ({ type: 'image_url', image_url: { url: att.dataUrl } }))
-    : [];
+  // A real attached image is stronger evidence than a manually configured
+  // capability flag. OpenAI-compatible vision endpoints ignore the extra
+  // metadata flag and require the image_url part in the user message itself.
+  const imageParts = attachments
+    .filter(att => att.isImage && att.dataUrl)
+    .map(att => ({ type: 'image_url', image_url: { url: att.dataUrl } }));
   if (!imageParts.length) return textContent;
   return [{ type: 'text', text: textContent }, ...imageParts];
 }

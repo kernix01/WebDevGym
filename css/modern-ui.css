@@ -66,8 +66,10 @@ body.wdg-modern::after { display: none !important; }
 }
 
 .wdg-brand-mark {
-  color: var(--wdg-accent);
-  font: 800 23px/1 "JetBrains Mono", monospace;
+  width: 30px;
+  height: 30px;
+  display: block;
+  object-fit: contain;
 }
 
 .wdg-brand em { color: var(--wdg-accent); font-style: normal; }
