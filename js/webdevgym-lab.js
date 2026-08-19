@@ -11,7 +11,7 @@
     subtitle:L('Focused tools for understanding code, checking knowledge and working with technical briefs','Точечные тренажёры для понимания кода, проверки знаний и работы с техническими заданиями'),
     lab:L('Trainers','Тренажёры'), exam:L('Exam','Экзамен'), errors:L('Error log','История ошибок'),
     cards:L('Custom flashcards','Свои карточки'), review:L('Code review','Ревью кода'), sorter:L('What goes where','Что куда'),
-    briefMode:L('Project brief','Рабочий бриф'), xray:'Code X-Ray', domcss:L('Interface / CSS Lab','Интерфейс / CSS Lab'), a11y:'Accessibility Lab', local:L('Saved locally','Сохраняется локально'),
+    briefMode:L('Project brief','Рабочий бриф'), xray:'Code X-Ray', domcss:L('Interface / CSS Lab','Интерфейс / CSS Lab'), a11y:'Accessibility Lab', apiLab:'API Lab', local:L('Saved locally','Сохраняется локально'),
     start:L('Start','Начать'), next:L('Next','Дальше'), finish:L('Finish','Завершить'), reset:L('Reset','Сбросить'),
     add:L('Add','Добавить'), remove:L('Remove','Удалить'), open:L('Open','Открыть'), done:L('Done','Готово'),
     question:L('Question','Вопрос'), answer:L('Answer','Ответ'), score:L('Score','Счёт'), best:L('Best result','Лучший результат'),
@@ -22,7 +22,8 @@
     ['exam',c.exam,'tabler:certificate'],['errors',c.errors,'tabler:bug'],
     ['cards',c.cards,'tabler:cards'],['review',c.review,'tabler:list-check'],
     ['sorter',c.sorter,'tabler:arrows-sort'],['briefMode',c.briefMode,'tabler:swords'],
-    ['xray',c.xray,'tabler:xray'],['domcss',c.domcss,'tabler:hierarchy-2'],['a11y',c.a11y,'tabler:accessible']
+    ['xray',c.xray,'tabler:xray'],['domcss',c.domcss,'tabler:hierarchy-2'],['a11y',c.a11y,'tabler:accessible'],
+    ['apiLab',c.apiLab,'tabler:api']
   ];
   const validTools = new Set(toolDefs.map(tool => tool[0]));
   const defaults = () => ({
@@ -71,8 +72,9 @@
     clearInterval(battleTimer);
     battleTimer = null;
     window.WebDevGymStudioLabs?.destroy?.();
+    window.WebDevGymApiLab?.destroy?.();
     const studio = id => () => window.WebDevGymStudioLabs?.render?.(id,target());
-    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,briefMode:renderBrief,xray:studio('xray'),domcss:studio('domcss'),a11y:studio('a11y')};
+    const renderers = {exam:renderExam,errors:renderErrors,cards:renderCards,review:renderReview,sorter:renderSorter,briefMode:renderBrief,xray:studio('xray'),domcss:studio('domcss'),a11y:studio('a11y'),apiLab:() => window.WebDevGymApiLab?.render?.(target(),{activity:log})};
     (renderers[activeTool] || renderExam)();
   }
   function switchTool(id) {

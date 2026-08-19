@@ -114,6 +114,9 @@ body:not(.dark) .wdgt-code-shell textarea { color: #233044; }
 body:not(.dark) .wdgt-preview-canvas { background-color: #e9eef5; background-image: none; }
 body:not(.dark) .wdgt-exercise-list > button:hover { background: #edf2f8; }
 .wdgt-app.interview-mode { overflow: hidden; }
+.wdgt-app.api-mode { overflow: hidden; }
+.wdgt-api-view { height: calc(100% - 49px); overflow: auto; padding: 12px; background: var(--wdgt-bg); }
+.wdgt-api-view .wdgapi { min-height: 100%; }
 .wdgt-interview-stats { display: flex; align-items: center; gap: 14px; color: var(--wdgt-muted); font-size: 11px; }
 .wdgt-interview-stats span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .wdgt-interview-stats strong { color: var(--wdgt-text); font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -173,6 +176,7 @@ body:not(.dark) .wdgt-reference p { color: #315f55; }
   .wdgt-page .wdgf-page-head { position: sticky; top: 0; z-index: 8; }
   .wdgt-page .wdgf-page-head p { display: none; }
   .wdgt-app { height: auto; min-height: calc(100dvh - 59px); overflow: visible; }
+  .wdgt-api-view { height: auto; min-height: calc(100dvh - 108px); overflow: visible; padding: 8px; }
   .wdgt-toolbar { position: sticky; top: 59px; z-index: 7; flex-wrap: wrap; }
   .wdgt-modes { flex: 1; }
   .wdgt-modes button { flex: 1; padding-inline: 8px; }

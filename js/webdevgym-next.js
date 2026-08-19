@@ -164,6 +164,8 @@
   let sectionsMode = 'routes';
 
   let currentView = 'overview';
+  let navigationHistoryReady = false;
+  let restoringNavigationHistory = false;
   let overview;
   let sectionsPage;
 
@@ -244,6 +246,9 @@ function continueLearning() {
   function setActive(id) {
     currentView = id;
     document.querySelectorAll('.wdgn-nav-btn').forEach(button => button.classList.toggle('active', button.dataset.view === id));
+    if (navigationHistoryReady && !restoringNavigationHistory && history.state?.wdgnView !== id) {
+      history.pushState({ ...(history.state || {}), wdgnView: id }, '');
+    }
   }
 
   function showOverview() {
@@ -666,6 +671,13 @@ function continueLearning() {
     buildSectionsPage();
     observeProgress();
     showOverview();
+    history.replaceState({ ...(history.state || {}), wdgnView: currentView }, '');
+    navigationHistoryReady = true;
+    window.addEventListener('popstate', event => {
+      restoringNavigationHistory = true;
+      openView(event.state?.wdgnView || 'overview');
+      restoringNavigationHistory = false;
+    });
     setTimeout(() => document.getElementById('splash-screen')?.classList.add('hide', 'splash-hidden'), 780);
     if (!learningPriority) setTimeout(openPriorityPicker, 980);
   }

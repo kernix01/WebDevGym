@@ -19,6 +19,7 @@
     tasks: L('Tasks', 'Задачи'),
     debug: L('Debug', 'Отладка'),
     projects: L('Mini-projects', 'Мини-проекты'),
+    apiLab: 'API Lab',
     exercises: L('Exercises', 'Задания'),
     search: L('Find an exercise...', 'Найти задание...'),
     all: L('All', 'Все'),
@@ -309,6 +310,7 @@ reset.addEventListener("click", () => {
   ].map(([id, category, question, answer]) => ({ id, category, question, answer }));
 
   const state = readState();
+  const trainerModes = ['tasks', 'debug', 'projects', 'interview', 'api'];
   let api = null;
   let page = null;
   let previewFrame = null;
@@ -365,7 +367,7 @@ reset.addEventListener("click", () => {
   }
 
   function modeLabel(mode) {
-    return mode === 'interview' ? copy.interview : mode === 'debug' ? copy.debug : mode === 'projects' ? copy.projects : copy.tasks;
+    return mode === 'api' ? copy.apiLab : mode === 'interview' ? copy.interview : mode === 'debug' ? copy.debug : mode === 'projects' ? copy.projects : copy.tasks;
   }
 
   function categoryLabel(category) {
@@ -386,7 +388,13 @@ reset.addEventListener("click", () => {
   function renderApp() {
     const root = page.querySelector('[data-wdgt-app]');
     clearInterval(interviewTimer);
+    window.WebDevGymApiLab?.destroy?.();
     root.classList.toggle('interview-mode', state.mode === 'interview');
+    root.classList.toggle('api-mode', state.mode === 'api');
+    if (state.mode === 'api') {
+      renderApiLab(root);
+      return;
+    }
     if (state.mode === 'interview') {
       renderInterview(root);
       return;
@@ -402,7 +410,7 @@ reset.addEventListener("click", () => {
     root.innerHTML = `
       <header class="wdgt-toolbar">
         <div class="wdgt-modes" role="tablist" aria-label="${escapeHtml(copy.title)}">
-          ${['tasks', 'debug', 'projects', 'interview'].map(mode => `
+          ${trainerModes.map(mode => `
             <button type="button" data-wdgt-mode="${mode}" class="${state.mode === mode ? 'active' : ''}">
               ${escapeHtml(modeLabel(mode))}
             </button>`).join('')}
@@ -507,7 +515,7 @@ reset.addEventListener("click", () => {
 
   function setMode(mode) {
     state.mode = mode;
-    if (mode !== 'interview') {
+    if (!['interview', 'api'].includes(mode)) {
       state.exerciseId = exercises.find(item => item.mode === mode)?.id || exercises[0].id;
       state.category = 'all';
       state.search = '';
@@ -516,6 +524,26 @@ reset.addEventListener("click", () => {
     }
     saveState();
     renderApp();
+  }
+
+  function renderApiLab(root) {
+    root.innerHTML = `
+      <header class="wdgt-toolbar">
+        <div class="wdgt-modes" role="tablist" aria-label="${escapeHtml(copy.title)}">
+          ${trainerModes.map(mode => `
+            <button type="button" data-wdgt-mode="${mode}" class="${state.mode === mode ? 'active' : ''}">
+              ${escapeHtml(modeLabel(mode))}
+            </button>`).join('')}
+        </div>
+        <div class="wdgt-actions">
+          <span class="wdgt-save">${icon('tabler:database', 15)} ${escapeHtml(copy.saved)}</span>
+        </div>
+      </header>
+      <div class="wdgt-api-view" data-wdgt-api-view></div>`;
+    root.querySelectorAll('[data-wdgt-mode]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.wdgtMode)));
+    window.WebDevGymApiLab?.render?.(root.querySelector('[data-wdgt-api-view]'), {
+      activity(amount) { api?.logActivity?.(amount); }
+    });
   }
 
   function interviewPool() {
@@ -547,7 +575,7 @@ reset.addEventListener("click", () => {
     root.innerHTML = `
       <header class="wdgt-toolbar">
         <div class="wdgt-modes" role="tablist" aria-label="${escapeHtml(copy.title)}">
-          ${['tasks', 'debug', 'projects', 'interview'].map(mode => `
+          ${trainerModes.map(mode => `
             <button type="button" data-wdgt-mode="${mode}" class="${state.mode === mode ? 'active' : ''}">
               ${escapeHtml(modeLabel(mode))}
             </button>`).join('')}
