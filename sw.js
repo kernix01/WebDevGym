@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-08-12-v77';
+const CACHE_NAME = 'webdevgym-shell-2026-08-19-v84';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -14,6 +14,7 @@ const APP_SHELL = [
   './css/modern-ui-v5.css',
   './css/webdevgym-features.css',
   './css/webdevgym-lab.css',
+  './css/webdevgym-api-lab.css',
   './css/webdevgym-trainers-v2.css',
   './css/webdevgym-personalization.css',
   './css/webdevgym-custom-sounds.css',
@@ -42,6 +43,8 @@ const APP_SHELL = [
   './css/webdevgym-usability.css',
   './css/webdevgym-project-mode.css',
   './css/webdevgym-notebook.css',
+  './css/webdevgym-mastery.css',
+  './css/webdevgym-context-menu.css',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',
   './data/curriculum-depth-2026.js',
@@ -67,6 +70,7 @@ const APP_SHELL = [
   './js/webdevgym-learning.js',
   './js/webdevgym-growth.js',
   './js/webdevgym-lab.js',
+  './js/webdevgym-api-lab.js',
   './js/webdevgym-trainers-v2.js',
   './js/webdevgym-personalization.js',
   './js/webdevgym-custom-sounds.js',
@@ -89,7 +93,9 @@ const APP_SHELL = [
   './js/webdevgym-playground-atlas.js',
   './js/webdevgym-usability.js',
   './js/webdevgym-project-mode.js',
-  './js/webdevgym-notebook.js'
+  './js/webdevgym-notebook.js',
+  './js/webdevgym-mastery.js',
+  './js/webdevgym-context-menu.js'
 ];
 
 self.addEventListener('install', event => {
