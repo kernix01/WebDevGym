@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-08-19-v84';
+const CACHE_NAME = 'webdevgym-shell-2026-08-24-v102';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -45,6 +45,8 @@ const APP_SHELL = [
   './css/webdevgym-notebook.css',
   './css/webdevgym-mastery.css',
   './css/webdevgym-context-menu.css',
+  './css/webdevgym-comfort.css',
+  './css/webdevgym-local-first.css',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',
   './data/curriculum-depth-2026.js',
@@ -95,7 +97,10 @@ const APP_SHELL = [
   './js/webdevgym-project-mode.js',
   './js/webdevgym-notebook.js',
   './js/webdevgym-mastery.js',
-  './js/webdevgym-context-menu.js'
+  './js/webdevgym-context-menu.js',
+  './js/webdevgym-optimizer.js',
+  './js/webdevgym-transitions.js',
+  './js/webdevgym-local-first.js'
 ];
 
 self.addEventListener('install', event => {
@@ -106,9 +111,23 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(keys => Promise.all(keys
+        .filter(key => key.startsWith('webdevgym-shell-') && key !== CACHE_NAME)
+        .map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'WEBDEVGYM_OPTIMIZE') return;
+  const task = caches.keys()
+    .then(keys => Promise.all(keys
+      .filter(key => key.startsWith('webdevgym-shell-') && key !== CACHE_NAME)
+      .map(key => caches.delete(key).then(deleted => Number(deleted)))))
+    .then(results => ({ deleted: results.reduce((total, value) => total + value, 0), updated: true }))
+    .catch(() => ({ deleted: 0, updated: false }));
+  event.waitUntil(task);
+  task.then(result => event.ports?.[0]?.postMessage(result));
 });
 
 self.addEventListener('fetch', event => {
