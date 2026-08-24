@@ -205,7 +205,8 @@ body.wdgn-ready .wrap {
   margin: var(--wdgn-topbar) 0 0 var(--wdgn-sidebar) !important;
   padding: 28px 34px 100px !important;
 }
-body.wdgn-overview-open .wrap { visibility: hidden; pointer-events: none; }
+body.wdgn-overview-open .wrap,
+body.wdgn-custom-page-open .wrap { visibility: hidden; pointer-events: none; }
 .wdgn-overview {
   position: fixed;
   inset: var(--wdgn-topbar) 0 0 var(--wdgn-sidebar);

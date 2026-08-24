@@ -164,6 +164,7 @@
   let sectionsMode = 'routes';
 
   let currentView = 'overview';
+  let viewBeforeSettings = 'overview';
   let navigationHistoryReady = false;
   let restoringNavigationHistory = false;
   let overview;
@@ -243,6 +244,10 @@ function continueLearning() {
     if (sectionsPage) sectionsPage.hidden = true;
   }
 
+  function setCustomPageOpen(isOpen) {
+    document.body.classList.toggle('wdgn-custom-page-open', isOpen);
+  }
+
   function setActive(id) {
     currentView = id;
     document.querySelectorAll('.wdgn-nav-btn').forEach(button => button.classList.toggle('active', button.dataset.view === id));
@@ -256,6 +261,7 @@ function continueLearning() {
     hideCustomPages();
     overview.hidden = false;
     document.body.classList.add('wdgn-overview-open');
+    setCustomPageOpen(true);
     setActive('overview');
     renderOverview();
   }
@@ -263,6 +269,7 @@ function continueLearning() {
   function showNativeTab(id) {
     hideCustomPages();
     document.body.classList.remove('wdgn-overview-open');
+    setCustomPageOpen(false);
     closeLegacyPages();
     if (typeof window.switchTabByName === 'function') window.switchTabByName(id);
     const curriculumIds = [...sectionCatalog.frontend, ...sectionCatalog.backend, ...sectionCatalog.shared].map(section => section.id);
@@ -270,6 +277,7 @@ function continueLearning() {
   }
 
   function openSettings() {
+    if (currentView !== 'settings') viewBeforeSettings = currentView;
     window.setTimeout(() => {
       if (typeof window.openWebDevGymSettings === 'function') {
         window.openWebDevGymSettings('appearance');
@@ -281,11 +289,22 @@ function continueLearning() {
     }, 0);
   }
 
+  function syncSettingsNavigation(event) {
+    const open = Boolean(event.detail?.open);
+    if (open) {
+      if (currentView !== 'settings') viewBeforeSettings = currentView;
+      setActive('settings');
+      return;
+    }
+    if (currentView === 'settings') setActive(viewBeforeSettings || 'overview');
+  }
+
   function openView(id) {
     if (id === 'settings') return openSettings();
     if (id === 'overview') return showOverview();
     hideCustomPages();
     document.body.classList.remove('wdgn-overview-open');
+    setCustomPageOpen(false);
     closeLegacyPages();
     if (id === 'today') window.WebDevGymToday?.open?.();
     else if (id === 'routes') window.WebDevGymGrowth?.open?.();
@@ -421,7 +440,7 @@ function continueLearning() {
     const backendStats = catalogStats(sectionCatalog.backend);
     const allTopics = sectionCatalog.frontend.length + sectionCatalog.backend.length + shared.length;
     sectionsPage.innerHTML = `<div class="wdgn-sections-shell">
-      <header class="wdgn-sections-head"><div><div class="wdgn-eyebrow">${copy.growth}</div><h1>${copy.sectionsTitle}</h1><p>${copy.sectionsSub}</p></div><button class="wdgn-close-page" type="button" data-close-sections title="${isEnglish ? 'Close' : 'Закрыть'}">${icon('tabler:x',20)}</button></header>
+      <header class="wdgn-sections-head"><div><div class="wdgn-eyebrow">${copy.growth}</div><h1>${copy.sectionsTitle}</h1><p>${copy.sectionsSub}</p></div></header>
       <section class="wdgn-catalog-summary" aria-label="${catalogCopy.summary}">
         <div><span>${icon('tabler:browser',18)} Frontend</span><strong>${frontendStats.pct}%</strong><small>${frontendStats.done} / ${frontendStats.total} ${copy.topics}</small></div>
         <div><span>${icon('tabler:server-2',18)} Backend</span><strong>${backendStats.pct}%</strong><small>${backendStats.done} / ${backendStats.total} ${copy.topics}</small></div>
@@ -486,7 +505,6 @@ function continueLearning() {
       if (catalogEmpty) catalogEmpty.hidden = visible > 0;
     };
     catalogSearch?.addEventListener('input', filterCatalog);
-    sectionsPage.querySelector('[data-close-sections]')?.addEventListener('click', showOverview);
   }
 
   function buildSectionsPage() {
@@ -502,6 +520,7 @@ function continueLearning() {
     closeLegacyPages();
     hideCustomPages();
     document.body.classList.remove('wdgn-overview-open');
+    setCustomPageOpen(true);
     sectionsPage.hidden = false;
     setActive('sections');
     renderSectionsPage();
@@ -670,6 +689,7 @@ function continueLearning() {
     buildOverview();
     buildSectionsPage();
     observeProgress();
+    document.addEventListener('webdevgym:settings-state', syncSettingsNavigation);
     showOverview();
     history.replaceState({ ...(history.state || {}), wdgnView: currentView }, '');
     navigationHistoryReady = true;

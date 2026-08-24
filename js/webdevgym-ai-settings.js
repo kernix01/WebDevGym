@@ -706,6 +706,9 @@
       showSettingsCategory(settingsCategory);
       window.setTimeout(() => view.querySelector('[data-settings-category].active')?.focus(), 30);
     }
+    document.dispatchEvent(new CustomEvent('webdevgym:settings-state', {
+      detail: { open }
+    }));
   }
 
   function installGlobalOpeners() {

@@ -1,0 +1,511 @@
+/* Softer WebDevGym surfaces and the safe optimizer panel. Loaded last. */
+:root {
+  --wdg-bg: #090a0d;
+  --wdg-panel: #101216;
+  --wdg-panel-2: #15181d;
+  --wdg-panel-3: #1b1f25;
+  --wdg-line: #292d35;
+  --wdg-text: #f5f3f7;
+  --wdg-muted: #9b97a5;
+  --wdgr-bg: #090a0d;
+  --wdgr-surface: #111318;
+  --wdgr-surface-2: #17191f;
+  --wdgr-surface-3: #1d2027;
+  --wdgr-line: #2c3038;
+  --wdgr-line-soft: rgba(203, 196, 214, .11);
+  --wdgr-text: #f5f3f7;
+  --wdgr-muted: #9d98a8;
+}
+
+body.wdg-modern {
+  background: var(--wdg-bg) !important;
+  color: var(--wdg-text) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.wdg-modern .wdg-sidebar,
+body.wdg-modern .wdg-rightbar { background: #0d0f13; }
+
+body.wdg-modern .wdg-commandbar,
+body.wdg-modern .wdg-bottom-dock {
+  background: rgba(10, 11, 14, .94);
+  border-color: var(--wdg-line);
+}
+
+body.wdg-modern .wdg-nav-btn,
+body.wdg-modern .wdg-icon-btn,
+body.wdg-modern .wdg-top-action,
+body.wdg-modern .wdg-dock-btn,
+body.wdg-modern .block,
+body.wdg-modern .tool-block,
+body.wdg-modern .wdg-lesson-row {
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+body.wdg-modern .wdg-nav-btn:hover,
+body.wdg-modern .wdg-icon-btn:hover,
+body.wdg-modern .wdg-command-icon:hover { background: #181a20; }
+
+body.wdg-modern .wdg-nav-btn.active {
+  background: color-mix(in srgb, var(--wdg-accent) 15%, #121318);
+  border-color: color-mix(in srgb, var(--wdg-accent) 30%, var(--wdg-line));
+}
+
+body.wdg-modern .block,
+body.wdg-modern .tool-block,
+body.wdg-modern .wdgr-settings-section,
+body.wdg-modern .wdgr-settings-preview > section {
+  border-color: var(--wdg-line) !important;
+  border-radius: 8px !important;
+  background: #111318 !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .12) !important;
+}
+
+body.wdg-modern .block:hover,
+body.wdg-modern .tool-block:hover {
+  border-color: #3a3e48 !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .16) !important;
+}
+
+body.wdg-modern .tip { background: #17191f !important; color: #aaa5b2 !important; }
+body.wdg-modern .explain { background: #15171c !important; color: #c0bbc7 !important; }
+body.wdg-modern .code { background: #08090c !important; border-color: #2b2f37 !important; }
+body.wdg-modern .wdg-lesson-row { background: #111318; }
+body.wdg-modern .wdg-lesson-row:hover { background: #191c22; }
+
+body:not(.dark).wdg-modern {
+  --wdg-bg: #f5f5f7;
+  --wdg-panel: #ffffff;
+  --wdg-panel-2: #f0f0f3;
+  --wdg-panel-3: #e8e8ed;
+  --wdg-line: #d9d9e0;
+  --wdg-text: #1c1b20;
+  --wdg-muted: #6d6975;
+  background: var(--wdg-bg) !important;
+}
+
+body:not(.dark).wdg-modern .wdg-sidebar,
+body:not(.dark).wdg-modern .wdg-rightbar,
+body:not(.dark).wdg-modern .wdg-commandbar,
+body:not(.dark).wdg-modern .wdg-bottom-dock { background: rgba(255, 255, 255, .96); }
+
+body:not(.dark).wdg-modern .block,
+body:not(.dark).wdg-modern .tool-block { background: #fff !important; }
+
+.wdgr-optimizer-card { overflow: visible !important; }
+.wdgr-optimizer-head {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--wdgr-line-soft);
+}
+
+.wdgr-optimizer-title { min-width: 0; display: flex; align-items: flex-start; gap: 11px; }
+.wdgr-optimizer-title > iconify-icon { flex: 0 0 auto; color: var(--wdgr-accent); margin-top: 1px; }
+.wdgr-optimizer-title h4 { margin: 0; color: var(--wdgr-text); font-size: 12px; }
+.wdgr-optimizer-title p { max-width: 600px; margin: 5px 0 0; color: var(--wdgr-muted); font-size: 9.5px; line-height: 1.55; }
+.wdgr-optimizer-badge {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--wdgr-positive) 38%, var(--wdgr-line));
+  border-radius: 5px;
+  color: var(--wdgr-positive);
+  background: color-mix(in srgb, var(--wdgr-positive) 9%, transparent);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.wdgr-optimizer-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.wdgr-optimizer-option {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--wdgr-line-soft);
+}
+.wdgr-optimizer-option + .wdgr-optimizer-option { border-left: 1px solid var(--wdgr-line-soft); }
+.wdgr-optimizer-option > iconify-icon { color: #c9a8ff; }
+.wdgr-optimizer-option strong { display: block; color: var(--wdgr-text); font-size: 10.5px; }
+.wdgr-optimizer-option small { display: block; margin-top: 4px; color: var(--wdgr-muted); font-size: 9px; line-height: 1.45; }
+.wdgr-optimizer-toggle { grid-template-columns: 24px minmax(0, 1fr) 38px; cursor: pointer; }
+.wdgr-optimizer-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.wdgr-optimizer-toggle i {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border: 1px solid var(--wdgr-line);
+  border-radius: 10px;
+  background: var(--wdgr-surface-3);
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.wdgr-optimizer-toggle i::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #b6b0be;
+  transition: transform .18s ease, background-color .18s ease;
+}
+.wdgr-optimizer-toggle input:checked + i { border-color: var(--wdgr-accent); background: var(--wdgr-accent); }
+.wdgr-optimizer-toggle input:checked + i::after { transform: translateX(16px); background: #fff; }
+.wdgr-optimizer-toggle input:focus-visible + i { outline: 2px solid var(--wdgr-accent); outline-offset: 3px; }
+
+.wdgr-optimizer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+}
+.wdgr-optimizer-actions p { margin: 0; color: var(--wdgr-text); font-size: 9.5px; line-height: 1.45; }
+.wdgr-optimizer-actions small { display: block; margin-top: 4px; color: var(--wdgr-muted); font-size: 8.5px; }
+.wdgr-optimizer-button { min-width: 150px; }
+.wdgr-optimizer-button.is-running iconify-icon { animation: wdgrOptimizerSpin .8s linear infinite; }
+@keyframes wdgrOptimizerSpin { to { transform: rotate(360deg); } }
+
+body.wdgr-light-effects .wdg-commandbar,
+body.wdgr-light-effects .wdg-bottom-dock,
+body.wdgr-light-effects .wdgr-settings-view,
+body.wdgr-light-effects .ai-chat-win { backdrop-filter: none !important; }
+body.wdgr-light-effects .block,
+body.wdgr-light-effects .tool-block,
+body.wdgr-light-effects .wdgr-settings-section,
+body.wdgr-light-effects .wdgr-settings-footer { box-shadow: none !important; }
+body.wdgr-light-effects * { scroll-behavior: auto !important; }
+
+@media (max-width: 720px) {
+  .wdgr-optimizer-options { grid-template-columns: 1fr; }
+  .wdgr-optimizer-option + .wdgr-optimizer-option { border-left: 0; }
+  .wdgr-optimizer-actions { align-items: stretch; flex-direction: column; }
+  .wdgr-optimizer-button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wdgr-optimizer-button.is-running iconify-icon { animation: none; }
+}
+
+/* Quiet surface system: softer hierarchy without changing page structure. */
+:root {
+  --wdg-bg: #09090d;
+  --wdg-panel: rgba(255, 255, 255, .026);
+  --wdg-panel-2: rgba(255, 255, 255, .038);
+  --wdg-panel-3: rgba(255, 255, 255, .055);
+  --wdg-line: rgba(255, 255, 255, .075);
+  --wdg-muted: #9e9aa8;
+  --wdgn-bg: #09090d;
+  --wdgn-surface: rgba(255, 255, 255, .024);
+  --wdgn-surface-2: rgba(255, 255, 255, .038);
+  --wdgn-surface-3: rgba(255, 255, 255, .055);
+  --wdgn-line: rgba(255, 255, 255, .075);
+  --wdgn-line-soft: rgba(255, 255, 255, .052);
+  --wdgn-muted: #9e9aa8;
+  --wdgn-radius: 14px;
+  --wdgr-bg: #09090d;
+  --wdgr-surface: rgba(255, 255, 255, .024);
+  --wdgr-surface-2: rgba(255, 255, 255, .038);
+  --wdgr-surface-3: rgba(255, 255, 255, .055);
+  --wdgr-line: rgba(255, 255, 255, .075);
+  --wdgr-line-soft: rgba(255, 255, 255, .052);
+  --wdgf-bg: #09090d;
+  --wdgf-panel: rgba(255, 255, 255, .024);
+  --wdgf-panel-2: rgba(255, 255, 255, .038);
+  --wdgf-border: rgba(255, 255, 255, .075);
+  --wdgc-bg: #09090d;
+  --wdgc-panel: rgba(255, 255, 255, .024);
+  --wdgc-panel-2: rgba(255, 255, 255, .038);
+  --wdgc-line: rgba(255, 255, 255, .075);
+  --wdgc-line-strong: rgba(255, 255, 255, .11);
+  --wdga-canvas: #09090d;
+  --wdga-surface: rgba(255, 255, 255, .024);
+  --wdga-panel: rgba(255, 255, 255, .038);
+  --wdga-elevated: rgba(255, 255, 255, .055);
+  --wdga-border: rgba(255, 255, 255, .075);
+  --wdgl-bg: #09090d;
+  --wdgl-panel: rgba(255, 255, 255, .024);
+  --wdgl-panel-2: rgba(255, 255, 255, .038);
+  --wdgl-line: rgba(255, 255, 255, .075);
+  --wdgt-bg: #09090d;
+  --wdgt-panel: rgba(255, 255, 255, .024);
+  --wdgt-panel-2: rgba(255, 255, 255, .038);
+  --wdgt-line: rgba(255, 255, 255, .075);
+  --wdgt-line-strong: rgba(255, 255, 255, .11);
+}
+
+body.wdg-modern,
+body.wdgn-ready {
+  background-color: var(--wdgn-bg) !important;
+}
+
+body.wdgn-ready .wdg-sidebar,
+body.wdgn-ready .wdgn-inspector,
+body.wdg-modern .wdg-rightbar {
+  background: rgba(11, 11, 16, .82) !important;
+  border-color: var(--wdgn-line) !important;
+  backdrop-filter: blur(18px) saturate(115%);
+}
+
+body.wdgn-ready .wdgn-top,
+body.wdg-modern .wdg-commandbar,
+body.wdg-modern .wdg-bottom-dock {
+  background: rgba(9, 9, 13, .82) !important;
+  border-color: var(--wdgn-line) !important;
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+body.wdgn-ready .wdgn-brand,
+body.wdgn-ready .wdgn-side-foot,
+body.wdgn-ready .wdgn-route,
+body.wdgn-ready .wdgn-workspace,
+body.wdgn-ready .wdgn-column,
+body.wdgn-ready .wdgn-column-head,
+body.wdgn-ready .wdgn-task,
+body.wdgn-ready .wdgn-inspector,
+body.wdgn-ready .wdgn-inspector-block {
+  border-color: var(--wdgn-line-soft) !important;
+}
+
+body.wdgn-ready .wdgn-nav-btn,
+body.wdgn-ready .wdgn-icon-btn,
+body.wdgn-ready .wdgn-text-btn,
+body.wdg-modern .wdg-nav-btn,
+body.wdg-modern .wdg-icon-btn,
+body.wdg-modern .wdg-top-action,
+body.wdg-modern .wdg-dock-btn {
+  border-radius: 10px !important;
+}
+
+body.wdgn-ready .wdgn-nav-btn:hover,
+body.wdgn-ready .wdgn-icon-btn:hover,
+body.wdgn-ready .wdgn-text-btn:hover,
+body.wdg-modern .wdg-nav-btn:hover,
+body.wdg-modern .wdg-icon-btn:hover,
+body.wdg-modern .wdg-top-action:hover {
+  background: rgba(255, 255, 255, .055) !important;
+  border-color: rgba(255, 255, 255, .09) !important;
+}
+
+body.wdgn-ready .wdgn-nav-btn.active,
+body.wdg-modern .wdg-nav-btn.active {
+  background: color-mix(in srgb, var(--wdg-accent) 13%, rgba(255, 255, 255, .025)) !important;
+  border-color: color-mix(in srgb, var(--wdg-accent) 30%, transparent) !important;
+  box-shadow: inset 2px 0 var(--wdg-accent), 0 10px 30px rgba(0, 0, 0, .12) !important;
+}
+
+body.wdgn-ready .wdgn-search,
+body.wdgn-ready .wdgn-priority-segment,
+body.wdgn-ready .wdgn-editor,
+body.wdg-modern input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+body.wdg-modern select,
+body.wdg-modern textarea {
+  border-color: rgba(255, 255, 255, .085) !important;
+  border-radius: 11px !important;
+  background-color: rgba(255, 255, 255, .03) !important;
+}
+
+body.wdg-modern input:focus,
+body.wdg-modern select:focus,
+body.wdg-modern textarea:focus,
+body.wdg-modern button:focus-visible,
+body.wdg-modern a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--wdg-accent) 72%, white) !important;
+  outline-offset: 2px;
+}
+
+body.wdgn-ready .wdgn-overview,
+body.wdgn-ready .wdgn-sections-page,
+body.wdgn-ready .wdgf-feature-page,
+body.wdgn-ready .wdgt-page,
+body.wdgn-ready .wdg-growth-page,
+body.wdg-modern .wdgr-settings-view,
+body.wdg-modern .wdgr-ai-main {
+  background: rgba(9, 9, 13, .9) !important;
+}
+
+body.wdgn-ready.has-custom-bg .wdgn-overview,
+body.wdgn-ready.has-custom-bg .wdgn-sections-page,
+body.wdgn-ready.has-custom-bg .wdgf-feature-page,
+body.wdgn-ready.has-custom-bg .wdgt-page,
+body.wdgn-ready.has-custom-bg .wdg-growth-page {
+  background: rgba(9, 9, 13, .68) !important;
+}
+
+/* Settings are a real workspace view: hide the previous page, but keep the
+   user's wallpaper visible through a quiet tinted surface. */
+body.wdgr-settings-open :is(
+  .wdgn-overview,
+  .wdgn-sections-page,
+  .wdgf-feature-page,
+  .wdgt-page,
+  .wdg-growth-page,
+  .wdgr-ai-main
+) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.wdg-modern.has-custom-bg.wdgr-settings-open .wdgr-settings-view {
+  background: rgba(9, 9, 13, .7) !important;
+  backdrop-filter: blur(4px) saturate(.9);
+}
+
+body.wdg-modern .block,
+body.wdg-modern .tool-block,
+body.wdgn-ready .section,
+body.wdgn-ready .block,
+body.wdgn-ready .wdgf-panel,
+body.wdgn-ready .wdgl-panel,
+body.wdgn-ready .wdg-growth-card,
+body.wdgn-ready .wdgf-stat,
+body.wdg-modern .wdgr-settings-section,
+body.wdg-modern .wdgr-settings-preview > section,
+body.wdg-modern .wdgc-panel,
+body.wdg-modern .wdgf-card,
+body.wdg-modern .wdga-panel,
+body.wdg-modern .wdg-gh-create-panel,
+body.wdg-modern .wdg-gh-upload-workspace {
+  border-color: rgba(255, 255, 255, .072) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, .026) !important;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .1) !important;
+}
+
+body.wdg-modern .block:hover,
+body.wdg-modern .tool-block:hover,
+body.wdgn-ready .wdgf-panel:hover,
+body.wdg-modern .wdgf-card:hover {
+  border-color: rgba(255, 255, 255, .11) !important;
+  background: rgba(255, 255, 255, .034) !important;
+  box-shadow: 0 22px 64px rgba(0, 0, 0, .15) !important;
+}
+
+body.wdgn-ready .wdgn-priority-segment,
+body.wdgn-ready .wdgn-editor,
+body.wdg-modern .wdgr-segmented,
+body.wdg-modern .wdgr-background-thumb,
+body.wdg-modern .code,
+body.wdg-modern pre {
+  border-radius: 11px !important;
+}
+
+body.wdg-modern .tip,
+body.wdg-modern .explain,
+body.wdg-modern .wdg-depth-docs,
+body.wdg-modern .wdg-depth-practice {
+  border-color: rgba(255, 255, 255, .055) !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, .03) !important;
+}
+
+body.wdgn-ready .wdgn-action,
+body.wdg-modern .wdgr-button,
+body.wdg-modern .wdgf-btn,
+body.wdg-modern .wdgc-primary-btn,
+body.wdg-modern .wdgc-secondary-btn,
+body.wdg-modern .wdga-btn {
+  border-radius: 10px !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 8px 24px rgba(0, 0, 0, .1);
+}
+
+body.wdgn-ready:not(.dark),
+body:not(.dark).wdg-modern {
+  --wdg-bg: #f6f5f8;
+  --wdg-panel: rgba(255, 255, 255, .72);
+  --wdg-panel-2: rgba(255, 255, 255, .84);
+  --wdg-panel-3: rgba(25, 20, 32, .045);
+  --wdg-line: rgba(35, 28, 45, .1);
+  --wdgn-bg: #f6f5f8;
+  --wdgn-surface: rgba(255, 255, 255, .72);
+  --wdgn-surface-2: rgba(255, 255, 255, .84);
+  --wdgn-surface-3: rgba(25, 20, 32, .045);
+  --wdgn-line: rgba(35, 28, 45, .1);
+  --wdgn-line-soft: rgba(35, 28, 45, .065);
+  --wdgr-bg: #f6f5f8;
+  --wdgr-surface: rgba(255, 255, 255, .72);
+  --wdgr-surface-2: rgba(255, 255, 255, .84);
+  --wdgr-surface-3: rgba(25, 20, 32, .045);
+  --wdgr-line: rgba(35, 28, 45, .1);
+  --wdgr-line-soft: rgba(35, 28, 45, .065);
+}
+
+body.wdgn-ready:not(.dark) .wdg-sidebar,
+body.wdgn-ready:not(.dark) .wdgn-inspector,
+body.wdgn-ready:not(.dark) .wdgn-top,
+body:not(.dark).wdg-modern .wdg-commandbar,
+body:not(.dark).wdg-modern .wdg-rightbar,
+body:not(.dark).wdg-modern .wdg-bottom-dock {
+  background: rgba(250, 249, 252, .84) !important;
+}
+
+body.wdgn-ready:not(.dark) .wdgn-overview,
+body.wdgn-ready:not(.dark) .wdgn-sections-page,
+body.wdgn-ready:not(.dark) .wdgf-feature-page,
+body:not(.dark).wdg-modern .wdgr-settings-view {
+  background: rgba(246, 245, 248, .92) !important;
+}
+
+body:not(.dark).wdg-modern.has-custom-bg.wdgr-settings-open .wdgr-settings-view {
+  background: rgba(246, 245, 248, .76) !important;
+}
+
+@supports not (background: color-mix(in srgb, white 10%, black)) {
+  body.wdgn-ready .wdgn-nav-btn.active,
+  body.wdg-modern .wdg-nav-btn.active { background: rgba(168, 85, 247, .13) !important; }
+}
+
+/* Command palette must stay readable above every custom background and page. */
+body.wdg-modern .wdgf-palette,
+body.wdgn-ready .wdgf-palette {
+  z-index: 20010 !important;
+  border-color: rgba(255, 255, 255, .13) !important;
+  background: #10141c !important;
+  color: #f4f7fb !important;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .68) !important;
+  backdrop-filter: none !important;
+}
+
+body.wdg-modern .wdgf-palette-backdrop,
+body.wdgn-ready .wdgf-palette-backdrop {
+  z-index: 20000 !important;
+}
+
+body.wdg-modern .wdgf-palette-search,
+body.wdg-modern .wdgf-command-list {
+  background: #10141c !important;
+}
+
+body.wdg-modern .wdgf-palette-search input {
+  background: transparent !important;
+  color: #f4f7fb !important;
+}
+
+body.wdg-modern .wdgf-command:hover,
+body.wdg-modern .wdgf-command.active {
+  background: #1b2330 !important;
+}
+
+body.wdgn-ready:not(.dark) .wdgf-palette,
+body:not(.dark).wdg-modern .wdgf-palette,
+body:not(.dark).wdg-modern .wdgf-palette-search,
+body:not(.dark).wdg-modern .wdgf-command-list {
+  border-color: rgba(35, 28, 45, .14) !important;
+  background: #ffffff !important;
+  color: #172033 !important;
+}
+
+body:not(.dark).wdg-modern .wdgf-palette-search input {
+  color: #172033 !important;
+}
+
+body:not(.dark).wdg-modern .wdgf-command:hover,
+body:not(.dark).wdg-modern .wdgf-command.active {
+  background: #f0edf5 !important;
+}

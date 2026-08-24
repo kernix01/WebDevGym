@@ -104,6 +104,10 @@
 
   function openSection(id) {
     closePage();
+    if (typeof window.WebDevGymNext?.open === 'function') {
+      window.WebDevGymNext.open(id);
+      return;
+    }
     if (typeof window.switchTabByName === 'function') window.switchTabByName(id);
     else document.querySelector('.tab[onclick*="\'' + id + '\'"]')?.click();
   }
@@ -776,6 +780,57 @@
     renderFocusTime();
   }
 
+  function normalizeCommandText(value) {
+    return String(value || '')
+      .toLocaleLowerCase()
+      .replace(/ё/g, 'е')
+      .replace(/[^\p{L}\p{N}+#.]+/gu, ' ')
+      .trim();
+  }
+
+  const commandAliasGroups = [
+    ['function', 'functions', 'функц'],
+    ['array', 'arrays', 'массив'],
+    ['event', 'events', 'событ'],
+    ['string', 'strings', 'строк'],
+    ['object', 'objects', 'объект'],
+    ['variable', 'variables', 'переменн'],
+    ['loop', 'loops', 'цикл'],
+    ['promise', 'promises', 'промис'],
+    ['storage', 'localstorage', 'хранилищ'],
+    ['form', 'forms', 'форм']
+  ];
+
+  function commandSearchTerms(query) {
+    const rawTerms = normalizeCommandText(query).split(' ').filter(term => term.length > 1);
+    const terms = new Set(rawTerms);
+    rawTerms.forEach(term => {
+      commandAliasGroups.forEach(group => {
+        if (group.some(alias => term.startsWith(alias) || alias.startsWith(term))) {
+          group.forEach(alias => terms.add(alias));
+        }
+      });
+    });
+    return [...terms];
+  }
+
+  function commandMatchScore(entry, terms) {
+    const title = normalizeCommandText(entry[1]);
+    const group = normalizeCommandText(entry[4]);
+    const details = normalizeCommandText(entry[5]);
+    const titleWords = title.split(' ');
+
+    return terms.reduce((score, term) => {
+      if (title === term) return score + 1000;
+      if (title.startsWith(term)) return score + 760;
+      if (titleWords.some(word => word.startsWith(term))) return score + 580;
+      if (title.includes(term)) return score + 420;
+      if (group.includes(term)) return score + 140;
+      if (details.includes(term)) return score + 30;
+      return score;
+    }, 0);
+  }
+
   function commandSource() {
     const entries = [
       ['dashboard',t.dashboard,'tabler:layout-dashboard',() => openFeature('dashboard'),t.action],
@@ -815,9 +870,15 @@
         const id = section?.id.replace('sec-','');
         if (id) openSection(id);
         setTimeout(() => block.scrollIntoView({ behavior:'smooth', block:'start' }), 120);
-      }, t.lesson, (block.textContent || '').replace(/s+/g,' ').slice(0,1600)]);
+      }, t.lesson, (block.textContent || '').replace(/\s+/g,' ').slice(0,1600)]);
     });
-    return entries;
+    const seen = new Set();
+    return entries.filter(entry => {
+      const id = String(entry[0]);
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
   }
 
   function buildCommandPalette() {
@@ -861,8 +922,15 @@
   function renderCommands(query) {
     const list = document.querySelector('[data-command-list]');
     if (!list) return;
-    const value = String(query || '').trim().toLowerCase();
-    const filtered = commandEntries.filter(entry => !value || entry.slice(1).filter(item => typeof item === 'string').join(' ').toLowerCase().includes(value)).slice(0, 60);
+    const terms = commandSearchTerms(query);
+    const filtered = terms.length
+      ? commandEntries
+          .map((entry, order) => ({ entry, order, score:commandMatchScore(entry, terms) }))
+          .filter(result => result.score > 0)
+          .sort((a, b) => b.score - a.score || a.order - b.order)
+          .slice(0, 12)
+          .map(result => result.entry)
+      : commandEntries.slice(0, 12);
     commandIndex = 0;
     list.innerHTML = filtered.length ? filtered.map((entry,index) => '<button class="wdgf-command ' + (index === 0 ? 'active' : '') + '" data-command-id="' + entry[0] + '"><span>' + icon(entry[2],17) + '</span><span>' + escapeHtml(entry[1]) + '</span><small>' + entry[4] + '</small></button>').join('') : '<div class="wdgf-empty">' + t.noResults + '</div>';
     list.querySelectorAll('[data-command-id]').forEach(button => button.addEventListener('click', () => {

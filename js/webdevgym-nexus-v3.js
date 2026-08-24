@@ -379,9 +379,10 @@
 
   function scheduleMinimap() {
     if (state.miniFrame || document.hidden || !state.root?.classList.contains('active')) return;
+    const lightEffects = document.body.classList.contains('wdgr-light-effects');
     const paint = now => {
       state.miniFrame = 0;
-      if (now - state.miniLastPaint < 72 && (state.dragging || state.panning || state.frame)) {
+      if (now - state.miniLastPaint < (lightEffects ? 140 : 72) && (state.dragging || state.panning || state.frame)) {
         state.miniFrame = requestAnimationFrame(paint);
         return;
       }
@@ -470,18 +471,19 @@
       return;
     }
     let frames = 0;
+    const lightEffects = document.body.classList.contains('wdgr-light-effects');
     const tick = () => {
       if (document.hidden || !state.root?.classList.contains('active')) {
         state.frame = 0;
         saveGraph();
         return;
       }
-      node.vx *= 0.8; node.vy *= 0.8;
+      node.vx *= lightEffects ? 0.66 : 0.8; node.vy *= lightEffects ? 0.66 : 0.8;
       node.x = Math.max(70, Math.min(1430, node.x + node.vx));
       node.y = Math.max(70, Math.min(790, node.y + node.vy));
       updateNode(node); scheduleMinimap();
       frames += 1;
-      if (frames < 48 && Math.hypot(node.vx, node.vy) > 0.22) {
+      if (frames < (lightEffects ? 20 : 48) && Math.hypot(node.vx, node.vy) > 0.22) {
         state.frame = requestAnimationFrame(tick);
       } else {
         state.frame = 0;
@@ -808,6 +810,14 @@
         mountObserver.observe(document.body, { childList: true, subtree: true });
       }
       window.WebDevGymNexusV3 = { fit: fitGraph, refresh: () => { state.root?.removeAttribute('data-nexus-v3'); installShell(); }, version: 3 };
+      document.addEventListener('webdevgym:optimize', () => {
+        ['frame', 'miniFrame', 'dragFrame', 'searchFrame'].forEach(key => {
+          if (state[key]) cancelAnimationFrame(state[key]);
+          state[key] = 0;
+        });
+        state.svgRect = null;
+        saveGraph();
+      });
     }, 440);
   }
 
