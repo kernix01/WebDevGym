@@ -161,7 +161,6 @@
   }
 
   function openSettingsPanel() {
-    closePage();
     if (typeof window.openWebDevGymSettings === 'function') {
       window.openWebDevGymSettings();
       return;

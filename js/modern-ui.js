@@ -95,6 +95,10 @@
   }
 
   function miniGraphMarkup() {
+    if (!safeNotes().length) {
+      return '<div class="wdg-mini-graph" id="wdgMiniGraph" role="button" tabindex="0" aria-label="Nexus"><svg viewBox="0 0 304 280" aria-hidden="true"></svg></div>' +
+        '<div class="wdg-graph-caption">' + icon('tabler:note', 14) + '<span>' + (isEnglish ? 'Nexus is empty. Create the first note.' : 'Nexus пуст. Создай первую заметку.') + '</span></div>';
+    }
     return '<div class="wdg-mini-graph" id="wdgMiniGraph" role="button" tabindex="0" aria-label="Nexus">' +
       '<svg viewBox="0 0 304 280" aria-hidden="true">' +
         '<path class="wdg-mini-edge" d="M154 141 C112 131 95 94 65 74 M154 141 C197 122 214 90 248 75 M154 141 C204 151 221 184 253 201 M154 141 C119 161 107 194 73 213 M154 141 C155 99 155 79 155 48 M65 74 C99 65 124 54 155 48 M248 75 C215 62 190 52 155 48" />' +

@@ -9288,11 +9288,8 @@ function aiAddInsertButtons() {
 const NEXUS_STORAGE_KEY = 'webdevgym_nexus_notes_v1';
 let nexusNotes = [];
 let nexusActiveID = null;
-function nexusDefaultNotes(){ return [
-  { id:'nexus-dom', title:'DOM', body:'DOM is the browser object tree for HTML. Related: [[Events]], [[localStorage]].', updatedAt:Date.now() },
-  { id:'nexus-localstorage', title:'localStorage', body:'localStorage saves strings in the browser. Good for theme, progress, notes. Related: [[DOM]].', updatedAt:Date.now()-1000 }
-]; }
-function nexusLoadNotes(){ try{ const saved=JSON.parse(localStorage.getItem(NEXUS_STORAGE_KEY)||'null'); nexusNotes=Array.isArray(saved)&&saved.length?saved:nexusDefaultNotes(); }catch(e){ nexusNotes=nexusDefaultNotes(); } nexusActiveID=nexusNotes[0]?.id||null; }
+function nexusDefaultNotes(){ return []; }
+function nexusLoadNotes(){ try{ const saved=JSON.parse(localStorage.getItem(NEXUS_STORAGE_KEY)||'null'); nexusNotes=Array.isArray(saved)?saved:nexusDefaultNotes(); }catch(e){ nexusNotes=nexusDefaultNotes(); } nexusActiveID=nexusNotes[0]?.id||null; }
 function nexusPersist(){ localStorage.setItem(NEXUS_STORAGE_KEY, JSON.stringify(nexusNotes)); }
 function nexusSlug(title){ return (title||'Untitled').trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-zа-яё0-9\-_]/gi,'').slice(0,60)||('note-'+Date.now()); }
 function nexusFindByTitle(title){ const wanted=(title||'').trim().toLowerCase(); return nexusNotes.find(n=>n.title.trim().toLowerCase()===wanted); }

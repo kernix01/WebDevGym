@@ -324,7 +324,6 @@ body.wdgf-page-open > :is(
   .wdgn-sections-page,
   .wdgt-page,
   .wdg-growth-page,
-  .wdgr-settings-view,
   .wdgr-ai-main
 ) {
   visibility: hidden !important;
@@ -334,6 +333,21 @@ body.wdgf-page-open > :is(
 body.wdgf-page-open > .wdgf-feature-page.open {
   visibility: visible !important;
   isolation: isolate;
+}
+
+/* Settings temporarily replace the active feature workspace. Keep that
+   workspace mounted so closing Settings returns to the same place. */
+body.wdgf-page-open.wdgr-settings-open > .wdgf-feature-page.open {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.wdgr-settings-open > .wdgr-settings-view.open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  transition: none !important;
 }
 
 body.wdgf-page-open > .wdgf-feature-page:is(

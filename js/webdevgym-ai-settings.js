@@ -599,6 +599,7 @@
   function applyFontPreference(key, font, property) {
     write(key, font);
     document.documentElement.style.setProperty(property, `'${font}'`);
+    window.WebDevGymCriticalBoot?.loadFont(font);
   }
 
   function restoreFontPreferences() {

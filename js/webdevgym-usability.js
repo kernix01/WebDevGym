@@ -269,6 +269,11 @@
     if (!timerInterval) timerInterval = window.setInterval(tickTimer, 250);
   }
 
+  function getTimerLauncher() {
+    return document.querySelector('.wdgn-top .wdgu-timer-launcher')
+      || document.querySelector('.wdgu-timer-launcher');
+  }
+
   function renderTimer() {
     const root = document.getElementById('wdguTimer');
     if (!root) return;
@@ -279,10 +284,12 @@
     root.querySelector('[data-timer-display]').textContent = formatTime(timerState.remaining);
     root.querySelector('[data-timer-start]').hidden = timerState.status === 'running';
     root.querySelector('[data-timer-pause]').hidden = timerState.status !== 'running';
-    const launcher = document.getElementById('wdguTimerLauncher');
+    const launcher = getTimerLauncher();
     if (launcher) {
       launcher.classList.toggle('running', timerState.status === 'running');
-      launcher.querySelector('span').textContent = timerState.status === 'running' ? formatTime(timerState.remaining) : copy.timer;
+      const label = timerState.status === 'running' ? copy.timer + ': ' + formatTime(timerState.remaining) : copy.timer;
+      launcher.title = label;
+      launcher.setAttribute('aria-label', label);
     }
   }
 
@@ -318,12 +325,17 @@
 
   function buildTimer() {
     if (document.getElementById('wdguTimer')) return;
-    const launcher = document.createElement('button');
+    const launcher = getTimerLauncher() || document.createElement('button');
+    document.querySelectorAll('#wdguTimerLauncher').forEach(button => {
+      if (button !== launcher) button.removeAttribute('id');
+    });
     launcher.id = 'wdguTimerLauncher';
-    launcher.className = 'wdgu-timer-launcher';
+    launcher.className = 'wdg-icon-btn wdgu-timer-launcher';
     launcher.type = 'button';
     launcher.title = copy.timer;
-    launcher.innerHTML = icon('tabler:clock', 19) + '<span>' + copy.timer + '</span>';
+    launcher.setAttribute('aria-label', copy.timer);
+    launcher.setAttribute('aria-expanded', 'false');
+    launcher.innerHTML = icon('tabler:clock', 19);
     const root = document.createElement('section');
     root.id = 'wdguTimer';
     root.className = 'wdgu-timer';
@@ -334,7 +346,13 @@
       '<div class="wdgu-timer-config wdgu-config-timer"><label>' + copy.hours + '<input type="number" min="0" max="24" data-timer-hours></label><label>' + copy.minutes + '<input type="number" min="0" max="59" data-timer-minutes></label><label>' + copy.seconds + '<input type="number" min="0" max="59" data-timer-seconds></label></div>' +
       '<div class="wdgu-timer-config wdgu-config-pomodoro"><label>' + copy.focusMinutes + '<input type="number" min="1" max="1440" data-focus-minutes></label><label>' + copy.breakMinutes + '<input type="number" min="1" max="1440" data-break-minutes></label></div>' +
       '<div class="wdgu-timer-actions"><button class="primary" type="button" data-timer-start aria-label="' + copy.start + '">' + icon('tabler:player-play', 17) + copy.start + '</button><button class="primary" type="button" data-timer-pause aria-label="' + copy.pause + '">' + icon('tabler:player-pause', 17) + copy.pause + '</button><button type="button" data-timer-reset aria-label="' + copy.reset + '">' + icon('tabler:rotate-clockwise', 17) + copy.reset + '</button></div></div>';
-    document.body.append(launcher, root);
+    const toolbar = document.querySelector('.wdg-commandbar');
+    const toolbarAnchor = document.getElementById('wdgAiBtn') || toolbar?.querySelector('.wdg-lang');
+    if (!launcher.isConnected) {
+      if (toolbar) toolbar.insertBefore(launcher, toolbarAnchor || null);
+      else document.body.append(launcher);
+    }
+    document.body.append(root);
     const savedWindow = readJson(TIMER_WINDOW_KEY, {});
     if (window.innerWidth > 720 && savedWindow.left != null) Object.assign(root.style, { left: savedWindow.left + 'px', top: savedWindow.top + 'px', width: savedWindow.width + 'px', height: savedWindow.height + 'px', right: 'auto', bottom: 'auto' });
     const timerHours = Math.floor(timerState.timerSeconds / 3600);
@@ -343,8 +361,19 @@
     root.querySelector('[data-timer-seconds]').value = timerState.timerSeconds % 60;
     root.querySelector('[data-focus-minutes]').value = Math.round(timerState.focusSeconds / 60);
     root.querySelector('[data-break-minutes]').value = Math.round(timerState.breakSeconds / 60);
-    launcher.addEventListener('click', () => { root.hidden = !root.hidden; if (!root.hidden) renderTimer(); });
-    root.querySelector('[data-timer-close]').addEventListener('click', () => { root.hidden = true; });
+    document.addEventListener('click', event => {
+      const trigger = event.target.closest('.wdgu-timer-launcher');
+      if (!trigger) return;
+      root.hidden = !root.hidden;
+      document.querySelectorAll('.wdgu-timer-launcher').forEach(button => {
+        button.setAttribute('aria-expanded', String(button === trigger && !root.hidden));
+      });
+      if (!root.hidden) renderTimer();
+    });
+    root.querySelector('[data-timer-close]').addEventListener('click', () => {
+      root.hidden = true;
+      document.querySelectorAll('.wdgu-timer-launcher').forEach(button => button.setAttribute('aria-expanded', 'false'));
+    });
     root.querySelectorAll('[data-timer-mode]').forEach(button => button.addEventListener('click', () => {
       if (timerState.status === 'running') pauseTimer();
       timerState.mode = button.dataset.timerMode;

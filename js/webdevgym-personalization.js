@@ -389,10 +389,14 @@
         reject(new Error('IndexedDB is unavailable'));
         return;
       }
-      const request = indexedDB.open('webdevgym-personalization', 2);
+      const request = indexedDB.open('webdevgym-personalization', 3);
       request.onupgradeneeded = () => {
         if (!request.result.objectStoreNames.contains('assets')) {
           request.result.createObjectStore('assets');
+        }
+        if (!request.result.objectStoreNames.contains('sounds')) {
+          const sounds = request.result.createObjectStore('sounds', { keyPath: 'id' });
+          sounds.createIndex('createdAt', 'createdAt');
         }
       };
       request.onsuccess = () => resolve(request.result);
@@ -477,6 +481,7 @@
   function applyBackgroundSource(source) {
     if (activeBackgroundUrl.startsWith('blob:')) URL.revokeObjectURL(activeBackgroundUrl);
     activeBackgroundUrl = source;
+    window.WebDevGymCriticalBoot?.setBackgroundSource(source);
     document.body.style.setProperty('--custom-bg', `url("${source}")`);
     document.body.classList.add('has-custom-bg');
     if (!read('customBgOpacity')) {
@@ -536,6 +541,15 @@
   }
 
   async function restoreCustomBackground() {
+    const criticalBoot = window.WebDevGymCriticalBoot;
+    if (criticalBoot?.backgroundPromise) {
+      const earlySource = await criticalBoot.backgroundPromise;
+      if (earlySource) {
+        applyBackgroundSource(earlySource);
+        return;
+      }
+    }
+
     try {
       const blob = await loadBackgroundBlob();
       if (blob instanceof Blob) {
@@ -555,6 +569,7 @@
   async function clearCustomBackground() {
     if (activeBackgroundUrl.startsWith('blob:')) URL.revokeObjectURL(activeBackgroundUrl);
     activeBackgroundUrl = '';
+    window.WebDevGymCriticalBoot?.clearBackgroundSource();
     document.body.classList.remove('has-custom-bg');
     document.body.style.removeProperty('--custom-bg');
     remove('customBg');

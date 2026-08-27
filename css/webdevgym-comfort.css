@@ -341,6 +341,7 @@ body.wdgn-ready.has-custom-bg .wdg-growth-page {
 /* Settings are a real workspace view: hide the previous page, but keep the
    user's wallpaper visible through a quiet tinted surface. */
 body.wdgr-settings-open :is(
+  .wrap,
   .wdgn-overview,
   .wdgn-sections-page,
   .wdgf-feature-page,

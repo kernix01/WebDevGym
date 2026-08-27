@@ -648,12 +648,11 @@
 
   function scheduleProfileRefresh() {
     if (profileRefreshPending) return;
+    if (!document.querySelector('.wdgp-page')) return;
     profileRefreshPending = true;
     requestAnimationFrame(() => {
       profileRefreshPending = false;
       refreshProfile();
-      requestAnimationFrame(refreshProfile);
-      setTimeout(refreshProfile, 180);
     });
   }
 
@@ -662,7 +661,16 @@
     settingsObserver.observe(document.body, { childList: true, subtree: true });
     drawerObserver = new MutationObserver(enhanceLearningDrawer);
     drawerObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-    profileObserver = new MutationObserver(scheduleProfileRefresh);
+    profileObserver = new MutationObserver(mutations => {
+      const profileChanged = mutations.some(mutation => {
+        if (mutation.target instanceof Element && mutation.target.closest('.wdgp-page')) return true;
+        return Array.from(mutation.addedNodes).some(node => {
+          if (!(node instanceof Element)) return false;
+          return node.matches('.wdgp-page, .wdgp-page *') || Boolean(node.querySelector?.('.wdgp-page'));
+        });
+      });
+      if (profileChanged) scheduleProfileRefresh();
+    });
     profileObserver.observe(document.body, { childList: true, subtree: true });
   }
 

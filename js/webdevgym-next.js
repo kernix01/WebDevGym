@@ -368,10 +368,15 @@ function continueLearning() {
         <button class="wdgn-text-btn" type="button" data-import>${icon('tabler:upload',16)}<span>${copy.import}</span></button>
         <button class="wdgn-text-btn" type="button" data-export>${icon('tabler:download',16)}<span>${copy.export}</span></button>
         <button class="wdgn-icon-btn" type="button" data-theme title="${isEnglish ? 'Theme' : 'Тема'}">${icon('tabler:sun-moon',18)}</button>
+        <button class="wdgn-icon-btn wdgu-timer-launcher" id="wdguTimerLauncher" type="button" title="${isEnglish ? 'Timer' : 'Таймер'}" aria-label="${isEnglish ? 'Timer' : 'Таймер'}" aria-expanded="false">${icon('tabler:clock',18)}</button>
         <button class="wdgn-icon-btn" type="button" data-settings title="${copy.settings}">${icon('tabler:settings',18)}</button>
         <button class="wdgn-icon-btn wdgn-ai-btn" type="button" data-ai title="${isEnglish ? 'AI assistant' : 'ИИ-помощник'}">${icon('tabler:sparkles',18)}</button>
       </div>`;
     document.body.appendChild(top);
+    const timerLauncher = top.querySelector('.wdgu-timer-launcher');
+    document.querySelectorAll('#wdguTimerLauncher').forEach(button => {
+      if (button !== timerLauncher) button.removeAttribute('id');
+    });
     top.querySelector('[data-command]').addEventListener('click', () => window.WebDevGymFeatures?.openCommandPalette?.());
     top.querySelector('[data-import]').addEventListener('click', () => window.importProgressJson?.());
     top.querySelector('[data-export]').addEventListener('click', () => window.exportProgressJson?.());

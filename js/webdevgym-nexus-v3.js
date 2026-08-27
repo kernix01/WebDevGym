@@ -37,6 +37,7 @@
     confirmDelete: text('Удалить эту заметку?', 'Delete this note?'),
     importError: text('Не удалось импортировать заметки.', 'Could not import notes.'),
     hint: text('Перетаскивай узлы · колесо — масштаб · пустое место — движение карты', 'Drag nodes · wheel to zoom · drag empty space to pan'),
+    empty: text('Nexus пуст. Создай первую заметку.', 'Nexus is empty. Create the first note.'),
     notes: text('заметок', 'notes'),
     untitled: text('Без названия', 'Untitled'),
     updated: text('Обновлено', 'Updated'),
@@ -117,18 +118,12 @@
   }
 
   function defaultNotes() {
-    const now = Date.now();
-    return [
-      { id: 'nexus-dom', title: text('Интерфейс', 'Interface'), body: text('# Интерфейс\nВидимая часть проекта и её поведение.\n\nСвязано с [[JavaScript]] и [[Events]].', '# Interface\nThe visible part of a project and its behavior.\n\nConnected to [[JavaScript]] and [[Events]].'), updatedAt: now },
-      { id: 'nexus-events', title: 'Events', body: text('# Events\nДействия пользователя: click, input, submit.\n\nСобытия изменяют [[Интерфейс]].', '# Events\nUser actions: click, input, submit.\n\nEvents change the [[Interface]].'), updatedAt: now - 1000 },
-      { id: 'nexus-javascript', title: 'JavaScript', body: text('# JavaScript\nУправляет поведением и состоянием страницы.\n\nРаботает с [[Интерфейс]], [[Events]] и [[Данные]].', '# JavaScript\nControls page behavior and state.\n\nWorks with [[Interface]], [[Events]] and [[Data]].'), updatedAt: now - 2000 }
-    ];
+    return [];
   }
 
   function loadNotes() {
-    const saved = readJson(NOTES_KEY, []);
-    const source = Array.isArray(saved) && saved.length ? saved : defaultNotes();
-    if (!Array.isArray(saved) || !saved.length) writeJson(NOTES_KEY, source);
+    const saved = readJson(NOTES_KEY, null);
+    const source = Array.isArray(saved) ? saved : defaultNotes();
     return source.map((note, index) => ({
       id: String(note.id || `note-${Date.now()}-${index}`),
       title: String(note.title || copy.untitled),
@@ -269,6 +264,11 @@
   }
 
   function buildGraph(reset = false) {
+    if (!state.notes.length) {
+      state.nodes = new Map();
+      state.links = [];
+      return;
+    }
     const saved = reset ? {} : readJson(GRAPH_KEY, {});
     const nodes = topics.map(topic => ({ ...topic, x: saved[topic.id]?.x ?? topic.x, y: saved[topic.id]?.y ?? topic.y, vx: 0, vy: 0 }));
     const graphLinks = topicLinks.map(([source, target]) => ({ source, target, type: 'topic' }));
@@ -338,6 +338,10 @@
     const edgeLayer = state.root?.querySelector('[data-nx-edges]');
     const nodeLayer = state.root?.querySelector('[data-nx-nodes]');
     if (!edgeLayer || !nodeLayer) return;
+    const stage = state.root.querySelector('[data-nx-stage]');
+    const emptyLabel = stage?.querySelector('.nx-empty-label');
+    stage?.classList.toggle('nx-is-empty', state.notes.length === 0);
+    if (emptyLabel) emptyLabel.textContent = state.notes.length ? copy.hint : copy.empty;
     const visible = new Set([...state.nodes.values()].filter(visibleNode).map(node => node.id));
     edgeLayer.innerHTML = state.links.filter(link => visible.has(link.source) && visible.has(link.target)).map(link => {
       const a = state.nodes.get(link.source);
@@ -546,7 +550,14 @@
     const panel = state.root?.querySelector('[data-nx-inspector]');
     const host = state.root?.querySelector('[data-nx-inspector-body]');
     const note = selectedNote();
-    if (!panel || !host || !note) return;
+    if (!panel || !host) return;
+    if (!note) {
+      panel.classList.remove('open');
+      host.replaceChildren();
+      const title = state.root.querySelector('[data-nx-inspector-title]');
+      if (title) title.textContent = copy.inspector;
+      return;
+    }
     panel.classList.toggle('open', state.inspectorOpen);
     state.root.querySelector('[data-nx-inspector-title]').textContent = note.title;
     state.root.querySelectorAll('[data-nx-tab]').forEach(button => button.classList.toggle('active', button.dataset.nxTab === state.inspectorTab));
@@ -600,8 +611,8 @@
     const note = selectedNote();
     if (!note || !confirm(copy.confirmDelete)) return;
     state.notes = state.notes.filter(item => item.id !== note.id);
-    if (!state.notes.length) state.notes = defaultNotes();
-    state.selectedId = state.notes[0].id;
+    state.selectedId = state.notes[0]?.id || '';
+    if (!state.notes.length) state.inspectorOpen = false;
     writeJson(NOTES_KEY, state.notes); persistUi(); rebuildGraph(); renderExplorer(); renderInspector();
   }
 
@@ -787,13 +798,16 @@
 
   function init() {
     setTimeout(() => {
-      if (installShell() && state.root?.classList.contains('active')) setTimeout(fitGraph, 100);
-      state.wasActive = Boolean(state.root?.classList.contains('active'));
       const watchSection = section => {
+        const activate = () => {
+          const isActive = Boolean(section?.classList.contains('active'));
+          if (isActive && section.dataset.nexusV3 !== '1') installShell();
+          if (isActive && !state.wasActive) setTimeout(fitGraph, 80);
+          state.wasActive = isActive;
+        };
+        activate();
         const observer = new MutationObserver(() => {
-        const isActive = Boolean(section?.classList.contains('active'));
-        if (isActive && !state.wasActive) setTimeout(fitGraph, 80);
-        state.wasActive = isActive;
+          activate();
         });
         observer.observe(section, { attributes: true, attributeFilter: ['class'] });
       };
@@ -803,13 +817,21 @@
         const mountObserver = new MutationObserver(() => {
           const mounted = document.getElementById('sec-nexus');
           if (!mounted) return;
-          installShell();
           watchSection(mounted);
           mountObserver.disconnect();
         });
         mountObserver.observe(document.body, { childList: true, subtree: true });
       }
-      window.WebDevGymNexusV3 = { fit: fitGraph, refresh: () => { state.root?.removeAttribute('data-nexus-v3'); installShell(); }, version: 3 };
+      window.WebDevGymNexusV3 = {
+        fit: fitGraph,
+        refresh: () => {
+          const section = document.getElementById('sec-nexus');
+          if (!section?.classList.contains('active')) return;
+          state.root?.removeAttribute('data-nexus-v3');
+          installShell();
+        },
+        version: 3
+      };
       document.addEventListener('webdevgym:optimize', () => {
         ['frame', 'miniFrame', 'dragFrame', 'searchFrame'].forEach(key => {
           if (state[key]) cancelAnimationFrame(state[key]);
