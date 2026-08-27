@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-08-24-v102';
+const CACHE_NAME = 'webdevgym-shell-2026-08-24-v109';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -74,13 +74,14 @@ const APP_SHELL = [
   './js/webdevgym-lab.js',
   './js/webdevgym-api-lab.js',
   './js/webdevgym-trainers-v2.js',
-  './js/webdevgym-personalization.js',
+  './js/webdevgym-critical-boot.js?v=20260824-2',
+  './js/webdevgym-personalization.js?v=20260824-2',
   './js/webdevgym-custom-sounds.js',
   './js/webdevgym-forge.js',
   './js/webdevgym-forge-v2.js',
   './js/webdevgym-pwa.js',
   './js/webdevgym-mobile.js',
-  './js/webdevgym-ai-settings.js',
+  './js/webdevgym-ai-settings.js?v=20260824-4',
   './js/webdevgym-settings-v2.js?v=20260803-1',
   './js/webdevgym-github-token-vault.js',
   './js/webdevgym-github-folder.js',
@@ -89,7 +90,7 @@ const APP_SHELL = [
   './js/webdevgym-mobile-performance.js',
   './js/webdevgym-next.js',
   './js/webdevgym-calendar-v5.js',
-  './js/webdevgym-nexus-v3.js',
+  './js/webdevgym-nexus-v3.js?v=20260824-1',
   './js/webdevgym-learning-workspace.js',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
   './js/webdevgym-playground-atlas.js',
@@ -100,7 +101,7 @@ const APP_SHELL = [
   './js/webdevgym-context-menu.js',
   './js/webdevgym-optimizer.js',
   './js/webdevgym-transitions.js',
-  './js/webdevgym-local-first.js'
+  './js/webdevgym-local-first.js?v=20260824-5'
 ];
 
 self.addEventListener('install', event => {
