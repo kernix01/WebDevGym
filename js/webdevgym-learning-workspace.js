@@ -2525,11 +2525,13 @@
 
   let activeSection = null;
   let activeBlockCount = 0;
+  let syncTimer = 0;
+  const watchedSections = new WeakSet();
 
   function syncActiveSection(force = false) {
-    cleanupUniversalActions();
     const section = document.querySelector('.section.active');
-    const sectionVisible = section && section.getClientRects().length > 0 && getComputedStyle(section).visibility !== 'hidden';
+    const legacyAreaHidden = document.body.matches('.wdgn-overview-open, .wdgn-custom-page-open, .wdgf-page-open, .wdgr-settings-open');
+    const sectionVisible = section && !section.hidden && !legacyAreaHidden;
     if (!section || !sectionVisible || !LEARNING_IDS.has(sectionId(section))) {
       document.body.classList.remove('wdgl-learning-open');
       activeSection = null;
@@ -2545,17 +2547,40 @@
     enhanceSection(section);
   }
 
+  function scheduleSync(force = false) {
+    window.clearTimeout(syncTimer);
+    syncTimer = window.setTimeout(() => syncActiveSection(force), 60);
+  }
+
+  function watchSectionActivation(root = document) {
+    const sections = [];
+    if (root instanceof Element && root.matches('.section')) sections.push(root);
+    root.querySelectorAll?.('.section').forEach(section => sections.push(section));
+    sections.forEach(section => {
+      if (watchedSections.has(section)) return;
+      watchedSections.add(section);
+      new MutationObserver(() => scheduleSync()).observe(section, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    });
+  }
+
   function init() {
     cleanupUniversalActions();
-    document.addEventListener('click', () => setTimeout(syncActiveSection, 60), true);
-    document.addEventListener('keydown', () => setTimeout(syncActiveSection, 60), true);
+    watchSectionActivation();
+    document.addEventListener('click', () => scheduleSync(), true);
+    document.addEventListener('webdevgym:curriculum-rendered', event => {
+      watchSectionActivation(event.target instanceof Element ? event.target : document);
+      scheduleSync(true);
+    });
     let attempts = 0;
     const waitForCurriculum = setInterval(() => {
       attempts += 1;
+      watchSectionActivation();
       syncActiveSection();
       if (document.querySelector('.section.active > .block') || attempts >= 20) clearInterval(waitForCurriculum);
     }, 250);
-    setInterval(syncActiveSection, 800);
     syncActiveSection(true);
   }
 

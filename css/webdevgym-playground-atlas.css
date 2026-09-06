@@ -7,8 +7,10 @@
   --wdga-text: #f3f7ff;
   --wdga-muted: #8ea0b7;
   --wdga-purple: #a855f7;
+  --wdga-purple-soft: #d8b4fe;
   --wdga-purple-low: #2a153c;
   --wdga-mint: #38d996;
+  --wdga-success: var(--wdga-mint);
   --wdga-amber: #f5b94c;
   --wdga-cyan: #4cc9f0;
   --wdga-danger: #fb7185;
@@ -522,6 +524,12 @@
   font: 11px/19px "Roboto Mono", "JetBrains Mono", monospace;
 }
 
+.wdga-editor.is-binary {
+  color: var(--wdga-muted);
+  white-space: pre-wrap;
+  cursor: default;
+}
+
 .wdga-emmet-status {
   display: inline-flex;
   align-items: center;
@@ -947,6 +955,9 @@
 }
 
 .wdga-dialog-head strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-size: 14px;
 }
 
@@ -958,6 +969,74 @@
   max-height: min(68dvh, 560px);
   overflow: auto;
   padding: 14px;
+}
+
+.wdga-import-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wdga-import-grid > button {
+  min-width: 0;
+  min-height: 92px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--wdga-border);
+  border-radius: 5px;
+  background: var(--wdga-surface);
+  color: var(--wdga-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.wdga-import-grid > button:hover,
+.wdga-import-grid > button:focus-visible {
+  border-color: var(--wdga-purple);
+  background: var(--wdga-elevated);
+  outline: 0;
+}
+
+.wdga-import-grid > button > iconify-icon {
+  color: var(--wdga-purple-soft);
+}
+
+.wdga-import-grid strong,
+.wdga-import-grid small {
+  display: block;
+}
+
+.wdga-import-grid strong {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.wdga-import-grid small {
+  margin-top: 5px;
+  color: var(--wdga-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.wdga-import-note,
+.wdga-import-status {
+  margin: 11px 0 0;
+  color: var(--wdga-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.wdga-import-status {
+  min-height: 15px;
+  color: var(--wdga-success);
+}
+
+.wdga-import-status.error {
+  color: var(--wdga-danger);
 }
 
 .wdga-history-list {
@@ -1168,6 +1247,14 @@ body:not(.dark) .wdga-root {
 
   .wdga-check-actions {
     grid-template-columns: 1fr;
+  }
+
+  .wdga-import-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wdga-import-grid > button {
+    min-height: 78px;
   }
 
   .wdga-preview-stage {

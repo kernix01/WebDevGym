@@ -250,7 +250,7 @@ body.wdgn-ready .wdgn-inspector,
 body.wdg-modern .wdg-rightbar {
   background: rgba(11, 11, 16, .82) !important;
   border-color: var(--wdgn-line) !important;
-  backdrop-filter: blur(18px) saturate(115%);
+  backdrop-filter: none;
 }
 
 body.wdgn-ready .wdgn-top,
@@ -258,7 +258,52 @@ body.wdg-modern .wdg-commandbar,
 body.wdg-modern .wdg-bottom-dock {
   background: rgba(9, 9, 13, .82) !important;
   border-color: var(--wdgn-line) !important;
-  backdrop-filter: blur(18px) saturate(120%);
+  backdrop-filter: none;
+}
+
+/* Keep the large legacy curriculum out of layout and paint while another
+   workspace page is open. It remains in the DOM, so progress and search stay intact. */
+body:is(.wdgn-overview-open, .wdgn-custom-page-open, .wdgf-page-open, .wdgr-settings-open) > .wrap,
+body.wdgn-ready > :is(
+  .wdgn-overview[hidden],
+  .wdgn-sections-page[hidden],
+  .wdgf-feature-page:not(.open),
+  .wdgt-page:not(.open),
+  .wdg-growth-page:not(.open),
+  .wdgr-settings-view:not(.open)
+) {
+  content-visibility: hidden;
+  contain: layout style paint;
+}
+
+body.wdgn-ready .wrap .section:not(.active) {
+  content-visibility: hidden;
+  contain: layout style paint;
+}
+
+/* Learning workspace adds its current lesson shortly after navigation. Hide
+   the raw lesson stack during that short handoff instead of laying it all out. */
+body.wdgn-ready :is(
+  #sec-html,
+  #sec-css,
+  #sec-js,
+  #sec-ts,
+  #sec-react,
+  #sec-vite,
+  #sec-node,
+  #sec-sql,
+  #sec-pg,
+  #sec-linux,
+  #sec-devops,
+  #sec-git
+).active:not(.wdgl-workspace) > .block {
+  display: none !important;
+}
+
+body.wdgn-ready .section.active > .block,
+body.wdgn-ready :is(.wdgn-section-card, .wdgf-card, .wdgp-project) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px;
 }
 
 body.wdgn-ready .wdgn-brand,
@@ -318,6 +363,30 @@ body.wdg-modern button:focus-visible,
 body.wdg-modern a:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--wdg-accent) 72%, white) !important;
   outline-offset: 2px;
+}
+
+/* Chromium on Windows can keep the native popup white even when the select
+   itself is dark. Style the popup rows explicitly so their text stays legible. */
+body.wdg-modern.dark select {
+  color-scheme: dark;
+  color: var(--wdg-text, #f1f3f7) !important;
+}
+
+body.wdg-modern.dark select option,
+body.wdg-modern.dark select optgroup {
+  background-color: #12141b;
+  color: #f1f3f7;
+}
+
+body.wdg-modern:not(.dark) select {
+  color-scheme: light;
+  color: var(--wdg-text, #172033);
+}
+
+body.wdg-modern:not(.dark) select option,
+body.wdg-modern:not(.dark) select optgroup {
+  background-color: #ffffff;
+  color: #172033;
 }
 
 body.wdgn-ready .wdgn-overview,
@@ -509,4 +578,270 @@ body:not(.dark).wdg-modern .wdgf-palette-search input {
 body:not(.dark).wdg-modern .wdgf-command:hover,
 body:not(.dark).wdg-modern .wdgf-command.active {
   background: #f0edf5 !important;
+}
+
+/* Desktop light theme: distinct surfaces without the cold, washed-out look. */
+@media (min-width: 901px) {
+  body.wdg-modern .wdgr-settings-view.wdgr-settings-v2-ready {
+    inset: var(--wdgn-topbar, 64px) 0 0 var(--wdgn-sidebar, 247px) !important;
+  }
+
+  body.wdgn-ready:not(.dark),
+  body.wdg-modern:not(.dark) {
+    --wdg-bg: #f3f2f6;
+    --wdg-panel: #ffffff;
+    --wdg-panel-2: #faf9fc;
+    --wdg-panel-3: #efedf3;
+    --wdg-line: rgba(38, 31, 47, .09);
+    --wdg-text: #211e28;
+    --wdg-muted: #726d7a;
+    --wdgn-bg: #f3f2f6;
+    --wdgn-surface: #ffffff;
+    --wdgn-surface-2: #faf9fc;
+    --wdgn-surface-3: #efedf3;
+    --wdgn-line: rgba(38, 31, 47, .09);
+    --wdgn-line-soft: rgba(38, 31, 47, .06);
+    --wdgn-text: #211e28;
+    --wdgn-muted: #726d7a;
+    --wdgr-bg: #f3f2f6;
+    --wdgr-surface: #ffffff;
+    --wdgr-surface-2: #faf9fc;
+    --wdgr-surface-3: #efedf3;
+    --wdgr-line: rgba(38, 31, 47, .09);
+    --wdgr-line-soft: rgba(38, 31, 47, .06);
+    --wdgf-bg: #f3f2f6;
+    --wdgf-panel: #ffffff;
+    --wdgf-panel-2: #faf9fc;
+    --wdgf-border: rgba(38, 31, 47, .09);
+    --wdgc-bg: #f3f2f6;
+    --wdgc-panel: #ffffff;
+    --wdgc-panel-2: #faf9fc;
+    --wdgc-line: rgba(38, 31, 47, .09);
+    --wdgc-line-strong: rgba(38, 31, 47, .13);
+    --wdga-canvas: #f3f2f6;
+    --wdga-surface: #ffffff;
+    --wdga-panel: #faf9fc;
+    --wdga-elevated: #efedf3;
+    --wdga-border: rgba(38, 31, 47, .09);
+    --wdgl-bg: #f3f2f6;
+    --wdgl-panel: #ffffff;
+    --wdgl-panel-2: #faf9fc;
+    --wdgl-line: rgba(38, 31, 47, .09);
+    --wdgt-bg: #f3f2f6;
+    --wdgt-panel: #ffffff;
+    --wdgt-panel-2: #faf9fc;
+    --wdgt-line: rgba(38, 31, 47, .09);
+    --wdgt-line-strong: rgba(38, 31, 47, .13);
+    background-color: #f3f2f6 !important;
+    color: #211e28 !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdg-sidebar {
+    background: rgba(252, 251, 253, .96) !important;
+    border-color: rgba(38, 31, 47, .07) !important;
+    box-shadow: 12px 0 38px rgba(31, 25, 39, .045);
+    backdrop-filter: none;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-top {
+    background: rgba(250, 249, 252, .92) !important;
+    border-color: rgba(38, 31, 47, .07) !important;
+    box-shadow: 0 10px 32px rgba(31, 25, 39, .035);
+    backdrop-filter: none;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-inspector,
+  body.wdg-modern:not(.dark) .wdg-rightbar {
+    background: rgba(248, 247, 250, .94) !important;
+    border-color: rgba(38, 31, 47, .07) !important;
+  }
+
+  body.wdgn-ready:not(.dark) :is(
+    .wdgn-overview,
+    .wdgn-sections-page,
+    .wdgf-feature-page,
+    .wdgt-page,
+    .wdg-growth-page
+  ),
+  body.wdg-modern:not(.dark) :is(
+    .wdgr-settings-view,
+    .wdgr-ai-main
+  ) {
+    background: #f3f2f6 !important;
+  }
+
+  body.wdgn-ready:not(.dark).has-custom-bg :is(
+    .wdgn-overview,
+    .wdgn-sections-page,
+    .wdgf-feature-page,
+    .wdgt-page,
+    .wdg-growth-page
+  ),
+  body.wdg-modern:not(.dark).has-custom-bg .wdgr-settings-view {
+    background: rgba(243, 242, 246, .82) !important;
+    backdrop-filter: blur(4px) saturate(.88);
+  }
+
+  body.wdgn-ready:not(.dark) :is(
+    .wdgn-search,
+    .wdgn-icon-btn,
+    .wdgn-text-btn,
+    .wdgn-priority-segment
+  ) {
+    background: rgba(255, 255, 255, .82) !important;
+    border-color: rgba(38, 31, 47, .085) !important;
+    color: #4d4757 !important;
+    box-shadow: 0 4px 16px rgba(31, 25, 39, .035);
+  }
+
+  body.wdgn-ready:not(.dark) :is(
+    .wdgn-icon-btn,
+    .wdgn-text-btn,
+    .wdgn-nav-btn
+  ):hover {
+    background: #f0edf4 !important;
+    border-color: rgba(128, 63, 175, .15) !important;
+    color: #29242f !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-nav-btn.active {
+    background: #eee7f5 !important;
+    border-color: rgba(148, 67, 211, .22) !important;
+    color: #6d2b9e !important;
+    box-shadow: inset 2px 0 #a855f7, 0 8px 24px rgba(91, 42, 126, .07) !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-priority-segment button.active,
+  body.wdg-modern:not(.dark) .wdgr-segmented button.active,
+  body.wdg-modern:not(.dark) .wdgr-segmented [aria-selected="true"] {
+    background: #ede5f5 !important;
+    color: #682994 !important;
+    box-shadow: inset 0 0 0 1px rgba(145, 61, 205, .28) !important;
+  }
+
+  body.wdg-modern:not(.dark) :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+    background-color: #fbfafc !important;
+    border-color: rgba(38, 31, 47, .11) !important;
+    color: #26212d !important;
+    box-shadow: inset 0 1px 2px rgba(31, 25, 39, .025);
+  }
+
+  body.wdg-modern:not(.dark) :is(input, select, textarea)::placeholder {
+    color: #9892a1 !important;
+  }
+
+  body.wdg-modern:not(.dark) :is(
+    .block,
+    .tool-block,
+    .wdgf-panel,
+    .wdgl-panel,
+    .wdg-growth-card,
+    .wdgf-stat,
+    .wdgr-settings-section,
+    .wdgr-settings-preview > section,
+    .wdgc-panel,
+    .wdgf-card,
+    .wdga-panel,
+    .wdg-gh-create-panel,
+    .wdg-gh-upload-workspace,
+    .wdgn-direction,
+    .wdgn-shared-section,
+    .wdgn-tool-card
+  ) {
+    background: #ffffff !important;
+    border-color: rgba(38, 31, 47, .075) !important;
+    box-shadow: 0 12px 34px rgba(31, 25, 39, .045) !important;
+  }
+
+  body.wdg-modern:not(.dark) :is(
+    .block,
+    .tool-block,
+    .wdgf-panel,
+    .wdgf-card,
+    .wdgn-tool-card
+  ):hover {
+    background: #fdfcff !important;
+    border-color: rgba(141, 65, 197, .16) !important;
+    box-shadow: 0 18px 42px rgba(31, 25, 39, .07) !important;
+  }
+
+  body.wdgn-ready:not(.dark) :is(
+    .wdgn-catalog-summary,
+    .wdgn-sections-switch,
+    .wdgn-catalog-search,
+    .wdgn-tools-head
+  ),
+  body.wdg-modern:not(.dark) :is(
+    .wdgr-settings-nav,
+    .wdgr-setting-row,
+    .wdgr-background-row,
+    .wdgr-local-list
+  ) {
+    background: #faf9fc !important;
+    border-color: rgba(38, 31, 47, .07) !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-section-card {
+    background: #faf9fc !important;
+    border-color: rgba(38, 31, 47, .075) !important;
+    color: #25212b !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-section-card:hover {
+    background: #f4f1f7 !important;
+    border-color: rgba(141, 65, 197, .16) !important;
+  }
+
+  body.wdgn-ready:not(.dark) :is(
+    .wdgn-workspace,
+    .wdgn-column,
+    .wdgn-column-head,
+    .wdgn-task,
+    .wdgn-inspector-block,
+    .wdgn-route
+  ) {
+    border-color: rgba(38, 31, 47, .065) !important;
+  }
+
+  body.wdgn-ready:not(.dark) .wdgn-editor {
+    background: #fbfafc !important;
+    border-color: rgba(38, 31, 47, .075) !important;
+    box-shadow: 0 12px 34px rgba(31, 25, 39, .04);
+  }
+
+  body.wdg-modern:not(.dark) :is(
+    .tip,
+    .explain,
+    .wdg-depth-docs,
+    .wdg-depth-practice
+  ) {
+    background: #f8f6fa !important;
+    border-color: rgba(38, 31, 47, .07) !important;
+    color: #4f4958 !important;
+  }
+
+  body.wdg-modern:not(.dark) :is(
+    .wdgn-text-btn,
+    .wdgr-button,
+    .wdgf-btn,
+    .wdgc-primary-btn,
+    .wdgc-secondary-btn,
+    .wdga-btn
+  ):not(.primary):not([class*="primary"]) {
+    background: #fbfafc !important;
+    border-color: rgba(38, 31, 47, .1) !important;
+    color: #393341 !important;
+  }
+
+  body.wdg-modern:not(.dark) :is(h1, h2, h3, h4) {
+    color: #211e28;
+  }
+
+  body.wdg-modern:not(.dark) :is(.wdgn-muted, .wdgr-muted) {
+    color: #726d7a !important;
+  }
 }

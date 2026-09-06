@@ -9,6 +9,14 @@
   const LAYOUT_KEY = 'wdga_layout_v2';
   const MAX_PROJECTS = 20;
   const MAX_SNAPSHOTS = 16;
+  const MAX_IMPORT_FILES = 300;
+  const MAX_IMPORT_BYTES = 64 * 1024 * 1024;
+  const MAX_IMPORT_FILE_BYTES = 32 * 1024 * 1024;
+  const TEXT_EXTENSIONS = new Set([
+    'html', 'htm', 'css', 'js', 'mjs', 'cjs', 'ts', 'tsx', 'jsx', 'json', 'md', 'txt',
+    'xml', 'svg', 'yml', 'yaml', 'scss', 'sass', 'less', 'csv', 'env', 'gitignore',
+    'npmrc', 'editorconfig', 'toml', 'ini', 'conf', 'lock'
+  ]);
   const EMMET_CURSOR_MARKER = '__WDGA_EMMET_CURSOR__';
   const EMMET_MARKUP_TAGS = new Set(['a', 'abbr', 'article', 'aside', 'audio', 'blockquote', 'body', 'button', 'canvas', 'code', 'dd', 'details', 'dialog', 'div', 'dl', 'dt', 'fieldset', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'html', 'iframe', 'img', 'input', 'label', 'li', 'link', 'main', 'meta', 'nav', 'ol', 'option', 'p', 'picture', 'pre', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'summary', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'ul', 'video']);
   const isEnglish = /-en\.html$/i.test(location.pathname) || document.documentElement.lang === 'en';
@@ -69,6 +77,20 @@
     replacePrompt: 'Replace with',
     insertSnippet: 'Snippet inserted',
     importProject: 'Import project',
+    importFiles: 'Files',
+    importFilesSub: 'Choose several files; they will be placed in the project root',
+    importFolder: 'Project folder',
+    importFolderSub: 'Keep the folder and subfolder structure',
+    importZip: 'ZIP archive',
+    importZipSub: 'Best way to move a full project to or from a phone',
+    importJson: 'WebDevGym backup',
+    importJsonSub: 'Import a previously exported JSON project',
+    importing: 'Importing project...',
+    importDone: 'Project imported',
+    importTooMany: 'The project has too many files. Maximum: 300.',
+    importTooLarge: 'The project is too large. Maximum total size: 64 MB; one file: 32 MB.',
+    importEmpty: 'No suitable project files were found.',
+    importUnsupportedZip: 'This ZIP cannot be opened in this browser.',
     exportProject: 'Export JSON',
     duplicateProject: 'Duplicate project',
     validateCode: 'Validate code',
@@ -138,6 +160,20 @@
     replacePrompt: 'На что заменить',
     insertSnippet: 'Заготовка вставлена',
     importProject: 'Импорт проекта',
+    importFiles: 'Выбрать файлы',
+    importFilesSub: 'Можно выбрать несколько; они попадут в корень проекта',
+    importFolder: 'Папка проекта',
+    importFolderSub: 'Сохранит структуру папок и подпапок',
+    importZip: 'ZIP-архив',
+    importZipSub: 'Удобнее всего переносить целый проект с телефона и обратно',
+    importJson: 'Копия WebDevGym',
+    importJsonSub: 'Импорт ранее экспортированного JSON-проекта',
+    importing: 'Импортируем проект...',
+    importDone: 'Проект импортирован',
+    importTooMany: 'В проекте слишком много файлов. Максимум: 300.',
+    importTooLarge: 'Проект слишком тяжёлый. Максимум 64 МБ всего и 32 МБ на один файл.',
+    importEmpty: 'Подходящих файлов проекта не найдено.',
+    importUnsupportedZip: 'Этот ZIP не получилось открыть в браузере.',
     exportProject: 'Экспорт JSON',
     duplicateProject: 'Дублировать проект',
     validateCode: 'Проверить код',
@@ -285,6 +321,9 @@
       id: file.id || uid('file'),
       name: normalizePath(file.name),
       content: String(file.content || ''),
+      binary: Boolean(file.binary),
+      mime: String(file.mime || ''),
+      byteSize: Number(file.byteSize || 0),
       updatedAt: file.updatedAt || createdAt
     }));
     return {
@@ -309,6 +348,9 @@
         id: file.id || uid('file'),
         name: normalizePath(file.name),
         content: String(file.content || ''),
+        binary: Boolean(file.binary),
+        mime: String(file.mime || ''),
+        byteSize: Number(file.byteSize || 0),
         updatedAt: file.updatedAt || Date.now()
       }))
       : defaultFiles();
@@ -560,7 +602,7 @@
   function captureEditor() {
     const editor = document.getElementById('pg-editor');
     const file = currentFile();
-    if (!editor || !file) return;
+    if (!editor || !file || file.binary) return;
     file.content = editor.value;
     file.updatedAt = Date.now();
     if (typeof pgFiles !== 'undefined') {
@@ -622,6 +664,7 @@
           <div class="wdga-top-actions">
             <span class="wdga-save-state is-saved" data-wdga-save-state>${icon('tabler:cloud-check', 14)} ${ui.saved}</span>
             <button class="wdga-btn" type="button" data-wdga-new-project>${icon('tabler:folder-plus', 15)} <span>${ui.newProject}</span></button>
+            <button class="wdga-btn" type="button" data-wdga-open-import title="${escapeHtml(ui.importProject)}">${icon('tabler:upload', 15)} <span>${ui.importProject}</span></button>
             <button class="wdga-btn" type="button" data-wdga-snapshot>${icon('tabler:device-floppy', 15)} <span>${ui.snapshot}</span></button>
             <button class="wdga-btn" type="button" data-wdga-history>${icon('tabler:history', 15)} <span>${ui.history}</span></button>
             <button class="wdga-btn" type="button" data-wdga-download>${icon('tabler:file-zip', 15)} <span>${ui.download}</span></button>
@@ -736,6 +779,25 @@
           </div>
           <div class="wdga-dialog-body"><div class="wdga-history-list" data-wdga-history-list></div></div>
         </dialog>
+        <dialog class="wdga-dialog wdga-import-dialog" data-wdga-import-dialog>
+          <div class="wdga-dialog-head">
+            <strong>${icon('tabler:upload', 17)} ${ui.importProject}</strong>
+            <button class="wdga-icon-btn" type="button" data-wdga-close-dialog title="${isEnglish ? 'Close' : 'Закрыть'}">${icon('tabler:x', 16)}</button>
+          </div>
+          <div class="wdga-dialog-body">
+            <div class="wdga-import-grid">
+              <button type="button" data-wdga-import-choice="files">${icon('tabler:files', 21)}<span><strong>${ui.importFiles}</strong><small>${ui.importFilesSub}</small></span></button>
+              <button type="button" data-wdga-import-choice="folder">${icon('tabler:folder-up', 21)}<span><strong>${ui.importFolder}</strong><small>${ui.importFolderSub}</small></span></button>
+              <button type="button" data-wdga-import-choice="zip">${icon('tabler:file-zip', 21)}<span><strong>${ui.importZip}</strong><small>${ui.importZipSub}</small></span></button>
+              <button type="button" data-wdga-import-choice="json">${icon('tabler:database-import', 21)}<span><strong>${ui.importJson}</strong><small>${ui.importJsonSub}</small></span></button>
+            </div>
+            <p class="wdga-import-note">${isEnglish ? 'Files stay in this browser. node_modules, .git and service files are skipped.' : 'Файлы останутся в этом браузере. node_modules, .git и служебные файлы пропускаются.'}</p>
+            <div class="wdga-import-status" data-wdga-import-status aria-live="polite"></div>
+          </div>
+        </dialog>
+        <input type="file" multiple hidden data-wdga-import-files>
+        <input type="file" multiple webkitdirectory directory hidden data-wdga-import-folder>
+        <input type="file" accept="application/zip,.zip" hidden data-wdga-import-zip>
         <input type="file" accept="application/json,.json" hidden data-wdga-import>
       </div>
     `);
@@ -803,7 +865,15 @@
     project.activeFile = file.name;
     if (typeof pgActiveFile !== 'undefined') pgActiveFile = file.name;
     const editor = document.getElementById('pg-editor');
-    if (editor) editor.value = file.content;
+    if (editor) {
+      editor.readOnly = Boolean(file.binary);
+      editor.classList.toggle('is-binary', Boolean(file.binary));
+      editor.value = file.binary
+        ? (isEnglish ? 'Binary file\n\n' : 'Бинарный файл\n\n') + file.name + '\n' + Math.max(0, Number(file.byteSize || 0)).toLocaleString() + ' bytes\n' + (file.mime || 'application/octet-stream')
+        : file.content;
+    }
+    const formatButton = state.root.querySelector('[data-wdga-format]');
+    if (formatButton) formatButton.disabled = Boolean(file.binary);
     state.root.querySelector('[data-wdga-breadcrumb]').textContent = file.name.split('/').join('  ›  ');
     state.root.querySelector('[data-wdga-path]').textContent = 'atlas / ' + (file.name.includes('/') ? file.name.split('/').slice(0, -1).join(' / ') : '');
     renderTabs();
@@ -1029,7 +1099,6 @@
       { name: 'script.js', content: '"use strict";\n' }
     ]);
     state.projects.unshift(project);
-    state.activeProject = project;
     persistProject(project);
     activateProject(project.id);
   }
@@ -1043,7 +1112,6 @@
     duplicate.updatedAt = Date.now();
     duplicate.snapshots = [];
     state.projects.unshift(duplicate);
-    state.activeProject = duplicate;
     persistProject(duplicate);
     activateProject(duplicate.id);
     notify(ui.copied);
@@ -1110,7 +1178,7 @@
   function formatCurrentFile() {
     const editor = document.getElementById('pg-editor');
     const file = currentFile();
-    if (!editor || !file) return;
+    if (!editor || !file || file.binary) return;
     let level = 0;
     const type = fileType(file.name);
     const lines = editor.value.replace(/\t/g, '  ').split('\n').map(line => line.trimEnd());
@@ -1179,6 +1247,7 @@
     captureEditor();
     const problems = [];
     state.activeProject.files.forEach(file => {
+      if (file.binary) return;
       const type = fileType(file.name);
       if (type === 'js') {
         try {
@@ -1205,7 +1274,7 @@
     const htmlFiles = files.filter(file => fileType(file.name) === 'html');
     const cssFiles = files.filter(file => fileType(file.name) === 'css');
     const jsFiles = files.filter(file => fileType(file.name) === 'js');
-    const all = files.map(file => file.content).join('\n');
+    const all = files.filter(file => !file.binary).map(file => file.content).join('\n');
     const jsValid = jsFiles.every(file => {
       try {
         new Function(file.content);
@@ -1264,6 +1333,42 @@
     return source.includes('</head>') ? source.replace('</head>', bridge + '</head>') : bridge + source;
   }
 
+  function relativeProjectPath(sourcePath, targetPath) {
+    const source = normalizePath(sourcePath).split('/').slice(0, -1);
+    const target = normalizePath(targetPath).split('/');
+    while (source.length && target.length && source[0] === target[0]) {
+      source.shift();
+      target.shift();
+    }
+    return '../'.repeat(source.length) + target.join('/');
+  }
+
+  function replaceAssetReferences(content, sourcePath, assets) {
+    let output = String(content || '');
+    assets.forEach(asset => {
+      const relative = relativeProjectPath(sourcePath, asset.name);
+      const references = [...new Set([
+        asset.name,
+        './' + asset.name,
+        relative,
+        relative && !relative.startsWith('.') ? './' + relative : '',
+        encodeURI(asset.name),
+        encodeURI(relative)
+      ].filter(Boolean))].sort((a, b) => b.length - a.length);
+      references.forEach(reference => { output = output.split(reference).join(asset.content); });
+    });
+    return output;
+  }
+
+  function previewProjectFiles() {
+    const assets = state.activeProject.files.filter(file => file.binary && /^data:/.test(file.content));
+    if (!assets.length) return state.activeProject.files;
+    return state.activeProject.files.map(file => file.binary ? file : {
+      ...file,
+      content: replaceAssetReferences(file.content, file.name, assets)
+    });
+  }
+
   function runPreview() {
     captureEditor();
     syncCoreFiles();
@@ -1285,13 +1390,18 @@
       return;
     }
     let documentSource = '';
+    const originalCoreFiles = typeof pgFiles !== 'undefined' ? pgFiles : null;
+    const previewFiles = previewProjectFiles();
     try {
+      if (typeof pgFiles !== 'undefined') pgFiles = previewFiles;
       documentSource = typeof pgBuildEntryDoc === 'function'
         ? pgBuildEntryDoc(entry)
-        : state.activeProject.files.find(file => file.name === entry)?.content || '';
+        : previewFiles.find(file => file.name === entry)?.content || '';
     } catch (error) {
-      documentSource = state.activeProject.files.find(file => file.name === entry)?.content || '';
+      documentSource = previewFiles.find(file => file.name === entry)?.content || '';
       log('error', error.message);
+    } finally {
+      if (typeof pgFiles !== 'undefined') pgFiles = originalCoreFiles || state.activeProject.files;
     }
     iframe.srcdoc = injectConsoleBridge(documentSource);
     log('info', ui.started);
@@ -1351,6 +1461,243 @@
     downloadBlob(new Blob([payload], { type: 'application/json' }), state.activeProject.name.replace(/[^\wа-яё-]+/gi, '-').toLowerCase() + '.json');
   }
 
+  function setImportStatus(message, error = false) {
+    const status = state.root?.querySelector('[data-wdga-import-status]');
+    if (!status) return;
+    status.textContent = message || '';
+    status.classList.toggle('error', error);
+  }
+
+  function ignoredImportPath(path) {
+    const normalized = '/' + normalizePath(path).toLowerCase() + '/';
+    return normalized.includes('/node_modules/') || normalized.includes('/.git/') ||
+      normalized.includes('/.idea/') || normalized.includes('/.vscode/') ||
+      /\/(thumbs\.db|desktop\.ini|\.ds_store)\/$/.test(normalized);
+  }
+
+  function safeImportPath(path) {
+    const normalized = normalizePath(path).replace(/^\.\//, '');
+    if (!normalized || normalized.split('/').includes('..') || ignoredImportPath(normalized)) return '';
+    return normalized;
+  }
+
+  function mimeForPath(path, fallback = '') {
+    if (fallback) return fallback;
+    const extension = normalizePath(path).split('.').pop().toLowerCase();
+    return ({
+      png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif',
+      svg: 'image/svg+xml', ico: 'image/x-icon', avif: 'image/avif', mp3: 'audio/mpeg', wav: 'audio/wav',
+      ogg: 'audio/ogg', m4a: 'audio/mp4', mp4: 'video/mp4', webm: 'video/webm', woff: 'font/woff',
+      woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf', json: 'application/json',
+      js: 'text/javascript', mjs: 'text/javascript', css: 'text/css', html: 'text/html', txt: 'text/plain'
+    })[extension] || 'application/octet-stream';
+  }
+
+  function isTextImport(path, mime = '') {
+    const name = normalizePath(path).split('/').pop().toLowerCase();
+    const extension = name.includes('.') ? name.split('.').pop() : name;
+    return TEXT_EXTENSIONS.has(extension) || ['license', 'readme', 'dockerfile', 'makefile'].includes(name) ||
+      /^text\//.test(mime) || /(?:json|javascript|xml|svg)/.test(mime);
+  }
+
+  function bytesToDataUrl(bytes, mime) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+    }
+    return 'data:' + mime + ';base64,' + btoa(binary);
+  }
+
+  function dataUrlBytes(value) {
+    const match = String(value || '').match(/^data:([^;,]+)?(?:;charset=[^;,]+)?;base64,(.*)$/s);
+    if (!match) return new TextEncoder().encode(String(value || ''));
+    const binary = atob(match[2]);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+    return bytes;
+  }
+
+  async function importedFileRecord(path, source, mime = '') {
+    const name = safeImportPath(path);
+    if (!name) return null;
+    const type = mimeForPath(name, mime || source?.type || '');
+    const size = Number(source?.size ?? source?.byteLength ?? 0);
+    if (size > MAX_IMPORT_FILE_BYTES) throw new Error('IMPORT_TOO_LARGE');
+    if (source instanceof File) {
+      if (isTextImport(name, type)) {
+        return { name, content: await source.text(), binary: false, mime: type, byteSize: size };
+      }
+      const bytes = new Uint8Array(await source.arrayBuffer());
+      return { name, content: bytesToDataUrl(bytes, type), binary: true, mime: type, byteSize: bytes.length };
+    }
+    const bytes = source instanceof Uint8Array ? source : new Uint8Array(source);
+    return isTextImport(name, type)
+      ? { name, content: new TextDecoder().decode(bytes), binary: false, mime: type, byteSize: bytes.length }
+      : { name, content: bytesToDataUrl(bytes, type), binary: true, mime: type, byteSize: bytes.length };
+  }
+
+  function commonRoot(paths) {
+    const roots = paths.map(path => normalizePath(path).split('/')).filter(parts => parts.length > 1).map(parts => parts[0]);
+    return roots.length === paths.length && roots.every(root => root === roots[0]) ? roots[0] : '';
+  }
+
+  function stripProjectRoot(path, root) {
+    const normalized = normalizePath(path);
+    return root && normalized.startsWith(root + '/') ? normalized.slice(root.length + 1) : normalized;
+  }
+
+  function uniqueImportPath(path, used) {
+    if (!used.has(path)) {
+      used.add(path);
+      return path;
+    }
+    const dot = path.lastIndexOf('.');
+    const base = dot > path.lastIndexOf('/') ? path.slice(0, dot) : path;
+    const extension = dot > path.lastIndexOf('/') ? path.slice(dot) : '';
+    let number = 2;
+    while (used.has(base + '-' + number + extension)) number += 1;
+    const result = base + '-' + number + extension;
+    used.add(result);
+    return result;
+  }
+
+  async function saveImportedProject(name, files, emptyFolders = []) {
+    if (!files.length) throw new Error('IMPORT_EMPTY');
+    captureEditor();
+    const project = newProject(name, files);
+    project.emptyFolders = emptyFolders.filter(Boolean);
+    project.expandedFolders = [...new Set(files.flatMap(file => {
+      const parts = file.name.split('/');
+      return parts.slice(0, -1).map((_, index) => parts.slice(0, index + 1).join('/'));
+    }).concat(project.emptyFolders))];
+    state.projects.unshift(project);
+    state.projects = state.projects.slice(0, MAX_PROJECTS);
+    await persistProject(project);
+    await activateProject(project.id);
+    state.root?.querySelector('[data-wdga-import-dialog]')?.close();
+    setImportStatus('');
+    notify(ui.importDone + ': ' + project.name);
+    log('success', ui.importDone + ': ' + files.length);
+  }
+
+  function importErrorMessage(error) {
+    if (error?.message === 'IMPORT_TOO_MANY') return ui.importTooMany;
+    if (error?.message === 'IMPORT_TOO_LARGE') return ui.importTooLarge;
+    if (error?.message === 'IMPORT_EMPTY') return ui.importEmpty;
+    if (error?.message === 'ZIP_UNSUPPORTED') return ui.importUnsupportedZip;
+    return ui.invalidImport;
+  }
+
+  async function importSelectedFiles(fileList, folderMode = false) {
+    try {
+      setImportStatus(ui.importing);
+      const selected = Array.from(fileList || []).map(file => ({
+        file,
+        path: safeImportPath(folderMode ? (file.webkitRelativePath || file.name) : file.name)
+      })).filter(item => item.path);
+      if (!selected.length) throw new Error('IMPORT_EMPTY');
+      if (selected.length > MAX_IMPORT_FILES) throw new Error('IMPORT_TOO_MANY');
+      const total = selected.reduce((sum, item) => sum + item.file.size, 0);
+      if (total > MAX_IMPORT_BYTES || selected.some(item => item.file.size > MAX_IMPORT_FILE_BYTES)) throw new Error('IMPORT_TOO_LARGE');
+      const root = folderMode ? commonRoot(selected.map(item => item.path)) : '';
+      const used = new Set();
+      const records = [];
+      for (const item of selected) {
+        const path = uniqueImportPath(stripProjectRoot(item.path, root), used);
+        const record = await importedFileRecord(path, item.file);
+        if (record) records.push(record);
+      }
+      const fallbackName = records.length === 1
+        ? records[0].name.replace(/\.[^.]+$/, '')
+        : (isEnglish ? 'Imported project' : 'Импортированный проект');
+      await saveImportedProject(root || fallbackName, records);
+    } catch (error) {
+      const message = importErrorMessage(error);
+      setImportStatus(message, true);
+      notify(message);
+    }
+  }
+
+  async function inflateZipBytes(bytes) {
+    if (!('DecompressionStream' in window)) throw new Error('ZIP_UNSUPPORTED');
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
+  async function readZipProject(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    let endOffset = -1;
+    for (let offset = Math.max(0, bytes.length - 65557); offset <= bytes.length - 22; offset += 1) {
+      if (view.getUint32(offset, true) === 0x06054b50) endOffset = offset;
+    }
+    if (endOffset < 0) throw new Error('ZIP_UNSUPPORTED');
+    const entryCount = view.getUint16(endOffset + 10, true);
+    let centralOffset = view.getUint32(endOffset + 16, true);
+    if (entryCount > MAX_IMPORT_FILES) throw new Error('IMPORT_TOO_MANY');
+    const decoder = new TextDecoder();
+    const entries = [];
+    const folders = [];
+    let totalSize = 0;
+    for (let index = 0; index < entryCount; index += 1) {
+      if (view.getUint32(centralOffset, true) !== 0x02014b50) throw new Error('ZIP_UNSUPPORTED');
+      const flags = view.getUint16(centralOffset + 8, true);
+      const method = view.getUint16(centralOffset + 10, true);
+      const compressedSize = view.getUint32(centralOffset + 20, true);
+      const size = view.getUint32(centralOffset + 24, true);
+      const nameLength = view.getUint16(centralOffset + 28, true);
+      const extraLength = view.getUint16(centralOffset + 30, true);
+      const commentLength = view.getUint16(centralOffset + 32, true);
+      const localOffset = view.getUint32(centralOffset + 42, true);
+      const rawName = decoder.decode(bytes.subarray(centralOffset + 46, centralOffset + 46 + nameLength));
+      const path = safeImportPath(rawName);
+      centralOffset += 46 + nameLength + extraLength + commentLength;
+      if (!path) continue;
+      if (rawName.endsWith('/')) {
+        folders.push(path);
+        continue;
+      }
+      if ((flags & 1) || ![0, 8].includes(method)) throw new Error('ZIP_UNSUPPORTED');
+      totalSize += size;
+      if (size > MAX_IMPORT_FILE_BYTES || totalSize > MAX_IMPORT_BYTES) throw new Error('IMPORT_TOO_LARGE');
+      if (view.getUint32(localOffset, true) !== 0x04034b50) throw new Error('ZIP_UNSUPPORTED');
+      const localNameLength = view.getUint16(localOffset + 26, true);
+      const localExtraLength = view.getUint16(localOffset + 28, true);
+      const dataOffset = localOffset + 30 + localNameLength + localExtraLength;
+      const compressed = bytes.subarray(dataOffset, dataOffset + compressedSize);
+      const content = method === 0 ? compressed.slice() : await inflateZipBytes(compressed);
+      entries.push({ path, content });
+    }
+    if (!entries.length) throw new Error('IMPORT_EMPTY');
+    const root = commonRoot(entries.map(entry => entry.path));
+    const used = new Set();
+    const records = [];
+    for (const entry of entries) {
+      const path = uniqueImportPath(stripProjectRoot(entry.path, root), used);
+      const record = await importedFileRecord(path, entry.content);
+      if (record) records.push(record);
+    }
+    return {
+      name: root || file.name.replace(/\.zip$/i, '') || (isEnglish ? 'Imported project' : 'Импортированный проект'),
+      files: records,
+      emptyFolders: folders.map(path => stripProjectRoot(path, root)).filter(Boolean)
+    };
+  }
+
+  async function importZipFile(file) {
+    try {
+      setImportStatus(ui.importing);
+      if (file.size > MAX_IMPORT_BYTES) throw new Error('IMPORT_TOO_LARGE');
+      const project = await readZipProject(file);
+      await saveImportedProject(project.name, project.files, project.emptyFolders);
+    } catch (error) {
+      const message = importErrorMessage(error);
+      setImportStatus(message, true);
+      notify(message);
+    }
+  }
+
   async function importProjectFile(file) {
     try {
       const payload = JSON.parse(await file.text());
@@ -1360,10 +1707,13 @@
       project.name += isEnglish ? ' imported' : ' — импорт';
       state.projects.unshift(project);
       state.projects = state.projects.slice(0, MAX_PROJECTS);
-      state.activeProject = project;
       await persistProject(project);
-      activateProject(project.id);
+      await activateProject(project.id);
+      state.root?.querySelector('[data-wdga-import-dialog]')?.close();
+      setImportStatus('');
+      notify(ui.importDone + ': ' + project.name);
     } catch (error) {
+      setImportStatus(ui.invalidImport, true);
       notify(ui.invalidImport);
     }
   }
@@ -1412,7 +1762,7 @@
     let offset = 0;
     files.forEach(file => {
       const name = encoder.encode(normalizePath(file.name));
-      const data = encoder.encode(String(file.content || ''));
+      const data = file.binary ? dataUrlBytes(file.content) : encoder.encode(String(file.content || ''));
       const crc = crc32(data);
       const local = concatBytes([
         le32(0x04034b50), le16(20), le16(0x0800), le16(0), le16(0), le16(0),
@@ -1776,6 +2126,22 @@
         handleTool(tool.dataset.wdgaTool);
         return;
       }
+      if (target.closest('[data-wdga-open-import]')) {
+        setImportStatus('');
+        root.querySelector('[data-wdga-import-dialog]')?.showModal();
+        return;
+      }
+      const importChoice = target.closest('[data-wdga-import-choice]');
+      if (importChoice) {
+        const input = root.querySelector({
+          files: '[data-wdga-import-files]',
+          folder: '[data-wdga-import-folder]',
+          zip: '[data-wdga-import-zip]',
+          json: '[data-wdga-import]'
+        }[importChoice.dataset.wdgaImportChoice]);
+        input?.click();
+        return;
+      }
       if (target.closest('[data-wdga-new-project]')) createProject();
       else if (target.closest('[data-wdga-snapshot]')) createSnapshot();
       else if (target.closest('[data-wdga-history]')) {
@@ -1803,6 +2169,21 @@
     root.addEventListener('change', updateOpenTool);
 
     root.querySelector('[data-wdga-project]').addEventListener('change', event => activateProject(event.target.value));
+    root.querySelector('[data-wdga-import-files]').addEventListener('change', async event => {
+      const files = event.target.files;
+      if (files?.length) await importSelectedFiles(files, false);
+      event.target.value = '';
+    });
+    root.querySelector('[data-wdga-import-folder]').addEventListener('change', async event => {
+      const files = event.target.files;
+      if (files?.length) await importSelectedFiles(files, true);
+      event.target.value = '';
+    });
+    root.querySelector('[data-wdga-import-zip]').addEventListener('change', async event => {
+      const file = event.target.files?.[0];
+      if (file) await importZipFile(file);
+      event.target.value = '';
+    });
     root.querySelector('[data-wdga-import]').addEventListener('change', event => {
       const file = event.target.files?.[0];
       if (file) importProjectFile(file);
@@ -1868,7 +2249,6 @@
       createProject(name, files) {
         const project = newProject(name, files);
         state.projects.unshift(project);
-        state.activeProject = project;
         persistProject(project);
         activateProject(project.id);
         return project.id;

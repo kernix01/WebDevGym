@@ -4,6 +4,18 @@
   const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
   const MODE_KEY = 'wdgr_light_effects_v1';
   const LAST_RUN_KEY = 'wdgr_last_optimized_at_v1';
+  const PAGE_ROOT_SELECTOR = [
+    '.wrap',
+    '.wdgn-overview',
+    '.wdgn-sections-page',
+    '.wdgf-feature-page',
+    '.wdgt-page',
+    '.wdg-growth-page',
+    '.wdgr-settings-view',
+    '.wdgr-ai-main'
+  ].join(',');
+  const watchedRoots = new WeakSet();
+  let runtimeSyncQueued = false;
   const copy = isEnglish ? {
     title: 'Quick optimization',
     description: 'Refresh app resources, remove old PWA caches and release temporary interface work without touching your progress or projects.',
@@ -60,6 +72,73 @@
     document.body.classList.toggle('wdgr-light-effects', enabled);
     write(MODE_KEY, enabled ? '1' : '0');
     document.dispatchEvent(new CustomEvent('webdevgym:performance-mode', { detail: { enabled } }));
+  }
+
+  function prepareMedia(root) {
+    if (!(root instanceof Element || root instanceof Document)) return;
+    root.querySelectorAll?.('img:not([data-wdgr-media-ready])').forEach(image => {
+      image.dataset.wdgrMediaReady = '1';
+      image.loading = 'lazy';
+      image.decoding = 'async';
+    });
+    root.querySelectorAll?.('iframe:not([data-wdgr-media-ready])').forEach(frame => {
+      frame.dataset.wdgrMediaReady = '1';
+      frame.loading = 'lazy';
+    });
+  }
+
+  function rootIsVisible(root) {
+    if (!root?.isConnected || root.hidden) return false;
+    const style = getComputedStyle(root);
+    return style.display !== 'none' && style.visibility !== 'hidden' && root.getClientRects().length > 0;
+  }
+
+  function syncRuntimeResources() {
+    runtimeSyncQueued = false;
+    prepareMedia(document);
+    document.querySelectorAll('video, audio').forEach(media => {
+      const root = media.closest(PAGE_ROOT_SELECTOR);
+      if ((document.hidden || (root && !rootIsVisible(root))) && !media.paused) media.pause();
+    });
+  }
+
+  function scheduleRuntimeSync() {
+    if (runtimeSyncQueued) return;
+    runtimeSyncQueued = true;
+    const run = () => window.requestAnimationFrame(syncRuntimeResources);
+    if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 160 });
+    else window.setTimeout(run, 70);
+  }
+
+  function watchPageRoot(root) {
+    if (!(root instanceof Element) || watchedRoots.has(root)) return;
+    watchedRoots.add(root);
+    new MutationObserver(scheduleRuntimeSync).observe(root, {
+      attributes: true,
+      attributeFilter: ['class', 'hidden']
+    });
+  }
+
+  function initRuntimeOptimization() {
+    document.querySelectorAll(PAGE_ROOT_SELECTOR).forEach(watchPageRoot);
+    prepareMedia(document);
+    new MutationObserver(mutations => {
+      mutations.forEach(mutation => mutation.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (node.matches(PAGE_ROOT_SELECTOR)) watchPageRoot(node);
+        node.querySelectorAll?.(PAGE_ROOT_SELECTOR).forEach(watchPageRoot);
+        prepareMedia(node);
+      }));
+      scheduleRuntimeSync();
+    }).observe(document.body, { childList: true });
+    new MutationObserver(scheduleRuntimeSync).observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    document.addEventListener('click', scheduleRuntimeSync, true);
+    document.addEventListener('visibilitychange', scheduleRuntimeSync);
+    document.addEventListener('webdevgym:feature-opened', scheduleRuntimeSync);
+    scheduleRuntimeSync();
   }
 
   function formatLastRun(value) {
@@ -168,6 +247,7 @@
 
   function init() {
     applyLightEffects(readBoolean(MODE_KEY));
+    initRuntimeOptimization();
     if (mount()) return;
     const observer = new MutationObserver(() => {
       if (mount()) observer.disconnect();

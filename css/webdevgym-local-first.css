@@ -332,6 +332,7 @@ body.wdgf-page-open > :is(
 
 body.wdgf-page-open > .wdgf-feature-page.open {
   visibility: visible !important;
+  pointer-events: auto !important;
   isolation: isolate;
 }
 

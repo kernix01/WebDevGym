@@ -26,6 +26,7 @@
   let paletteCategory = 'all';
   let settingsObserver;
   let drawerObserver;
+  let drawerStateObserver;
   let profileObserver;
   let initialized = false;
   let paletteIndex = 0;
@@ -659,8 +660,27 @@
   function observeDynamicUi() {
     settingsObserver = new MutationObserver(() => { enhanceSettings(); enhancePalette(); });
     settingsObserver.observe(document.body, { childList: true, subtree: true });
-    drawerObserver = new MutationObserver(enhanceLearningDrawer);
-    drawerObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    const watchLearningDrawer = () => {
+      const drawer = document.getElementById('wdgfLearningDrawer');
+      if (!drawer || drawer.dataset.wdglfObserved) return;
+      drawer.dataset.wdglfObserved = 'true';
+      drawerStateObserver?.disconnect();
+      drawerStateObserver = new MutationObserver(enhanceLearningDrawer);
+      drawerStateObserver.observe(drawer, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+      });
+      enhanceLearningDrawer();
+    };
+    watchLearningDrawer();
+    drawerObserver = new MutationObserver(mutations => {
+      if (mutations.some(mutation => Array.from(mutation.addedNodes).some(node =>
+        node instanceof Element && (node.id === 'wdgfLearningDrawer' || node.querySelector?.('#wdgfLearningDrawer'))
+      ))) watchLearningDrawer();
+    });
+    drawerObserver.observe(document.body, { childList: true, subtree: true });
     profileObserver = new MutationObserver(mutations => {
       const profileChanged = mutations.some(mutation => {
         if (mutation.target instanceof Element && mutation.target.closest('.wdgp-page')) return true;

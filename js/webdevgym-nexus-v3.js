@@ -812,12 +812,21 @@
         observer.observe(section, { attributes: true, attributeFilter: ['class'] });
       };
       const section = document.getElementById('sec-nexus');
-      if (section) watchSection(section);
+      if (section) {
+        watchSection(section);
+        const prepare = () => {
+          if (section.dataset.nexusV3 !== '1') installShell();
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(prepare, { timeout: 1800 });
+        else setTimeout(prepare, 1200);
+      }
       else {
         const mountObserver = new MutationObserver(() => {
           const mounted = document.getElementById('sec-nexus');
           if (!mounted) return;
           watchSection(mounted);
+          if ('requestIdleCallback' in window) requestIdleCallback(() => installShell(), { timeout: 1800 });
+          else setTimeout(() => installShell(), 1200);
           mountObserver.disconnect();
         });
         mountObserver.observe(document.body, { childList: true, subtree: true });

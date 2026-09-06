@@ -302,7 +302,31 @@
     buildShell();
     applyMode(localStorage.getItem(MODE_KEY) === '1');
     refresh();
-    new MutationObserver(queueRefresh).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    const watchedSections = new WeakSet();
+    const watchSections = root => {
+      const sections = [];
+      if (root instanceof Element && root.matches('.section')) sections.push(root);
+      root.querySelectorAll?.('.section').forEach(section => sections.push(section));
+      sections.forEach(section => {
+        if (watchedSections.has(section)) return;
+        watchedSections.add(section);
+        new MutationObserver(queueRefresh).observe(section, { attributes: true, attributeFilter: ['class'] });
+      });
+    };
+    watchSections(document);
+    new MutationObserver(mutations => {
+      const active = document.querySelector('.section.active');
+      let refreshNeeded = false;
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (!(node instanceof Element)) return;
+          watchSections(node);
+          if (active && (node === active || active.contains(node) || node.contains(active))) refreshNeeded = true;
+        });
+        if (active && (mutation.target === active || active.contains(mutation.target))) refreshNeeded = true;
+      });
+      if (refreshNeeded) queueRefresh();
+    }).observe(document.body, { childList: true, subtree: true });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

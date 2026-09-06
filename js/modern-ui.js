@@ -130,6 +130,7 @@
   }
 
   function activeSection() {
+    if (document.body.matches('.wdgn-overview-open, .wdgn-custom-page-open, .wdgf-page-open, .wdgr-settings-open')) return null;
     return document.querySelector('.section.active') || document.querySelector('.section');
   }
 
@@ -146,8 +147,13 @@
   }
 
   function blocksIn(section) {
-    return Array.from(section?.querySelectorAll(':scope > .block, :scope > .tool-block') || []).filter(function (el) {
-      return getComputedStyle(el).display !== 'none';
+    const blocks = Array.from(section?.querySelectorAll(':scope > .block, :scope > .tool-block') || []);
+    if (section?.classList.contains('wdgl-workspace')) {
+      const current = blocks.find(function (block) { return block.classList.contains('wdgl-current'); });
+      return current ? [current] : blocks.slice(0, 1);
+    }
+    return blocks.filter(function (element) {
+      return !element.hidden && !element.classList.contains('search-hidden');
     });
   }
 
@@ -227,7 +233,6 @@
     syncNavigation(id);
     renderLessons(section);
     updateDock(section);
-    updateProgressShell();
     if (id === 'nexus') setTimeout(renderNexusGraph, 30);
   }
 
@@ -741,6 +746,7 @@
     enhanceNexus();
     observeOldApp();
     syncWorkspace();
+    updateProgressShell();
     setTimeout(syncWorkspace, 400);
     setTimeout(syncWorkspace, 1500);
   }

@@ -12,8 +12,20 @@
     '.wdgr-settings-page.active'
   ].join(',');
 
+  const viewRootSelector = [
+    '.section',
+    '.wdgn-overview',
+    '.wdgn-sections-page',
+    '.wdgf-feature-page',
+    '.wdgt-page',
+    '.wdg-growth-page',
+    '.wdgr-settings-view',
+    '.wdgr-settings-page'
+  ].join(',');
+
   const running = new Map();
   const queued = new Set();
+  const watchedViews = new WeakSet();
   let ready = false;
   let frame = 0;
 
@@ -23,22 +35,23 @@
 
   function isVisibleView(element) {
     if (!isActiveView(element) || element.hidden) return false;
-    const style = getComputedStyle(element);
-    return style.display !== 'none' && style.visibility !== 'hidden';
+    if (element.matches('.section') && document.body.matches('.wdgn-overview-open, .wdgn-custom-page-open, .wdgf-page-open, .wdgr-settings-open')) return false;
+    return !element.closest('[hidden]');
   }
 
   function animateView(element) {
     if (!ready || !isVisibleView(element) || element.closest('[data-no-view-transition]')) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (element.matches('.section.active') && element.querySelectorAll('*').length > 700) return;
 
     running.get(element)?.cancel();
 
     const lightEffects = document.body.classList.contains('wdgr-light-effects');
     const animation = element.animate([
-      { opacity: lightEffects ? 0.86 : 0.68, transform: `translate3d(0, ${lightEffects ? 3 : 6}px, 0)` },
+      { opacity: lightEffects ? 0.92 : 0.84, transform: `translate3d(0, ${lightEffects ? 2 : 4}px, 0)` },
       { opacity: 1, transform: 'translate3d(0, 0, 0)' }
     ], {
-      duration: lightEffects ? 110 : 180,
+      duration: lightEffects ? 80 : 130,
       easing: 'cubic-bezier(.22, .8, .32, 1)',
       fill: 'both'
     });
@@ -75,11 +88,31 @@
     if (!frame && queued.size) frame = requestAnimationFrame(flushQueue);
   }
 
+  function watchView(view) {
+    if (!(view instanceof HTMLElement) || watchedViews.has(view)) return;
+    watchedViews.add(view);
+    new MutationObserver(() => queueView(view)).observe(view, {
+      attributes: true,
+      attributeFilter: ['class', 'hidden']
+    });
+  }
+
+  function discoverViews(root) {
+    if (!(root instanceof Element || root instanceof Document)) return;
+    if (root instanceof Element && root.matches(viewRootSelector)) watchView(root);
+    root.querySelectorAll?.(viewRootSelector).forEach(watchView);
+  }
+
   function start() {
+    discoverViews(document);
+
     const observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
-        if (mutation.type === 'attributes') queueView(mutation.target);
-        mutation.addedNodes.forEach(node => queueView(node, true));
+        mutation.addedNodes.forEach(node => {
+          if (!(node instanceof Element)) return;
+          discoverViews(node);
+          queueView(node, true);
+        });
       });
       running.forEach((animation, element) => {
         if (isVisibleView(element)) return;
@@ -90,9 +123,7 @@
 
     observer.observe(document.body, {
       subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['class', 'hidden']
+      childList: true
     });
 
     // Existing content must stay still on the first paint. Only later

@@ -128,6 +128,7 @@
   ];
 
   const toolCatalog = isEnglish ? [
+    ['naming','tabler:variable','Code naming','Names for variables, arrays and functions, with explanations.'],
     ['github','tabler:brand-github','GitHub','Create repositories, upload project files and publish with GitHub Pages.'],
     ['fonts','tabler:typography','Fonts','Preview fonts and copy ready-to-use CSS.'],
     ['css-tools','tabler:adjustments-horizontal','CSS generators','Shadows, colors, units, gradients and border radius.'],
@@ -141,6 +142,7 @@
     ['career','tabler:briefcase','Career','Portfolio, freelancing and job preparation.']
   ] : [
     ['github','tabler:brand-github','GitHub','Создание репозиториев, загрузка проектов и публикация через GitHub Pages.'],
+    ['naming','tabler:variable','Названия в коде','Названия переменных, массивов и функций с объяснениями.'],
     ['fonts','tabler:typography','Шрифты','Превью шрифтов и готовые CSS-строки для копирования.'],
     ['css-tools','tabler:adjustments-horizontal','CSS-генераторы','Тени, цвета, единицы, градиенты и скругления.'],
     ['cheatsheets','tabler:notes','Шпаргалки','Короткий справочник по синтаксису на каждый день.'],
@@ -250,7 +252,7 @@ function continueLearning() {
 
   function setActive(id) {
     currentView = id;
-    document.querySelectorAll('.wdgn-nav-btn').forEach(button => button.classList.toggle('active', button.dataset.view === id));
+    document.querySelectorAll('.wdgn-nav-btn').forEach(button => button.classList.toggle('active', button.dataset.view === (id === 'naming' ? 'sections' : id)));
     if (navigationHistoryReady && !restoringNavigationHistory && history.state?.wdgnView !== id) {
       history.pushState({ ...(history.state || {}), wdgnView: id }, '');
     }
@@ -312,7 +314,7 @@ function continueLearning() {
     else if (id === 'sections') return showSections();
     else if (id === 'lab') window.WebDevGymLab?.open?.();
     else if (id === 'forge') window.WebDevGymForge?.open?.();
-    else if (id === 'profile') window.WebDevGymFeatures?.open?.('profile');
+    else if (id === 'profile' || id === 'naming') window.WebDevGymFeatures?.open?.(id);
     else showNativeTab(id);
     setActive(id);
   }
@@ -481,6 +483,7 @@ function continueLearning() {
     }));
     sectionsPage.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => {
       const id = button.dataset.openTool;
+      if (id === 'naming') return openView('naming');
       if (id === 'css-tools') {
         showNativeTab('playground');
         window.setTimeout(() => {
@@ -529,6 +532,11 @@ function continueLearning() {
     sectionsPage.hidden = false;
     setActive('sections');
     renderSectionsPage();
+  }
+
+  function showTools() {
+    sectionsMode = 'tools';
+    showSections();
   }
 
   function routeMarkup() {
@@ -710,6 +718,7 @@ function continueLearning() {
   window.WebDevGymNext = Object.freeze({
     open: openView,
     overview: showOverview,
+    tools: showTools,
     current: () => currentView
   });
 

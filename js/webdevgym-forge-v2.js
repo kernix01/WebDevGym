@@ -312,7 +312,14 @@
     if (activeView) renderConsole(activeView);
   });
 
-  new MutationObserver(scheduleScan).observe(document.documentElement, { childList: true, subtree: true });
+  new MutationObserver(() => {
+    if (activeView?.isConnected && activeView.querySelector('.wdgforge-v2-studio')) return;
+    if (!document.getElementById('wdgforgeView')) {
+      activeView = null;
+      return;
+    }
+    scheduleScan();
+  }).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('webdevgym:languagechange', scheduleScan);
   window.addEventListener('resize', scheduleScan);
   scheduleScan();
