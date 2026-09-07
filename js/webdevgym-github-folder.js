@@ -33,7 +33,25 @@
     badToken: 'Токен неверный или у него нет разрешения Contents: write.', notFound: 'Репозиторий не найден или у токена нет доступа.',
     conflict: 'Во время загрузки ветка изменилась. Запусти загрузку ещё раз.', network: 'Сетевая ошибка', root: 'корень репозитория'
   };
-  Object.assign(copy, isEnglish ? {"tip":"Select up to 10 files or one project folder. The folder structure is preserved and the whole selection is added in one commit.","oneFile":"Files (up to 10)","fileLabel":"Files to upload","noFolder":"Choose files or a folder to upload","noFiles":"No suitable files were selected.","tooManyFiles":"Select no more than 10 files.","success":"Files uploaded successfully","pushFile":"Push files to GitHub","selectionNote":"Up to 10 files per commit.","fileDestination":"Path or destination folder","fileDestinationHint":"One file: index.html; several files: src"} : {"tip":"\u0412\u044b\u0431\u0435\u0440\u0438 \u0434\u043e 10 \u0444\u0430\u0439\u043b\u043e\u0432 \u0438\u043b\u0438 \u043e\u0434\u043d\u0443 \u043f\u0430\u043f\u043a\u0443 \u043f\u0440\u043e\u0435\u043a\u0442\u0430. \u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0430 \u043f\u0430\u043f\u043a\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f, \u0430 \u0432\u0441\u044f \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u0430\u044f \u043f\u0430\u0447\u043a\u0430 \u043f\u043e\u043f\u0430\u0434\u0435\u0442 \u0432 \u043e\u0434\u0438\u043d \u043a\u043e\u043c\u043c\u0438\u0442.","oneFile":"\u0424\u0430\u0439\u043b\u044b (\u0434\u043e 10)","fileLabel":"\u0424\u0430\u0439\u043b\u044b \u0434\u043b\u044f \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438","noFolder":"\u0412\u044b\u0431\u0435\u0440\u0438 \u0444\u0430\u0439\u043b\u044b \u0438\u043b\u0438 \u043f\u0430\u043f\u043a\u0443 \u0434\u043b\u044f \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438","noFiles":"\u041f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0438\u0435 \u0444\u0430\u0439\u043b\u044b \u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d\u044b.","tooManyFiles":"\u0412\u044b\u0431\u0435\u0440\u0438 \u043d\u0435 \u0431\u043e\u043b\u044c\u0448\u0435 10 \u0444\u0430\u0439\u043b\u043e\u0432.","success":"\u0424\u0430\u0439\u043b\u044b \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u044b","pushFile":"\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0444\u0430\u0439\u043b\u044b \u0432 GitHub","selectionNote":"\u0414\u043e 10 \u0444\u0430\u0439\u043b\u043e\u0432 \u0432 \u043e\u0434\u043d\u043e\u043c \u043a\u043e\u043c\u043c\u0438\u0442\u0435.","fileDestination":"\u041f\u0443\u0442\u044c \u0438\u043b\u0438 \u043f\u0430\u043f\u043a\u0430 \u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u044f","fileDestinationHint":"\u041e\u0434\u0438\u043d \u0444\u0430\u0439\u043b: index.html; \u043d\u0435\u0441\u043a\u043e\u043b\u044c\u043a\u043e: src"});
+  Object.assign(copy, isEnglish ? {
+    tip: 'Select up to 10 files or one project folder. The whole selection is added in one commit.',
+    oneFile: 'Files (up to 10)', fileLabel: 'Choose files to upload', noFolder: 'Choose files or a folder to upload',
+    noFiles: 'No suitable files were selected.', tooManyFiles: 'Select no more than 10 files.',
+    success: 'Files uploaded successfully', pushFile: 'Push files to GitHub',
+    selectionNote: 'Choose the files above. Do not type their names into the destination field.',
+    uploadToRoot: 'Upload directly to the repository root', rootNote: 'Selected files keep their names and are uploaded without an extra folder.',
+    fileDestination: 'Destination folder', fileDestinationHint: 'For example: src or assets',
+    invalidDestination: 'Enter one destination folder, not a list of file names.'
+  } : {
+    tip: '\u0412\u044b\u0431\u0435\u0440\u0438 \u0434\u043e 10 \u0444\u0430\u0439\u043b\u043e\u0432 \u0438\u043b\u0438 \u043e\u0434\u043d\u0443 \u043f\u0430\u043f\u043a\u0443 \u043f\u0440\u043e\u0435\u043a\u0442\u0430. \u0412\u0441\u044f \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u0430\u044f \u043f\u0430\u0447\u043a\u0430 \u043f\u043e\u043f\u0430\u0434\u0435\u0442 \u0432 \u043e\u0434\u0438\u043d \u043a\u043e\u043c\u043c\u0438\u0442.',
+    oneFile: '\u0424\u0430\u0439\u043b\u044b (\u0434\u043e 10)', fileLabel: '\u0412\u044b\u0431\u0440\u0430\u0442\u044c \u0444\u0430\u0439\u043b\u044b \u0434\u043b\u044f \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438', noFolder: '\u0412\u044b\u0431\u0435\u0440\u0438 \u0444\u0430\u0439\u043b\u044b \u0438\u043b\u0438 \u043f\u0430\u043f\u043a\u0443 \u0434\u043b\u044f \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438',
+    noFiles: '\u041f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0438\u0435 \u0444\u0430\u0439\u043b\u044b \u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d\u044b.', tooManyFiles: '\u0412\u044b\u0431\u0435\u0440\u0438 \u043d\u0435 \u0431\u043e\u043b\u044c\u0448\u0435 10 \u0444\u0430\u0439\u043b\u043e\u0432.',
+    success: '\u0424\u0430\u0439\u043b\u044b \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u044b', pushFile: '\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0444\u0430\u0439\u043b\u044b \u0432 GitHub',
+    selectionNote: '\u0424\u0430\u0439\u043b\u044b \u0432\u044b\u0431\u0438\u0440\u0430\u044e\u0442\u0441\u044f \u043a\u043d\u043e\u043f\u043a\u043e\u0439 \u0432\u044b\u0448\u0435. \u041d\u0435 \u043f\u0438\u0448\u0438 \u0438\u0445 \u0438\u043c\u0435\u043d\u0430 \u0432 \u043f\u043e\u043b\u0435 \u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u044f.',
+    uploadToRoot: '\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0441\u0440\u0430\u0437\u0443 \u0432 \u043a\u043e\u0440\u0435\u043d\u044c \u0440\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u044f', rootNote: '\u0412\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0444\u0430\u0439\u043b\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0442 \u0441\u0432\u043e\u0438 \u0438\u043c\u0435\u043d\u0430 \u0438 \u043f\u043e\u043f\u0430\u0434\u0443\u0442 \u0431\u0435\u0437 \u043b\u0438\u0448\u043d\u0435\u0439 \u043f\u0430\u043f\u043a\u0438.',
+    fileDestination: '\u041f\u0430\u043f\u043a\u0430 \u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u044f', fileDestinationHint: '\u041d\u0430\u043f\u0440\u0438\u043c\u0435\u0440: src \u0438\u043b\u0438 assets',
+    invalidDestination: '\u0423\u043a\u0430\u0436\u0438 \u043e\u0434\u043d\u0443 \u043f\u0430\u043f\u043a\u0443 \u043d\u0430\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u044f, \u0430 \u043d\u0435 \u0441\u043f\u0438\u0441\u043e\u043a \u0444\u0430\u0439\u043b\u043e\u0432.'
+  });
   Object.assign(copy, isEnglish ? {
     tip: 'Select up to 10 files or add up to 10 project folders. Folder structure is preserved and the whole selection is added in one commit.',
     folder: 'Folders (up to 10)',
@@ -62,6 +80,7 @@
   const MODE_KEY = 'wdg_github_upload_mode_v1';
   const BASE_KEY = 'wdg_github_folder_base_v1';
   const ROOT_KEY = 'wdg_github_keep_root_v1';
+  const FILE_ROOT_KEY = 'wdg_github_files_to_root_v1';
   const IGNORED_DIRECTORIES = new Set(['.git', 'node_modules']);
   const IGNORED_FILES = new Set(['.DS_Store', 'Thumbs.db']);
   const MAX_FILES = 10;
@@ -211,6 +230,7 @@
       .wdg-gh-folder-options label>span,.wdg-gh-folder-label{display:block;margin-bottom:5px;color:#8b949e;font-size:12px;font-weight:600}
       .wdg-gh-folder-base{width:100%;padding:8px 12px;border:1px solid #30363d;border-radius:8px;background:#161b22;color:#e6edf3;font:13px inherit;outline:none;box-sizing:border-box}
       .wdg-gh-folder-base:focus{border-color:#8b5cf6}.wdg-gh-keep-root{display:flex!important;align-items:center;gap:8px;min-height:36px;color:#c9d1d9!important;font-size:12px!important;white-space:nowrap;cursor:pointer}
+      .wdg-gh-file-root{display:flex;align-items:flex-start;gap:9px;margin:10px 0;padding:10px 12px;border:1px solid #30363d;border-radius:8px;background:#0b121c;color:#e6edf3;font-size:12px;font-weight:600;cursor:pointer}.wdg-gh-file-root input{margin:2px 0 0;accent-color:#8b5cf6}.wdg-gh-file-root span{display:grid;gap:3px}.wdg-gh-file-root small{color:#8b949e;font-size:11px;font-weight:400;line-height:1.4}
       .wdg-gh-folder-summary{margin-top:10px;padding:10px 12px;border:1px solid #30363d;border-radius:8px;background:#0b121c;color:#8b949e;font-size:12px;line-height:1.55}
       .wdg-gh-folder-summary strong{color:#e6edf3}.wdg-gh-folder-summary code{color:#c4b5fd}.wdg-gh-folder-paths{margin-top:6px;max-height:76px;overflow:auto;scrollbar-width:thin}
       .wdg-gh-folder-paths div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wdg-gh-note{margin-top:6px;color:#6e7681;font-size:11px}
@@ -281,6 +301,8 @@
     });
     const folderPanel = document.getElementById('gh-folder-panel');
     if (folderPanel) folderPanel.hidden = uploadMode !== 'folder';
+    const rootToggle = document.getElementById('gh-files-root-wrap');
+    if (rootToggle) rootToggle.hidden = uploadMode === 'folder';
     document.getElementById('gh-file-input')?.closest('[data-gh-single-file]')?.classList.toggle('wdg-gh-single-hidden', uploadMode === 'folder');
     document.getElementById('gh-filepath')?.closest('[data-gh-filepath-field]')?.classList.toggle('wdg-gh-single-hidden', uploadMode === 'folder');
     const button = document.querySelector('#block-git-github-upload button[onclick="githubUpload()"]');
@@ -316,6 +338,21 @@
     if (filepathLabel) filepathLabel.textContent = copy.fileDestination;
     const filepathInput = document.getElementById('gh-filepath');
     if (filepathInput) filepathInput.placeholder = copy.fileDestinationHint;
+    const rootToggle = document.createElement('label');
+    rootToggle.id = 'gh-files-root-wrap';
+    rootToggle.className = 'wdg-gh-file-root';
+    rootToggle.innerHTML = `<input id="gh-files-to-root" type="checkbox"><span>${escapeHtml(copy.uploadToRoot)}<small>${escapeHtml(copy.rootNote)}</small></span>`;
+    filepathField?.insertAdjacentElement('beforebegin', rootToggle);
+    const rootCheckbox = rootToggle.querySelector('#gh-files-to-root');
+    rootCheckbox.checked = read(FILE_ROOT_KEY, 'true') !== 'false';
+
+    function syncFileDestination() {
+      const toRoot = rootCheckbox.checked;
+      if (filepathField) filepathField.hidden = toRoot;
+      if (toRoot && filepathInput) filepathInput.value = '';
+      write(FILE_ROOT_KEY, String(toRoot));
+      renderFolderSummary();
+    }
 
     const mode = document.createElement('div');
     mode.className = 'wdg-gh-mode';
@@ -338,6 +375,7 @@
     const keepRoot = panel.querySelector('#gh-folder-keep-root');
     keepRoot.checked = read(ROOT_KEY, 'true') !== 'false';
     fileInput.addEventListener('change', renderFolderSummary);
+    rootCheckbox.addEventListener('change', syncFileDestination);
     panel.querySelector('#gh-folder-input').addEventListener('change', event => addFolderSelection(event.target.files));
     panel.querySelector('#gh-folder-summary').addEventListener('click', event => {
       const button = event.target.closest('[data-gh-remove-folder]');
@@ -358,6 +396,7 @@
     };
     renderFolderSummary();
     setMode(uploadMode);
+    syncFileDestination();
     return true;
   }
 
@@ -420,13 +459,16 @@
     const message = document.getElementById('gh-message')?.value.trim() || 'upload: files';
     const isFolder = uploadMode === 'folder';
     const baseField = isFolder ? 'gh-folder-base' : 'gh-filepath';
-    const base = normalizePath(document.getElementById(baseField)?.value);
+    const rawBase = document.getElementById(baseField)?.value || '';
+    const filesToRoot = !isFolder && document.getElementById('gh-files-to-root')?.checked !== false;
+    const base = filesToRoot ? '' : normalizePath(rawBase);
     const keepRoot = isFolder && document.getElementById('gh-folder-keep-root')?.checked !== false;
     const { all, files } = selectedFiles();
 
     if (!username || !repo || !token) return status(copy.missingFields, 'error');
     if (!all.length) return status(copy.noFolder, 'error');
     if (!files.length) return status(copy.noFiles, 'error');
+    if (!isFolder && !filesToRoot && /[;,\n\r]/.test(rawBase)) return status(copy.invalidDestination, 'error');
     if (isFolder && folderSelections.length > MAX_FOLDERS) return status(copy.tooManyFolders, 'error', `${folderSelections.length} / ${MAX_FOLDERS}`);
     const fileLimit = isFolder ? MAX_FOLDER_FILES : MAX_FILES;
     if (files.length > fileLimit) return status(isFolder ? copy.tooManyFolderFiles : copy.tooManyFiles, 'error', `${files.length} / ${fileLimit}`);

@@ -32,7 +32,7 @@
     folderDropWarning: L('Use the folder picker so the browser preserves the folder structure.', 'Для сохранения структуры выбери папку через проводник.'),
     accessTitle: L('GitHub access', 'Доступ к GitHub'),
     accessHint: L('The token is encrypted locally and never enters drafts or history.', 'Токен шифруется локально и не попадает в черновики или историю.'),
-    path: L('Repository path', 'Путь в репозитории'),
+    path: L('Destination folder', 'Папка назначения'),
     message: L('Commit message', 'Сообщение коммита'),
     saveDraft: L('Save draft', 'Сохранить черновик'),
     draftSaved: L('Draft saved locally', 'Черновик сохранён локально'),

@@ -57,6 +57,9 @@
     consolePanel: 'Console',
     empty: 'Nothing here yet.',
     projectName: 'Project name',
+    deleteProject: 'Delete project',
+    confirmDeleteProject: 'Delete project "{name}"? This cannot be undone.',
+    projectDeleted: 'Project deleted.',
     snapshotName: 'Snapshot name',
     filePath: 'File path, for example src/app.js',
     folderPath: 'Folder path, for example src/components',
@@ -140,6 +143,9 @@
     consolePanel: 'Консоль',
     empty: 'Здесь пока пусто.',
     projectName: 'Название проекта',
+    deleteProject: 'Удалить проект',
+    confirmDeleteProject: 'Удалить проект «{name}»? Это действие нельзя отменить.',
+    projectDeleted: 'Проект удалён.',
     snapshotName: 'Название снимка',
     filePath: 'Путь к файлу, например src/app.js',
     folderPath: 'Путь к папке, например src/components',
@@ -270,7 +276,14 @@
   function fileType(path) {
     const extension = normalizePath(path).split('.').pop().toLowerCase();
     if (extension === 'htm') return 'html';
-    return ['html', 'css', 'js', 'ts', 'json', 'md'].includes(extension) ? extension : 'txt';
+    if (extension === 'jpeg') return 'jpg';
+    const knownTypes = [
+      'html', 'css', 'js', 'mjs', 'ts', 'json', 'md', 'txt',
+      'png', 'jpg', 'webp', 'gif', 'svg', 'ico', 'avif',
+      'mp3', 'wav', 'ogg', 'm4a', 'mp4', 'webm',
+      'woff', 'woff2', 'ttf', 'otf'
+    ];
+    return knownTypes.includes(extension) ? extension : 'file';
   }
 
   function fileName(path) {
@@ -326,13 +339,18 @@
       byteSize: Number(file.byteSize || 0),
       updatedAt: file.updatedAt || createdAt
     }));
+    const entryFile = projectFiles.find(file => /(^|\/)index\.html?$/i.test(file.name))?.name
+      || projectFiles.find(file => fileType(file.name) === 'html')?.name
+      || '';
+    const initialFile = entryFile || projectFiles.find(file => !file.binary)?.name || projectFiles[0]?.name || '';
     return {
       id: uid('project'),
       name: String(name || (isEnglish ? 'Untitled project' : 'Новый проект')).trim(),
       files: projectFiles,
       emptyFolders: [],
-      activeFile: projectFiles[0]?.name || '',
-      entryFile: projectFiles.find(file => fileType(file.name) === 'html')?.name || '',
+      activeFile: initialFile,
+      openFiles: initialFile ? [initialFile] : [],
+      entryFile,
       expandedFolders: ['src', 'src/components', 'src/styles'],
       snapshots: [],
       autosave: null,
@@ -357,12 +375,18 @@
     normalized.emptyFolders = Array.isArray(project?.emptyFolders) ? project.emptyFolders.map(normalizePath) : [];
     normalized.expandedFolders = Array.isArray(project?.expandedFolders) ? project.expandedFolders.map(normalizePath) : [];
     normalized.snapshots = Array.isArray(project?.snapshots) ? project.snapshots.slice(0, MAX_SNAPSHOTS) : [];
-    normalized.activeFile = normalized.files.some(file => file.name === project?.activeFile)
-      ? project.activeFile
-      : normalized.files[0]?.name || '';
     normalized.entryFile = normalized.files.some(file => file.name === project?.entryFile)
       ? project.entryFile
-      : normalized.files.find(file => fileType(file.name) === 'html')?.name || '';
+      : normalized.files.find(file => /(^|\/)index\.html?$/i.test(file.name))?.name
+        || normalized.files.find(file => fileType(file.name) === 'html')?.name
+        || '';
+    const initialFile = normalized.entryFile || normalized.files.find(file => !file.binary)?.name || normalized.files[0]?.name || '';
+    const savedOpenFiles = Array.isArray(project?.openFiles) ? project.openFiles : [project?.activeFile || initialFile];
+    normalized.openFiles = [...new Set(savedOpenFiles.map(normalizePath))]
+      .filter(path => normalized.files.some(file => file.name === path));
+    normalized.activeFile = normalized.openFiles.includes(project?.activeFile)
+      ? project.activeFile
+      : normalized.openFiles[0] || '';
     return normalized;
   }
 
@@ -624,7 +648,8 @@
         name: ui.autosave,
         savedAt: Date.now(),
         files: clone(state.activeProject.files),
-        activeFile: state.activeProject.activeFile
+        activeFile: state.activeProject.activeFile,
+        openFiles: clone(state.activeProject.openFiles || [])
       };
       await persistProject(state.activeProject);
       if (saveState) {
@@ -685,7 +710,10 @@
               </span>
               <button class="wdga-icon-btn" type="button" data-wdga-explorer-toggle title="${isEnglish ? 'Collapse project explorer' : 'Свернуть проводник'}">${icon('tabler:chevrons-left', 16)}</button>
             </div>
-            <select class="wdga-select wdga-project-select" data-wdga-project aria-label="${escapeHtml(ui.projectName)}"></select>
+            <div class="wdga-project-picker">
+              <select class="wdga-select wdga-project-select" data-wdga-project aria-label="${escapeHtml(ui.projectName)}"></select>
+              <button class="wdga-icon-btn wdga-delete-project" type="button" data-wdga-delete-project title="${escapeHtml(ui.deleteProject)}" aria-label="${escapeHtml(ui.deleteProject)}">${icon('tabler:trash', 16)}</button>
+            </div>
             <div class="wdga-segmented" role="tablist">
               <button class="active" type="button" data-wdga-explorer-tab="structure">${ui.structure}</button>
               <button type="button" data-wdga-explorer-tab="tools">${ui.tools}</button>
@@ -817,12 +845,21 @@
       id: file.id || uid('file'),
       name: normalizePath(file.name),
       content: String(file.content || ''),
+      binary: Boolean(file.binary),
+      mime: String(file.mime || ''),
+      byteSize: Number(file.byteSize || 0),
       updatedAt: Date.now()
     }));
     state.activeProject.activeFile = typeof pgActiveFile !== 'undefined' && pgActiveFile
       ? pgActiveFile
       : state.activeProject.files[0]?.name || '';
     state.activeProject.entryFile = state.activeProject.files.find(file => fileType(file.name) === 'html')?.name || '';
+    state.activeProject.openFiles = [...new Set((state.activeProject.openFiles || []).filter(path => (
+      state.activeProject.files.some(file => file.name === path)
+    )))];
+    if (state.activeProject.activeFile && !state.activeProject.openFiles.includes(state.activeProject.activeFile)) {
+      state.activeProject.openFiles.push(state.activeProject.activeFile);
+    }
     if (typeof pgFiles !== 'undefined') pgFiles = state.activeProject.files;
     scheduleSave();
   }
@@ -839,7 +876,10 @@
     adoptCoreFiles();
     const tabs = document.getElementById('pgTabs');
     if (!tabs || !state.activeProject) return;
-    tabs.innerHTML = state.activeProject.files.map(file => {
+    const openFiles = (state.activeProject.openFiles || [])
+      .map(path => state.activeProject.files.find(file => file.name === path))
+      .filter(Boolean);
+    tabs.innerHTML = openFiles.map(file => {
       const type = fileType(file.name);
       return '<button type="button" class="pg-tab-file' + (file.name === state.activeProject.activeFile ? ' active' : '') + '" data-wdga-file="' + escapeHtml(file.name) + '">' +
         '<span class="ext ' + type + '">' + escapeHtml(type) + '</span>' +
@@ -862,12 +902,15 @@
     const project = state.activeProject;
     const file = project?.files.find(item => item.name === path);
     if (!file) return;
+    project.openFiles = Array.isArray(project.openFiles) ? project.openFiles : [];
+    if (!project.openFiles.includes(file.name)) project.openFiles.push(file.name);
     project.activeFile = file.name;
     if (typeof pgActiveFile !== 'undefined') pgActiveFile = file.name;
     const editor = document.getElementById('pg-editor');
     if (editor) {
       editor.readOnly = Boolean(file.binary);
       editor.classList.toggle('is-binary', Boolean(file.binary));
+      editor.placeholder = '';
       editor.value = file.binary
         ? (isEnglish ? 'Binary file\n\n' : 'Бинарный файл\n\n') + file.name + '\n' + Math.max(0, Number(file.byteSize || 0)).toLocaleString() + ' bytes\n' + (file.mime || 'application/octet-stream')
         : file.content;
@@ -882,6 +925,47 @@
     hideEmmetSuggestion();
     updateEmmetStatus();
     if (!options?.silent) scheduleSave();
+  }
+
+  function showNoActiveFile() {
+    const project = state.activeProject;
+    if (!project || !state.root) return;
+    project.activeFile = '';
+    if (typeof pgActiveFile !== 'undefined') pgActiveFile = null;
+    const editor = document.getElementById('pg-editor');
+    if (editor) {
+      editor.value = '';
+      editor.readOnly = true;
+      editor.classList.remove('is-binary');
+      editor.placeholder = isEnglish ? 'Open a file from the project tree' : 'Открой файл в дереве проекта';
+    }
+    const formatButton = state.root.querySelector('[data-wdga-format]');
+    if (formatButton) formatButton.disabled = true;
+    state.root.querySelector('[data-wdga-breadcrumb]').textContent = isEnglish ? 'No file open' : 'Нет открытого файла';
+    state.root.querySelector('[data-wdga-path]').textContent = 'atlas /';
+    renderTabs();
+    renderTree();
+    renderLineNumbers();
+    hideEmmetSuggestion();
+    updateEmmetStatus();
+  }
+
+  function closeFileTab(path) {
+    const project = state.activeProject;
+    if (!project) return;
+    if (project.activeFile === path) captureEditor();
+    const openFiles = Array.isArray(project.openFiles) ? project.openFiles : [];
+    const closingIndex = openFiles.indexOf(path);
+    if (closingIndex < 0) return;
+    project.openFiles = openFiles.filter(filePath => filePath !== path);
+    if (project.activeFile === path) {
+      const nextPath = project.openFiles[Math.min(closingIndex, project.openFiles.length - 1)] || '';
+      if (nextPath) setActiveFile(nextPath, { silent: true });
+      else showNoActiveFile();
+    } else {
+      renderTabs();
+    }
+    scheduleSave();
   }
 
   function treeModel() {
@@ -1013,7 +1097,11 @@
     renderTree();
     renderTools();
     renderSnapshots();
-    setActiveFile(state.activeProject.activeFile, { silent: true });
+    if (state.activeProject.activeFile && state.activeProject.openFiles?.includes(state.activeProject.activeFile)) {
+      setActiveFile(state.activeProject.activeFile, { silent: true });
+    } else {
+      showNoActiveFile();
+    }
     renderConsole();
   }
 
@@ -1053,6 +1141,7 @@
       file.name = next;
       if (state.activeProject.activeFile === path) state.activeProject.activeFile = next;
       if (state.activeProject.entryFile === path) state.activeProject.entryFile = next;
+      state.activeProject.openFiles = (state.activeProject.openFiles || []).map(filePath => filePath === path ? next : filePath);
     } else {
       state.activeProject.files.forEach(file => {
         if (file.name === path || file.name.startsWith(path + '/')) file.name = next + file.name.slice(path.length);
@@ -1061,6 +1150,9 @@
       state.activeProject.expandedFolders = state.activeProject.expandedFolders.map(folder => folder === path || folder.startsWith(path + '/') ? next + folder.slice(path.length) : folder);
       if (state.activeProject.activeFile.startsWith(path + '/')) state.activeProject.activeFile = next + state.activeProject.activeFile.slice(path.length);
       if (state.activeProject.entryFile.startsWith(path + '/')) state.activeProject.entryFile = next + state.activeProject.entryFile.slice(path.length);
+      state.activeProject.openFiles = (state.activeProject.openFiles || []).map(filePath => (
+        filePath.startsWith(path + '/') ? next + filePath.slice(path.length) : filePath
+      ));
     }
     syncCoreFiles();
     renderAll();
@@ -1076,8 +1168,14 @@
       state.activeProject.files = state.activeProject.files.filter(file => !file.name.startsWith(path + '/'));
       state.activeProject.emptyFolders = state.activeProject.emptyFolders.filter(folder => folder !== path && !folder.startsWith(path + '/'));
     }
+    state.activeProject.openFiles = (state.activeProject.openFiles || []).filter(filePath => (
+      state.activeProject.files.some(file => file.name === filePath)
+    ));
     if (!state.activeProject.files.some(file => file.name === state.activeProject.activeFile)) {
-      state.activeProject.activeFile = state.activeProject.files[0]?.name || '';
+      state.activeProject.activeFile = state.activeProject.openFiles[0] || state.activeProject.files[0]?.name || '';
+      if (state.activeProject.activeFile && !state.activeProject.openFiles.includes(state.activeProject.activeFile)) {
+        state.activeProject.openFiles.push(state.activeProject.activeFile);
+      }
     }
     if (!state.activeProject.files.some(file => file.name === state.activeProject.entryFile)) {
       state.activeProject.entryFile = state.activeProject.files.find(file => fileType(file.name) === 'html')?.name || '';
@@ -1101,6 +1199,30 @@
     state.projects.unshift(project);
     persistProject(project);
     activateProject(project.id);
+  }
+
+  async function deleteActiveProject() {
+    const project = state.activeProject;
+    if (!project) return;
+    const message = ui.confirmDeleteProject.replace('{name}', project.name);
+    if (!window.confirm(message)) return;
+    captureEditor();
+    state.projects = state.projects.filter(item => item.id !== project.id);
+    await deletePersistedProject(project.id);
+    if (!state.projects.length) {
+      const fallback = newProject(isEnglish ? 'Untitled project' : 'Новый проект');
+      state.projects.push(fallback);
+      await persistProject(fallback);
+    }
+    state.activeProject = state.projects[0];
+    state.checks = [];
+    state.problems = [];
+    syncCoreFiles();
+    writeJson(META_KEY, { activeProjectId: state.activeProject.id });
+    renderAll();
+    runPreview();
+    await persistProject(state.activeProject);
+    notify(ui.projectDeleted);
   }
 
   function duplicateProject() {
@@ -1141,6 +1263,7 @@
       savedAt: Date.now(),
       files: clone(state.activeProject.files),
       activeFile: state.activeProject.activeFile,
+      openFiles: clone(state.activeProject.openFiles || []),
       entryFile: state.activeProject.entryFile
     });
     state.activeProject.snapshots = state.activeProject.snapshots.slice(0, MAX_SNAPSHOTS);
@@ -1157,6 +1280,12 @@
     if (!snapshot) return;
     state.activeProject.files = clone(snapshot.files);
     state.activeProject.activeFile = snapshot.activeFile || state.activeProject.files[0]?.name || '';
+    state.activeProject.openFiles = Array.isArray(snapshot.openFiles)
+      ? snapshot.openFiles.filter(path => state.activeProject.files.some(file => file.name === path))
+      : (state.activeProject.activeFile ? [state.activeProject.activeFile] : []);
+    if (state.activeProject.activeFile && !state.activeProject.openFiles.includes(state.activeProject.activeFile)) {
+      state.activeProject.openFiles.push(state.activeProject.activeFile);
+    }
     state.activeProject.entryFile = snapshot.entryFile || state.activeProject.files.find(file => fileType(file.name) === 'html')?.name || '';
     syncCoreFiles();
     renderAll();
@@ -1355,13 +1484,16 @@
         encodeURI(asset.name),
         encodeURI(relative)
       ].filter(Boolean))].sort((a, b) => b.length - a.length);
-      references.forEach(reference => { output = output.split(reference).join(asset.content); });
+      const assetUrl = asset.previewUrl || asset.content;
+      references.forEach(reference => { output = output.split(reference).join(assetUrl); });
     });
     return output;
   }
 
   function previewProjectFiles() {
-    const assets = state.activeProject.files.filter(file => file.binary && /^data:/.test(file.content));
+    const assets = state.activeProject.files
+      .filter(file => file.binary && /^data:/.test(file.content))
+      .map(file => ({ ...file, previewUrl: file.content }));
     if (!assets.length) return state.activeProject.files;
     return state.activeProject.files.map(file => file.binary ? file : {
       ...file,
@@ -1409,7 +1541,8 @@
   }
 
   function projectStack() {
-    const types = [...new Set(state.activeProject.files.map(file => fileType(file.name)).filter(type => type !== 'txt' && type !== 'md'))];
+    const stackTypes = new Set(['html', 'css', 'js', 'mjs', 'ts']);
+    const types = [...new Set(state.activeProject.files.map(file => fileType(file.name)).filter(type => stackTypes.has(type)))];
     return types.map(type => type.toUpperCase()).join(' · ') || 'Web';
   }
 
@@ -2075,7 +2208,7 @@
       }
       const closeFile = target.closest('[data-wdga-close-file]');
       if (closeFile) {
-        deleteItem('file', closeFile.dataset.wdgaCloseFile);
+        closeFileTab(closeFile.dataset.wdgaCloseFile);
         return;
       }
       const treeFile = target.closest('[data-wdga-tree-file]');
@@ -2142,7 +2275,8 @@
         input?.click();
         return;
       }
-      if (target.closest('[data-wdga-new-project]')) createProject();
+      if (target.closest('[data-wdga-delete-project]')) deleteActiveProject();
+      else if (target.closest('[data-wdga-new-project]')) createProject();
       else if (target.closest('[data-wdga-snapshot]')) createSnapshot();
       else if (target.closest('[data-wdga-history]')) {
         renderHistory();

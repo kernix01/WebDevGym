@@ -5381,8 +5381,19 @@ function pgBuildEntryDoc(entryName) {
     const jsFile = jsFiles.find(f => f.name === src);
     if (jsFile) {
       const newScr = doc.createElement('script');
+      Array.from(scr.attributes).forEach(attribute => {
+        if (!['src', 'integrity', 'crossorigin'].includes(attribute.name)) {
+          newScr.setAttribute(attribute.name, attribute.value);
+        }
+      });
       newScr.textContent = jsFile.content;
-      scr.parentNode.replaceChild(newScr, scr);
+      if (scr.hasAttribute('defer') && (scr.getAttribute('type') || '').toLowerCase() !== 'module') {
+        newScr.removeAttribute('defer');
+        scr.remove();
+        (doc.body || doc.documentElement).appendChild(newScr);
+      } else {
+        scr.parentNode.replaceChild(newScr, scr);
+      }
     }
   });
 
