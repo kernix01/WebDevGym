@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-09-07-v120';
+const CACHE_NAME = 'webdevgym-shell-2026-09-07-v122';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -40,7 +40,7 @@ const APP_SHELL = [
   './css/webdevgym-calendar-v5.css',
   './css/webdevgym-nexus-v3.css',
   './css/webdevgym-learning-workspace.css',
-  './css/webdevgym-playground-atlas.css?v=20260906-1',
+  './css/webdevgym-playground-atlas.css?v=20260907-2',
   './css/webdevgym-usability.css',
   './css/webdevgym-project-mode.css',
   './css/webdevgym-notebook.css',
@@ -56,8 +56,8 @@ const APP_SHELL = [
   './data/curriculum-order-2026.js',
   './js/webdevgym-curriculum-renderer.js',
   './js/modern-language-bootstrap-v2.js',
-  './js/webdevgym-core-ru.js',
-  './js/webdevgym-core-en.js',
+  './js/webdevgym-core-ru.js?v=20260907-1',
+  './js/webdevgym-core-en.js?v=20260907-1',
   './js/modern-ui-bootstrap.js',
   './js/modern-ui.js?v=20260906-1',
   './js/modern-ui-v2.js',
@@ -96,7 +96,7 @@ const APP_SHELL = [
   './js/webdevgym-nexus-v3.js?v=20260906-1',
   './js/webdevgym-learning-workspace.js?v=20260906-3',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
-  './js/webdevgym-playground-atlas.js?v=20260906-1',
+  './js/webdevgym-playground-atlas.js?v=20260907-2',
   './js/webdevgym-usability.js',
   './js/webdevgym-project-mode.js',
   './js/webdevgym-notebook.js',
