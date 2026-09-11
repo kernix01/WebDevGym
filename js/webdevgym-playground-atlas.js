@@ -2296,8 +2296,26 @@
       else if (target.closest('[data-wdga-close-dialog]')) target.closest('dialog')?.close();
     });
 
+    let toolUpdateFrame = 0;
     const updateOpenTool = event => {
-      if (event.target.closest('[data-wdga-tool-body]')) updateToolBuilder();
+      if (!event.target.closest('[data-wdga-tool-body]')) return;
+
+      // Native color pickers emit many input events while their cursor moves.
+      // Updating the page behind the picker makes that cursor stutter on Windows.
+      if (event.type === 'input' && event.target.matches('input[type="color"]')) return;
+
+      if (event.type === 'change') {
+        if (toolUpdateFrame) cancelAnimationFrame(toolUpdateFrame);
+        toolUpdateFrame = 0;
+        updateToolBuilder();
+        return;
+      }
+
+      if (toolUpdateFrame) return;
+      toolUpdateFrame = requestAnimationFrame(() => {
+        toolUpdateFrame = 0;
+        updateToolBuilder();
+      });
     };
     root.addEventListener('input', updateOpenTool);
     root.addEventListener('change', updateOpenTool);

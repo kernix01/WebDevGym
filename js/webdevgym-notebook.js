@@ -320,7 +320,7 @@
     button.dataset.wdgFeature = 'notebook';
     if (usesNextNavigation) {
       button.dataset.view = 'notebook';
-      button.dataset.mobile = 'true';
+      button.dataset.mobile = 'false';
     }
     button.innerHTML = icon('tabler:notebook',19) + '<span>' + t.nav + '</span>';
     button.addEventListener('click', event => {

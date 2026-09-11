@@ -9,7 +9,7 @@
   const text = (ru, en) => isEnglish ? en : ru;
   const copy = {
     title: text('Nexus — карта знаний', 'Nexus — knowledge map'),
-    subtitle: text('Связывай заметки, темы и уроки в одну живую систему.', 'Connect notes, topics and lessons into one living system.'),
+    subtitle: text('Пиши заметки и связывай идеи через [[ссылки]].', 'Write notes and connect ideas with [[links]].'),
     map: text('Карта', 'Map'),
     path: text('Путь', 'Path'),
     focus: text('Фокус', 'Focus'),
@@ -19,11 +19,19 @@
     projects: text('Проекты', 'Projects'),
     errors: text('Ошибки', 'Errors'),
     newNote: text('Новая заметка', 'New note'),
+    createNote: text('Создать заметку', 'Create note'),
+    saveNote: text('Сохранить заметку', 'Save note'),
+    cancel: text('Отмена', 'Cancel'),
+    editorTitle: text('Редактор заметки', 'Note editor'),
+    newNoteTitle: text('Новая заметка', 'New note'),
+    titleRequired: text('Напиши название заметки.', 'Enter a note title.'),
+    duplicateTitle: text('Заметка с таким названием уже существует.', 'A note with this title already exists.'),
+    keyboardHint: text('Ctrl+S — сохранить · Esc — закрыть', 'Ctrl+S to save · Esc to close'),
     inspector: text('Инспектор', 'Inspector'),
     overview: text('Обзор', 'Overview'),
     links: text('Связи', 'Links'),
     edit: text('Заметка', 'Note'),
-    mastery: text('Освоение', 'Mastery'),
+    words: text('слов', 'words'),
     backlinks: text('Обратные ссылки', 'Backlinks'),
     outgoing: text('Исходящие связи', 'Outgoing links'),
     related: text('Связанные уроки', 'Related lessons'),
@@ -36,39 +44,16 @@
     bodyPlaceholder: text('Для связи используй [[Название заметки]].', 'Use [[Note title]] to create a link.'),
     confirmDelete: text('Удалить эту заметку?', 'Delete this note?'),
     importError: text('Не удалось импортировать заметки.', 'Could not import notes.'),
-    hint: text('Перетаскивай узлы · колесо — масштаб · пустое место — движение карты', 'Drag nodes · wheel to zoom · drag empty space to pan'),
-    empty: text('Nexus пуст. Создай первую заметку.', 'Nexus is empty. Create the first note.'),
+    hint: text('Перетаскивай заметки · колесо — масштаб · пустое место — движение карты', 'Drag notes · wheel to zoom · drag empty space to pan'),
+    empty: text('Здесь появятся только твои заметки и связи между ними.', 'Only your notes and the links between them will appear here.'),
     notes: text('заметок', 'notes'),
     untitled: text('Без названия', 'Untitled'),
     updated: text('Обновлено', 'Updated'),
     import: text('Импорт', 'Import'),
     export: text('Экспорт', 'Export'),
-    technologies: text('Технологии', 'Technologies'),
-    noteFilter: text('Заметки', 'Notes')
+    graphNotes: text('Заметки', 'Notes'),
+    graphLinks: text('Связи', 'Links')
   };
-
-  const topics = [
-    ['topic-dom', text('Интерфейс', 'Interface'), 'frontend', 850, 420, 58, '#a855f7'],
-    ['topic-js', 'JavaScript', 'frontend', 625, 335, 43, '#20c7e8'],
-    ['topic-events', 'Events', 'frontend', 800, 215, 36, '#ff667d'],
-    ['topic-html', 'HTML', 'frontend', 1090, 300, 34, '#23d9ef'],
-    ['topic-css', 'CSS', 'frontend', 1135, 510, 34, '#5a86ff'],
-    ['topic-storage', text('Данные', 'Data'), 'frontend', 610, 540, 38, '#f4b323'],
-    ['topic-ts', 'TypeScript', 'frontend', 450, 235, 31, '#4d94ff'],
-    ['topic-react', 'React', 'frontend', 1220, 385, 31, '#54d4ff'],
-    ['topic-node', 'Node.js', 'backend', 425, 650, 36, '#58bd72'],
-    ['topic-api', 'API', 'backend', 610, 720, 30, '#2dd4a8'],
-    ['topic-sql', 'SQL', 'backend', 810, 735, 30, '#76a7ff'],
-    ['topic-git', 'Git', 'projects', 1110, 700, 30, '#ff775d'],
-    ['topic-debug', 'Debug', 'errors', 1300, 620, 32, '#ff667d']
-  ].map(([id, title, group, x, y, r, accent]) => ({ id, title, group, x, y, r, accent, type: 'topic' }));
-
-  const topicLinks = [
-    ['topic-dom', 'topic-js'], ['topic-dom', 'topic-events'], ['topic-dom', 'topic-html'],
-    ['topic-dom', 'topic-css'], ['topic-dom', 'topic-storage'], ['topic-js', 'topic-ts'],
-    ['topic-js', 'topic-react'], ['topic-js', 'topic-node'], ['topic-node', 'topic-api'],
-    ['topic-api', 'topic-sql'], ['topic-js', 'topic-git'], ['topic-js', 'topic-debug']
-  ];
 
   const state = {
     root: null,
@@ -80,8 +65,7 @@
     explorerOpen: true,
     inspectorOpen: true,
     inspectorTab: 'overview',
-    showTopics: true,
-    showNotes: true,
+    draft: null,
     nodes: new Map(),
     links: [],
     camera: { x: 0, y: 0, zoom: 1 },
@@ -129,7 +113,7 @@
       title: String(note.title || copy.untitled),
       body: String(note.body || ''),
       updatedAt: Number(note.updatedAt || Date.now())
-    }));
+    })).filter(note => note.body.trim() || !['Без названия', 'Untitled'].includes(note.title.trim()));
   }
 
   function linksFor(note) {
@@ -174,7 +158,7 @@
       .replace(/[^\p{L}\p{N}+#.-]+/gu, ' ').split(/\s+/).filter(word => word.length > 2))];
     return Array.from(document.querySelectorAll('.section > .block')).map(block => {
       const title = block.querySelector('.block-title, h2, h3')?.textContent?.replace(/\s+/g, ' ').trim() || '';
-      return { block, title, sectionId: block.closest('.section')?.id || '',
+      return { block, title, blockId: block.id || '', sectionId: block.closest('.section')?.id || '',
         score: words.filter(word => title.toLowerCase().includes(word)).length };
     }).filter(item => item.title && item.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
   }
@@ -195,6 +179,7 @@
     if (!section || section.dataset.nexusV3 === '1') return false;
     state.root = section;
     state.notes = loadNotes();
+    writeJson(NOTES_KEY, state.notes);
     const savedUi = readJson(UI_KEY, {});
     state.selectedId = state.notes.some(note => note.id === savedUi.selectedId) ? savedUi.selectedId : state.notes[0]?.id || '';
     state.mode = ['map', 'path', 'focus'].includes(savedUi.mode) ? savedUi.mode : 'map';
@@ -210,6 +195,7 @@
           <div class="nx-title-wrap"><span class="nx-kicker">${icon('tabler:affiliate', 16)} Nexus</span><h1>${copy.title}</h1><p>${copy.subtitle}</p></div>
           <div class="nx-modes" role="tablist">${['map', 'path', 'focus'].map(mode => `<button type="button" data-nx-mode="${mode}" class="${state.mode === mode ? 'active' : ''}">${icon(mode === 'map' ? 'tabler:circles-relation' : mode === 'path' ? 'tabler:route' : 'tabler:focus-2', 16)} ${copy[mode]}</button>`).join('')}</div>
           <div class="nx-top-actions">
+            <button type="button" class="nx-new-note-button" data-nx-new>${icon('tabler:file-plus', 17)} <span>${copy.newNote}</span></button>
             <button type="button" class="nx-icon-button" data-nx-explorer-toggle title="${copy.knowledge}" aria-label="${copy.knowledge}">${icon('tabler:layout-sidebar-left-collapse')}</button>
             <button type="button" class="nx-icon-button" data-nx-import title="${copy.import}" aria-label="${copy.import}">${icon('tabler:upload')}</button>
             <button type="button" class="nx-icon-button" data-nx-export title="${copy.export}" aria-label="${copy.export}">${icon('tabler:download')}</button>
@@ -224,6 +210,11 @@
               </defs>
               <g data-nx-world><g data-nx-edges></g><g data-nx-nodes></g></g>
             </svg>
+            <div class="nx-empty-state" data-nx-empty>
+              <span>${icon('tabler:notes', 28)}</span>
+              <strong>${copy.empty}</strong>
+              <button type="button" class="nx-primary-button" data-nx-new>${icon('tabler:file-plus', 17)} ${copy.createNote}</button>
+            </div>
             <div class="nx-empty-label">${copy.hint}</div>
           </div>
           <aside class="nx-explorer ${state.explorerOpen ? 'open' : ''}" data-nx-explorer>
@@ -237,13 +228,12 @@
             <div class="nx-inspector-tabs" role="tablist">
               <button type="button" data-nx-tab="overview" class="active">${copy.overview}</button>
               <button type="button" data-nx-tab="links">${copy.links}</button>
-              <button type="button" data-nx-tab="edit">${copy.edit}</button>
             </div>
             <div class="nx-inspector-body" data-nx-inspector-body></div>
           </aside>
-          <div class="nx-filter-dock">
-            <button type="button" class="active" data-nx-filter="topics">${icon('tabler:stack-2', 15)} ${copy.technologies}</button>
-            <button type="button" class="active" data-nx-filter="notes">${icon('tabler:notes', 15)} ${copy.noteFilter}</button>
+          <div class="nx-graph-stats" aria-live="polite">
+            <span>${copy.graphNotes}: <strong data-nx-graph-note-count>0</strong></span>
+            <span>${copy.graphLinks}: <strong data-nx-graph-link-count>0</strong></span>
           </div>
           <div class="nx-graph-controls">
             <button type="button" data-nx-zoom-out title="${text('Уменьшить', 'Zoom out')}" aria-label="${text('Уменьшить', 'Zoom out')}">${icon('tabler:minus', 17)}</button>
@@ -253,6 +243,26 @@
             <button type="button" data-nx-zoom-in title="${text('Увеличить', 'Zoom in')}" aria-label="${text('Увеличить', 'Zoom in')}">${icon('tabler:plus', 17)}</button>
           </div>
           <div class="nx-minimap"><svg viewBox="0 0 180 105"><g data-nx-mini-world></g><rect data-nx-mini-camera></rect></svg></div>
+          <div class="nx-compose-backdrop" data-nx-compose hidden>
+            <section class="nx-compose" role="dialog" aria-modal="true" aria-labelledby="nxComposeHeading">
+              <header class="nx-compose-head">
+                <div><span>${copy.editorTitle}</span><strong id="nxComposeHeading" data-nx-compose-heading>${copy.newNoteTitle}</strong></div>
+                <button type="button" class="nx-icon-button" data-nx-compose-close title="${copy.cancel}" aria-label="${copy.cancel}">${icon('tabler:x', 18)}</button>
+              </header>
+              <div class="nx-compose-body">
+                <input class="nx-compose-title" type="text" data-nx-compose-title placeholder="${copy.titlePlaceholder}" autocomplete="off">
+                <textarea class="nx-compose-text" data-nx-compose-body placeholder="${copy.bodyPlaceholder}" spellcheck="true"></textarea>
+                <p class="nx-compose-error" data-nx-compose-error role="alert"></p>
+              </div>
+              <footer class="nx-compose-footer">
+                <span>${copy.keyboardHint}</span>
+                <div>
+                  <button type="button" class="nx-secondary-button" data-nx-compose-close>${copy.cancel}</button>
+                  <button type="button" class="nx-primary-button" data-nx-compose-save>${icon('tabler:device-floppy', 16)} ${copy.saveNote}</button>
+                </div>
+              </footer>
+            </section>
+          </div>
         </div>
       </div>`;
     bindEvents();
@@ -270,17 +280,16 @@
       return;
     }
     const saved = reset ? {} : readJson(GRAPH_KEY, {});
-    const nodes = topics.map(topic => ({ ...topic, x: saved[topic.id]?.x ?? topic.x, y: saved[topic.id]?.y ?? topic.y, vx: 0, vy: 0 }));
-    const graphLinks = topicLinks.map(([source, target]) => ({ source, target, type: 'topic' }));
+    const nodes = [];
+    const graphLinks = [];
     state.notes.forEach((note, index) => {
-      const topicId = inferTopic(note);
-      const parent = nodes.find(node => node.id === topicId) || nodes[0];
-      const angle = (index * 2.399963) % (Math.PI * 2);
-      const distance = 105 + (index % 4) * 26;
-      nodes.push({ id: note.id, title: note.title, group: inferGroup(note), type: 'note', accent: noteColor(note), r: 24,
-        x: saved[note.id]?.x ?? parent.x + Math.cos(angle) * distance,
-        y: saved[note.id]?.y ?? parent.y + Math.sin(angle) * distance, vx: 0, vy: 0 });
-      graphLinks.push({ source: topicId, target: note.id, type: 'membership' });
+      const angle = index * 2.399963;
+      const distance = index === 0 ? 0 : 115 + Math.sqrt(index) * 82;
+      const outgoing = linksFor(note).length;
+      const incoming = state.notes.filter(item => item.id !== note.id && linksFor(item).some(title => title.toLowerCase() === note.title.toLowerCase())).length;
+      nodes.push({ id: note.id, title: note.title, group: inferGroup(note), type: 'note', accent: noteColor(note), r: Math.min(34, 23 + (incoming + outgoing) * 2),
+        x: saved[note.id]?.x ?? 750 + Math.cos(angle) * distance,
+        y: saved[note.id]?.y ?? 430 + Math.sin(angle) * distance, vx: 0, vy: 0 });
       linksFor(note).forEach(title => {
         const target = noteByTitle(title);
         if (target && target.id !== note.id) graphLinks.push({ source: note.id, target: target.id, type: 'note' });
@@ -291,8 +300,6 @@
   }
 
   function visibleNode(node) {
-    if (node.type === 'topic' && !state.showTopics) return false;
-    if (node.type === 'note' && !state.showNotes) return false;
     if (state.group !== 'all' && node.type === 'note' && node.group !== state.group) return false;
     if (state.query && node.type === 'note') {
       const note = state.notes.find(item => item.id === node.id);
@@ -340,7 +347,9 @@
     if (!edgeLayer || !nodeLayer) return;
     const stage = state.root.querySelector('[data-nx-stage]');
     const emptyLabel = stage?.querySelector('.nx-empty-label');
+    const emptyState = stage?.querySelector('[data-nx-empty]');
     stage?.classList.toggle('nx-is-empty', state.notes.length === 0);
+    if (emptyState) emptyState.hidden = state.notes.length !== 0;
     if (emptyLabel) emptyLabel.textContent = state.notes.length ? copy.hint : copy.empty;
     const visible = new Set([...state.nodes.values()].filter(visibleNode).map(node => node.id));
     edgeLayer.innerHTML = state.links.filter(link => visible.has(link.source) && visible.has(link.target)).map(link => {
@@ -351,6 +360,10 @@
     }).join('');
     const path = pathNodes();
     nodeLayer.innerHTML = [...state.nodes.values()].filter(node => visible.has(node.id)).map(node => nodeMarkup(node, path)).join('');
+    const noteCount = state.root?.querySelector('[data-nx-graph-note-count]');
+    const linkCount = state.root?.querySelector('[data-nx-graph-link-count]');
+    if (noteCount) noteCount.textContent = String(state.notes.length);
+    if (linkCount) linkCount.textContent = String(state.links.length);
     cacheGraphElements();
     applyCamera();
     bindGraphNodes();
@@ -510,12 +523,8 @@
 
   function selectNode(id) {
     const note = state.notes.find(item => item.id === id);
-    if (note) state.selectedId = id;
-    else {
-      const match = state.notes.find(item => inferTopic(item) === id);
-      if (!match) return;
-      state.selectedId = match.id;
-    }
+    if (!note) return;
+    state.selectedId = id;
     state.inspectorOpen = true;
     if (isCompact()) state.explorerOpen = false;
     persistUi(); renderGraph(); renderExplorer(); renderInspector();
@@ -524,20 +533,17 @@
   function renderExplorer() {
     const host = state.root?.querySelector('[data-nx-folders]');
     if (!host) return;
-    const groups = [
-      ['all', copy.all, 'tabler:notes'], ['frontend', 'Frontend', 'tabler:layout-dashboard'],
-      ['backend', 'Backend', 'tabler:server-2'], ['projects', copy.projects, 'tabler:folder-code'],
-      ['errors', copy.errors, 'tabler:bug']
-    ];
-    const searched = state.notes.filter(note => !state.query || `${note.title} ${note.body}`.toLowerCase().includes(state.query.toLowerCase()));
-    host.innerHTML = groups.map(([group, label, groupIcon]) => {
-      const items = group === 'all' ? searched : searched.filter(note => inferGroup(note) === group);
-      if (group !== 'all' && !items.length) return '';
-      return `<section class="nx-folder ${state.group === group ? 'active' : ''}">
-        <button type="button" class="nx-folder-title" data-nx-group="${group}">${icon(groupIcon, 15)}<span>${label}</span><small>${items.length}</small>${icon('tabler:chevron-down', 14)}</button>
-        ${state.group === group ? `<div class="nx-folder-notes">${items.map(note => `<button type="button" class="nx-note-item ${note.id === state.selectedId ? 'active' : ''}" data-nx-open="${escapeHtml(note.id)}"><i style="--note-color:${noteColor(note)}"></i><span>${escapeHtml(note.title)}</span><small>${linksFor(note).length}</small></button>`).join('')}</div>` : ''}
-      </section>`;
-    }).join('');
+    const searched = state.notes
+      .filter(note => !state.query || `${note.title} ${note.body}`.toLowerCase().includes(state.query.toLowerCase()))
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+    host.innerHTML = searched.length ? searched.map(note => {
+      const preview = note.body.replace(/\[\[|\]\]|[#*_`]/g, '').replace(/\s+/g, ' ').trim();
+      return `<button type="button" class="nx-note-item ${note.id === state.selectedId ? 'active' : ''}" data-nx-open="${escapeHtml(note.id)}">
+        <i style="--note-color:${noteColor(note)}"></i>
+        <span><strong>${escapeHtml(note.title)}</strong><small>${escapeHtml(preview || text('Пустая заметка', 'Empty note'))}</small></span>
+        <time>${new Date(note.updatedAt).toLocaleDateString(isEnglish ? 'en-US' : 'ru-RU', { day: '2-digit', month: '2-digit' })}</time>
+      </button>`;
+    }).join('') : `<div class="nx-list-empty">${state.query ? text('Ничего не найдено', 'No notes found') : copy.empty}</div>`;
     state.root.querySelector('[data-nx-note-count]').textContent = `${state.notes.length} ${copy.notes}`;
     state.root.querySelector('[data-nx-explorer]')?.classList.toggle('open', state.explorerOpen);
   }
@@ -564,47 +570,88 @@
     const incoming = incomingLinks(note);
     const outgoing = linksFor(note).map(noteByTitle).filter(Boolean);
     const lessons = relatedLessons(note);
-    const mastery = Math.max(12, Math.min(96, 18 + note.body.trim().split(/\s+/).filter(Boolean).length * 2 + linksFor(note).length * 9));
+    const wordCount = note.body.trim() ? note.body.trim().split(/\s+/).length : 0;
     if (state.inspectorTab === 'overview') {
-      host.innerHTML = `<div class="nx-mastery"><div class="nx-mastery-ring" style="--mastery:${mastery * 3.6}deg"><strong>${mastery}%</strong></div><div><span>${copy.mastery}</span><strong>${escapeHtml(note.title)}</strong><small>${copy.updated}: ${new Date(note.updatedAt).toLocaleDateString(isEnglish ? 'en-US' : 'ru-RU')}</small></div></div>
-        <div class="nx-tag-row"><span>#${inferGroup(note)}</span><span>#${inferTopic(note).replace('topic-', '')}</span><span>#knowledge</span></div>
+      host.innerHTML = `<div class="nx-note-meta"><span>${copy.updated}: <strong>${new Date(note.updatedAt).toLocaleString(isEnglish ? 'en-US' : 'ru-RU', { dateStyle: 'short', timeStyle: 'short' })}</strong></span><span>${copy.words}: <strong>${wordCount}</strong></span></div>
         <div class="nx-note-preview">${markdown(note.body)}</div>
-        <section class="nx-inspector-section"><header><strong>${copy.related}</strong><span>${lessons.length}</span></header>${lessons.length ? lessons.map(item => `<button type="button" class="nx-related-row" data-nx-lesson="${escapeHtml(item.sectionId)}" data-nx-lesson-title="${escapeHtml(item.title)}">${icon('tabler:book-2', 15)}<span>${escapeHtml(item.title)}</span>${icon('tabler:arrow-up-right', 14)}</button>`).join('') : `<p>${copy.noLessons}</p>`}</section>
-        <button type="button" class="nx-primary-button" data-nx-edit-note>${icon('tabler:edit', 16)} ${copy.openNote}</button>`;
+        <section class="nx-inspector-section"><header><strong>${copy.related}</strong><span>${lessons.length}</span></header>${lessons.length ? lessons.map(item => `<button type="button" class="nx-related-row" data-nx-lesson="${escapeHtml(item.sectionId)}" data-nx-lesson-block="${escapeHtml(item.blockId)}" data-nx-lesson-title="${escapeHtml(item.title)}">${icon('tabler:book-2', 15)}<span>${escapeHtml(item.title)}</span>${icon('tabler:arrow-up-right', 14)}</button>`).join('') : `<p>${copy.noLessons}</p>`}</section>
+        <div class="nx-note-actions"><button type="button" class="nx-primary-button" data-nx-edit-note>${icon('tabler:edit', 16)} ${copy.openNote}</button><button type="button" class="nx-danger-button" data-nx-delete title="${copy.delete}" aria-label="${copy.delete}">${icon('tabler:trash', 16)}</button></div>`;
     } else if (state.inspectorTab === 'links') {
       const rows = (items, direction) => items.length ? items.map(item => `<button type="button" class="nx-related-row" data-nx-open="${escapeHtml(item.id)}">${icon(direction, 15)}<span>${escapeHtml(item.title)}</span></button>`).join('') : `<p>${copy.noLinks}</p>`;
       host.innerHTML = `<section class="nx-inspector-section"><header><strong>${copy.outgoing}</strong><span>${outgoing.length}</span></header>${rows(outgoing, 'tabler:arrow-up-right')}</section>
         <section class="nx-inspector-section"><header><strong>${copy.backlinks}</strong><span>${incoming.length}</span></header>${rows(incoming, 'tabler:corner-down-left')}</section>`;
-    } else {
-      host.innerHTML = `<label class="nx-editor-field"><span>${copy.titlePlaceholder}</span><input type="text" data-nx-note-title value="${escapeHtml(note.title)}"></label>
-        <label class="nx-editor-field grow"><span>${copy.bodyPlaceholder}</span><textarea data-nx-note-body spellcheck="false">${escapeHtml(note.body)}</textarea></label>
-        <div class="nx-editor-actions"><span data-nx-save-state>${copy.saved}</span><button type="button" class="nx-danger-button" data-nx-delete>${icon('tabler:trash', 15)} ${copy.delete}</button></div>`;
     }
   }
 
-  function saveEditor() {
-    const note = selectedNote();
-    const title = state.root.querySelector('[data-nx-note-title]');
-    const body = state.root.querySelector('[data-nx-note-body]');
-    if (!note || !title || !body) return;
-    note.title = title.value.trim() || copy.untitled;
-    note.body = body.value;
-    note.updatedAt = Date.now();
-    clearTimeout(state.timer);
-    state.timer = setTimeout(() => {
-      writeJson(NOTES_KEY, state.notes);
-      rebuildGraph(); renderExplorer();
-      state.root.querySelector('[data-nx-inspector-title]').textContent = note.title;
-    }, 320);
+  function openComposer(note = null, suggestedTitle = '') {
+    state.draft = note
+      ? { id: note.id, title: note.title, body: note.body, isNew: false }
+      : { id: '', title: suggestedTitle === copy.untitled ? '' : suggestedTitle, body: '', isNew: true };
+    const backdrop = state.root?.querySelector('[data-nx-compose]');
+    if (!backdrop) return;
+    state.root.classList.add('nx-composing');
+    backdrop.hidden = false;
+    backdrop.querySelector('[data-nx-compose-heading]').textContent = state.draft.isNew ? copy.newNoteTitle : state.draft.title;
+    backdrop.querySelector('[data-nx-compose-title]').value = state.draft.title;
+    backdrop.querySelector('[data-nx-compose-body]').value = state.draft.body;
+    backdrop.querySelector('[data-nx-compose-error]').textContent = '';
+    requestAnimationFrame(() => backdrop.querySelector(state.draft.title ? '[data-nx-compose-body]' : '[data-nx-compose-title]')?.focus());
   }
 
-  function createNote(title = copy.untitled) {
-    const note = { id: `note-${Date.now().toString(36)}`, title, body: '', updatedAt: Date.now() };
-    state.notes.unshift(note);
+  function closeComposer() {
+    const backdrop = state.root?.querySelector('[data-nx-compose]');
+    if (backdrop) backdrop.hidden = true;
+    state.root?.classList.remove('nx-composing');
+    state.draft = null;
+  }
+
+  function createNote(title = '') {
+    openComposer(null, title);
+  }
+
+  function saveComposer() {
+    if (!state.draft) return;
+    const titleInput = state.root.querySelector('[data-nx-compose-title]');
+    const bodyInput = state.root.querySelector('[data-nx-compose-body]');
+    const error = state.root.querySelector('[data-nx-compose-error]');
+    const title = titleInput.value.trim();
+    const body = bodyInput.value;
+    if (!title) {
+      error.textContent = copy.titleRequired;
+      titleInput.focus();
+      return;
+    }
+    const duplicate = state.notes.find(note => note.id !== state.draft.id && note.title.trim().toLowerCase() === title.toLowerCase());
+    if (duplicate) {
+      error.textContent = copy.duplicateTitle;
+      titleInput.focus();
+      return;
+    }
+    let note = state.notes.find(item => item.id === state.draft.id);
+    if (state.draft.isNew || !note) {
+      note = { id: `note-${Date.now().toString(36)}`, title, body, updatedAt: Date.now() };
+      state.notes.unshift(note);
+    } else {
+      const oldTitle = note.title;
+      note.title = title;
+      note.body = body;
+      note.updatedAt = Date.now();
+      if (oldTitle.toLowerCase() !== title.toLowerCase()) {
+        const escapedTitle = oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const pattern = new RegExp(`\\[\\[${escapedTitle}\\]\\]`, 'gi');
+        state.notes.forEach(item => {
+          if (item.id !== note.id) item.body = item.body.replace(pattern, `[[${title}]]`);
+        });
+      }
+    }
     state.selectedId = note.id;
-    state.inspectorTab = 'edit'; state.inspectorOpen = true;
-    writeJson(NOTES_KEY, state.notes); persistUi(); rebuildGraph(); renderExplorer(); renderInspector();
-    requestAnimationFrame(() => state.root.querySelector('[data-nx-note-title]')?.select());
+    state.inspectorTab = 'overview';
+    state.inspectorOpen = true;
+    writeJson(NOTES_KEY, state.notes);
+    persistUi();
+    closeComposer();
+    rebuildGraph(); renderExplorer(); renderInspector();
+    requestAnimationFrame(() => centerSelected());
   }
 
   function deleteSelected() {
@@ -633,7 +680,8 @@
         try {
           const payload = JSON.parse(String(reader.result || '{}'));
           if (!Array.isArray(payload.notes)) throw new Error('invalid');
-          state.notes = payload.notes.map((note, index) => ({ id: String(note.id || `note-${Date.now()}-${index}`), title: String(note.title || copy.untitled), body: String(note.body || ''), updatedAt: Number(note.updatedAt || Date.now()) }));
+          state.notes = payload.notes.map((note, index) => ({ id: String(note.id || `note-${Date.now()}-${index}`), title: String(note.title || copy.untitled), body: String(note.body || ''), updatedAt: Number(note.updatedAt || Date.now()) }))
+            .filter(note => note.body.trim() || !['Без названия', 'Untitled'].includes(note.title.trim()));
           state.selectedId = state.notes[0]?.id || '';
           writeJson(NOTES_KEY, state.notes);
           if (payload.graph) writeJson(GRAPH_KEY, payload.graph);
@@ -713,8 +761,10 @@
         state.group = button.dataset.nxGroup; renderExplorer(); renderGraph();
       } else if (button.dataset.nxOpen) selectNode(button.dataset.nxOpen);
       else if (button.dataset.nxTab) { state.inspectorTab = button.dataset.nxTab; renderInspector(); }
-      else if (button.hasAttribute('data-nx-edit-note')) { state.inspectorTab = 'edit'; renderInspector(); }
+      else if (button.hasAttribute('data-nx-edit-note')) openComposer(selectedNote());
       else if (button.hasAttribute('data-nx-new')) createNote();
+      else if (button.hasAttribute('data-nx-compose-save')) saveComposer();
+      else if (button.hasAttribute('data-nx-compose-close')) closeComposer();
       else if (button.hasAttribute('data-nx-delete')) deleteSelected();
       else if (button.hasAttribute('data-nx-export')) exportNotes();
       else if (button.hasAttribute('data-nx-import')) importNotes();
@@ -723,19 +773,23 @@
       else if (button.hasAttribute('data-nx-fit')) fitGraph();
       else if (button.hasAttribute('data-nx-center')) centerSelected();
       else if (button.hasAttribute('data-nx-reset')) { localStorage.removeItem(GRAPH_KEY); rebuildGraph(true); fitGraph(); }
-      else if (button.dataset.nxFilter) {
-        if (button.dataset.nxFilter === 'topics') state.showTopics = !state.showTopics;
-        else state.showNotes = !state.showNotes;
-        button.classList.toggle('active'); renderGraph();
-      } else if (button.dataset.nxLink !== undefined) {
+      else if (button.dataset.nxLink !== undefined) {
         if (button.dataset.nxLink) selectNode(button.dataset.nxLink);
         else createNote(button.dataset.nxLinkTitle || copy.untitled);
       } else if (button.dataset.nxLesson) {
         const name = button.dataset.nxLesson.replace(/^sec-/, '');
+        if (typeof window.WebDevGymLearningWorkspace?.openLesson === 'function') {
+          window.WebDevGymLearningWorkspace.openLesson(name, {
+            blockId: button.dataset.nxLessonBlock,
+            title: button.dataset.nxLessonTitle
+          });
+          return;
+        }
         if (typeof window.switchTabByName === 'function') window.switchTabByName(name);
         setTimeout(() => {
           const section = document.getElementById(button.dataset.nxLesson);
-          const target = [...(section?.querySelectorAll(':scope > .block') || [])].find(block => block.textContent.includes(button.dataset.nxLessonTitle));
+          const target = document.getElementById(button.dataset.nxLessonBlock)
+            || [...(section?.querySelectorAll(':scope > .block') || [])].find(block => block.textContent.includes(button.dataset.nxLessonTitle));
           target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 180);
       }
@@ -754,7 +808,17 @@
           input?.setSelectionRange(state.query.length, state.query.length);
         });
       }
-      if (event.target.matches('[data-nx-note-title], [data-nx-note-body]')) saveEditor();
+    });
+
+    root.addEventListener('keydown', event => {
+      if (!state.draft) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeComposer();
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        saveComposer();
+      }
     });
 
     const stage = root.querySelector('[data-nx-stage]');

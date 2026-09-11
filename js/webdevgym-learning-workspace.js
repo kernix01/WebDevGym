@@ -2501,6 +2501,30 @@
     if (scroll) section.querySelector('.wdgl-header')?.scrollIntoView({ block: 'start' });
   }
 
+  function openLesson(sectionName, target = {}) {
+    const id = String(sectionName || '').replace(/^sec-/, '');
+    if (!id) return false;
+    if (typeof window.WebDevGymNext?.open === 'function') window.WebDevGymNext.open(id);
+    else if (typeof window.switchTabByName === 'function') window.switchTabByName(id);
+
+    const reveal = () => {
+      const section = document.getElementById(`sec-${id}`) || document.getElementById(id);
+      if (!section) return false;
+      const blocks = learningBlocks(section);
+      const wantedTitle = String(target.title || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const index = blocks.findIndex(block => {
+        if (target.blockId && block.id === target.blockId) return true;
+        return wantedTitle && cleanTitle(block).toLowerCase() === wantedTitle;
+      });
+      enhanceSection(section);
+      showLesson(section, index >= 0 ? index : currentIndex(section), true);
+      return index >= 0;
+    };
+
+    window.setTimeout(reveal, 90);
+    return true;
+  }
+
   function enhanceSection(section) {
     if (!LEARNING_IDS.has(sectionId(section))) return;
     const blocks = learningBlocks(section);
@@ -2583,6 +2607,8 @@
     }, 250);
     syncActiveSection(true);
   }
+
+  window.WebDevGymLearningWorkspace = Object.freeze({ openLesson });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => setTimeout(init, 900), { once: true });

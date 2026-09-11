@@ -3,24 +3,18 @@
 
   const isEnglish = document.documentElement.lang === 'en';
   const copy = isEnglish ? {
-    overview:'Overview', today:'Today', routes:'Routes', learning:'Learn', sections:'Sections', trainers:'Trainers', forge:'Forge', playground:'Playground', nexus:'Nexus', calendar:'Calendar', profile:'Profile', settings:'Settings',
-    system:'Workspace', growth:'Sections', tools:'Tools', account:'Account', search:'Search or run a command...', import:'Import', export:'Export', route:'Your route', routeSub:'Continue where you left off', current:'Current route', learned:'completed',
+    overview:'Overview', today:'Today', routes:'Routes', learning:'Learn', sections:'Catalog', trainers:'Trainers', forge:'Forge', playground:'Playground', nexus:'Nexus', calendar:'Calendar', profile:'Profile', settings:'Settings',
+    system:'Workspace', growth:'Catalog', tools:'Tools', account:'Account', search:'Search or run a command...', import:'Import', export:'Export', route:'Your route', routeSub:'Continue where you left off', current:'Current route', learned:'completed',
     todayTitle:'Today', todaySub:'Priority actions', work:'In progress', workSub:'Current project and code', review:'Review', reviewSub:'Review queue', continue:'Continue', start:'Start', open:'Open', lesson:'Next', practice:'Practice', mini:'Micro task',
     lessonFallback:'Continue the active lesson', practiceFallback:'Complete one focused practice', miniFallback:'Fix a small interface bug', inspector:'Inspector', streak:'day streak', focus:'Focus', activity:'Recent activity', nextReview:'Next review', noProject:'Start your first project in Forge', loader:'Assembling your workspace',
-    sectionsTitle:'Choose your direction', sectionsSub:'Frontend and Backend are separate routes. Learn them in any order without losing progress.', frontendDesc:'Interfaces, browser logic, tooling and React.', backendDesc:'Server logic, databases, Linux and deployment.', shared:'Shared foundation', sharedDesc:'Git is useful in both routes.', topics:'topics', choosePriority:'Make primary', priorityActive:'Primary route', openSection:'Open topic', catalogRoutes:'Learning paths', catalogTools:'Tools', toolsTitle:'Developer utilities', toolsSub:'Generators, references and supporting materials that are not present in the main navigation.', aiAssistant:'AI assistant'
+    sectionsTitle:'Everything in WebDevGym', sectionsSub:'Learning paths, practice, projects and supporting tools in one searchable catalog.', frontendDesc:'Interfaces, browser logic, tooling and React.', backendDesc:'Server logic, databases, Linux and deployment.', shared:'Shared foundation', sharedDesc:'Git is useful in both routes.', topics:'topics', choosePriority:'Make primary', priorityActive:'Primary route', openSection:'Open topic', catalogAll:'All features', catalogRoutes:'Learning paths', catalogTools:'Tools', toolsTitle:'Developer tools', toolsSub:'References, generators and supporting materials that complement the main workspaces.', aiAssistant:'AI assistant'
   } : {
-    overview:'Обзор', today:'Сегодня', routes:'Маршруты', learning:'Обучение', sections:'Разделы', trainers:'Тренажёры', forge:'Forge', playground:'Playground', nexus:'Nexus', calendar:'Календарь', profile:'Профиль', settings:'Настройки',
-    system:'Рабочее пространство', growth:'Разделы', tools:'Инструменты', account:'Профиль', search:'Поиск или команда...', import:'Импорт', export:'Экспорт', route:'Твой маршрут', routeSub:'Продолжай с того места, где остановился', current:'Текущий маршрут', learned:'изучено',
+    overview:'Обзор', today:'Сегодня', routes:'Маршруты', learning:'Обучение', sections:'Каталог', trainers:'Тренажёры', forge:'Forge', playground:'Playground', nexus:'Nexus', calendar:'Календарь', profile:'Профиль', settings:'Настройки',
+    system:'Рабочее пространство', growth:'Каталог', tools:'Инструменты', account:'Профиль', search:'Поиск или команда...', import:'Импорт', export:'Экспорт', route:'Твой маршрут', routeSub:'Продолжай с того места, где остановился', current:'Текущий маршрут', learned:'изучено',
     todayTitle:'Сегодня', todaySub:'Приоритетные задачи', work:'В работе', workSub:'Текущий проект и код', review:'Повторение', reviewSub:'Очередь повторения', continue:'Продолжить', start:'Начать', open:'Открыть', lesson:'Дальше', practice:'Практика', mini:'Микро-задача',
     lessonFallback:'Продолжить активный урок', practiceFallback:'Пройти одну точечную практику', miniFallback:'Исправить небольшую ошибку интерфейса', inspector:'Инспектор', streak:'дней серия', focus:'Фокус', activity:'Недавняя активность', nextReview:'Следующее повторение', noProject:'Начни первый проект в Forge', loader:'Собираем твоё рабочее пространство',
-    sectionsTitle:'Выбери направление', sectionsSub:'Frontend и Backend разделены на два маршрута. Изучай их в любом порядке без потери прогресса.', frontendDesc:'Интерфейсы, логика браузера, инструменты сборки и React.', backendDesc:'Серверная логика, базы данных, Linux и развёртывание.', shared:'Общая основа', sharedDesc:'Git пригодится в обоих направлениях.', topics:'тем', choosePriority:'Сделать основным', priorityActive:'Основной маршрут', openSection:'Открыть тему', catalogRoutes:'Направления', catalogTools:'Инструменты', toolsTitle:'Утилиты разработчика', toolsSub:'Генераторы, справочники и дополнительные материалы, которых нет в главном меню.', aiAssistant:'ИИ-помощник'
+    sectionsTitle:'Всё, что есть в WebDevGym', sectionsSub:'Обучение, практика, проекты и вспомогательные инструменты в одном каталоге с поиском.', frontendDesc:'Интерфейсы, логика браузера, инструменты сборки и React.', backendDesc:'Серверная логика, базы данных, Linux и развёртывание.', shared:'Общая основа', sharedDesc:'Git пригодится в обоих направлениях.', topics:'тем', choosePriority:'Сделать основным', priorityActive:'Основной маршрут', openSection:'Открыть тему', catalogAll:'Все возможности', catalogRoutes:'Обучение', catalogTools:'Инструменты', toolsTitle:'Инструменты разработчика', toolsSub:'Справочники, генераторы и материалы, которые дополняют основные рабочие пространства.', aiAssistant:'ИИ-помощник'
   };
-
-  Object.assign(copy, isEnglish ? {
-    sectionsSub:'Choose one priority route and follow it from foundations to projects. You can switch routes without losing progress.'
-  } : {
-    sectionsSub:'Выбери основной маршрут и проходи его последовательно: от базы к проектам. Направление можно сменить без потери прогресса.'
-  });
 
   const PRIORITY_KEY = 'wdgn_learning_priority_v1';
   const legacySectionSets = {
@@ -127,11 +121,10 @@
     ['settings','tabler:settings',copy.settings,true]
   ];
 
-  const toolCatalog = isEnglish ? [
+  const utilityCatalog = isEnglish ? [
     ['naming','tabler:variable','Code naming','Names for variables, arrays and functions, with explanations.'],
     ['github','tabler:brand-github','GitHub','Create repositories, upload project files and publish with GitHub Pages.'],
     ['fonts','tabler:typography','Fonts','Preview fonts and copy ready-to-use CSS.'],
-    ['css-tools','tabler:adjustments-horizontal','CSS generators','Shadows, colors, units, gradients and border radius.'],
     ['cheatsheets','tabler:notes','Cheatsheets','A compact reference for everyday syntax.'],
     ['resources','tabler:books','Resources','Selected documentation, courses and learning materials.'],
     ['algo','tabler:binary-tree','Algorithms','Patterns and exercises for algorithmic thinking.'],
@@ -144,7 +137,6 @@
     ['github','tabler:brand-github','GitHub','Создание репозиториев, загрузка проектов и публикация через GitHub Pages.'],
     ['naming','tabler:variable','Названия в коде','Названия переменных, массивов и функций с объяснениями.'],
     ['fonts','tabler:typography','Шрифты','Превью шрифтов и готовые CSS-строки для копирования.'],
-    ['css-tools','tabler:adjustments-horizontal','CSS-генераторы','Тени, цвета, единицы, градиенты и скругления.'],
     ['cheatsheets','tabler:notes','Шпаргалки','Короткий справочник по синтаксису на каждый день.'],
     ['resources','tabler:books','Ресурсы','Отобранная документация, курсы и материалы.'],
     ['algo','tabler:binary-tree','Алгоритмы','Задачи и схемы для развития алгоритмического мышления.'],
@@ -154,14 +146,60 @@
     ['mistakes','tabler:bug','Частые ошибки','Типичные проблемы HTML, CSS и JavaScript.'],
     ['career','tabler:briefcase','Карьера','Портфолио, фриланс и подготовка к работе.']
   ];
+  const appCatalog = isEnglish ? [
+    ['overview','tabler:home','Overview','Your route, current work and the next useful step.','workspace'],
+    ['today','tabler:sun','Today','A focused list of learning, practice and review tasks.','workspace'],
+    ['routes','tabler:route','Routes','Choose a direction and see the complete learning path.','workspace'],
+    ['learning','tabler:book-2','Learning','Open the next incomplete topic in your active route.','workspace'],
+    ['calendar','tabler:calendar','Calendar','Plan sessions, projects, recovery and review days.','workspace'],
+    ['lab','tabler:flask-2','Trainers','Short exercises, debugging and knowledge checks.','creation'],
+    ['forge','tabler:hammer','Forge','Build projects from a brief and track their progress.','creation'],
+    ['playground','tabler:code','Playground','Edit, import and preview HTML, CSS and JavaScript projects.','creation'],
+    ['nexus','tabler:binary-tree-2','Nexus','Connect your own notes into a visual knowledge graph.','creation'],
+    ['notebook','tabler:notebook','Notebook','Local notes with tabs, search and automatic saving.','creation'],
+    ['review','tabler:brain','Review','Return to topics when they are ready to be reinforced.','progress'],
+    ['diary','tabler:notebook','Learning diary','Record what you understood, what was difficult and what comes next.','progress'],
+    ['weak','tabler:activity-heartbeat','Weak spots','See topics that need another short practice session.','progress'],
+    ['skills','tabler:route','Skills map','See your progress across development skills.','progress'],
+    ['debug','tabler:bug','Debug mode','Practice finding and fixing problems in code.','progress'],
+    ['focus','tabler:focus-2','Focus mode','Keep one task and a timer in front of you.','progress'],
+    ['profile','tabler:user-code','Profile','Projects, skills, activity and achievements in one place.','progress'],
+    ['settings','tabler:settings','Settings','Appearance, behavior, data and local optimization.','progress']
+  ] : [
+    ['overview','tabler:home','Обзор','Твой маршрут, текущая работа и следующий полезный шаг.','workspace'],
+    ['today','tabler:sun','Сегодня','Короткий список задач на обучение, практику и повторение.','workspace'],
+    ['routes','tabler:route','Маршруты','Выбор направления и полный порядок изучения тем.','workspace'],
+    ['learning','tabler:book-2','Обучение','Переход к следующей незавершённой теме активного маршрута.','workspace'],
+    ['calendar','tabler:calendar','Календарь','План занятий, проектов, восстановления и повторений.','workspace'],
+    ['lab','tabler:flask-2','Тренажёры','Короткие задачи, отладка и проверка знаний.','creation'],
+    ['forge','tabler:hammer','Forge','Создание проектов по заданию и отслеживание их прогресса.','creation'],
+    ['playground','tabler:code','Playground','Редактор, импорт и предпросмотр HTML, CSS и JavaScript-проектов.','creation'],
+    ['nexus','tabler:binary-tree-2','Nexus','Связь собственных заметок в наглядный граф знаний.','creation'],
+    ['notebook','tabler:notebook','Блокнот','Локальные заметки с вкладками, поиском и автосохранением.','creation'],
+    ['review','tabler:brain','Повторение','Возврат к темам в момент, когда их пора закрепить.','progress'],
+    ['diary','tabler:notebook','Дневник обучения','Записи о том, что понял, где застрял и что делать дальше.','progress'],
+    ['weak','tabler:activity-heartbeat','Слабые места','Темы, которым нужна ещё одна короткая практика.','progress'],
+    ['skills','tabler:route','Карта навыков','Прогресс по основным навыкам разработчика.','progress'],
+    ['debug','tabler:bug','Режим отладки','Практика поиска и исправления проблем в коде.','progress'],
+    ['focus','tabler:focus-2','Режим фокуса','Одна задача и таймер без лишнего шума.','progress'],
+    ['profile','tabler:user-code','Профиль','Проекты, навыки, активность и достижения в одном месте.','progress'],
+    ['settings','tabler:settings','Настройки','Внешний вид, поведение, данные и локальная оптимизация.','progress']
+  ];
+  const toolCatalog = utilityCatalog;
+  const mobileCatalogIds = new Set(['today', 'routes', 'lab', 'forge', 'nexus', 'calendar', 'notebook', 'profile']);
+  const mobileCatalog = appCatalog.filter(item => mobileCatalogIds.has(item[0]));
   const catalogCopy = isEnglish ? {
-    search:'Find a section or tool',
+    search:'Find any feature, section or tool',
     empty:'Nothing found. Try another query.',
-    summary:'Catalog overview'
+    summary:'Catalog overview',
+    features:'features',
+    learningAreas:'learning areas'
   } : {
-    search:'Найти раздел или инструмент',
+    search:'Найти любую возможность, раздел или инструмент',
     empty:'Ничего не найдено. Измени запрос.',
-    summary:'Обзор каталога'
+    summary:'Обзор каталога',
+    features:'возможностей',
+    learningAreas:'учебных разделов'
   };
   let sectionsMode = 'routes';
 
@@ -432,12 +470,26 @@ function continueLearning() {
     </article>`;
   }
 
-  function toolCardMarkup([id, iconName, label, description]) {
-    return `<button class="wdgn-tool-card" type="button" data-open-tool="${id}">
+  function toolCardMarkup([id, iconName, label, description], mobileOnly = false) {
+    return `<button class="wdgn-tool-card${mobileOnly ? ' wdgn-mobile-catalog-card' : ''}" type="button" data-open-tool="${id}">
       <span class="wdgn-tool-icon">${icon(iconName,22)}</span>
       <span><strong>${label}</strong><small>${description}</small></span>
       ${icon('tabler:arrow-up-right',17)}
     </button>`;
+  }
+
+  function openCatalogItem(id) {
+    if (id === 'notebook') {
+      if (typeof window.WebDevGymNotebook?.open === 'function') window.WebDevGymNotebook.open();
+      else window.WebDevGymFeatures?.open?.('notebook');
+      return;
+    }
+    if (['review', 'diary', 'weak', 'skills', 'debug', 'focus'].includes(id)) {
+      window.WebDevGymFeatures?.open?.(id);
+      return;
+    }
+    if (id === 'naming') return openView('naming');
+    openView(id);
   }
 
   function renderSectionsPage() {
@@ -451,7 +503,7 @@ function continueLearning() {
       <section class="wdgn-catalog-summary" aria-label="${catalogCopy.summary}">
         <div><span>${icon('tabler:browser',18)} Frontend</span><strong>${frontendStats.pct}%</strong><small>${frontendStats.done} / ${frontendStats.total} ${copy.topics}</small></div>
         <div><span>${icon('tabler:server-2',18)} Backend</span><strong>${backendStats.pct}%</strong><small>${backendStats.done} / ${backendStats.total} ${copy.topics}</small></div>
-        <div><span>${icon('tabler:layout-grid',18)} ${copy.sections}</span><strong>${allTopics}</strong><small>${toolCatalog.length} ${copy.catalogTools.toLowerCase()}</small></div>
+        <div><span>${icon('tabler:layout-grid',18)} ${copy.catalogAll}</span><strong>${allTopics + toolCatalog.length}</strong><small>${allTopics} ${catalogCopy.learningAreas} · ${toolCatalog.length} ${copy.catalogTools.toLowerCase()}</small></div>
       </section>
       <div class="wdgn-sections-toolbar">
         <div class="wdgn-sections-switch" role="tablist" aria-label="${copy.sections}">
@@ -469,7 +521,8 @@ function continueLearning() {
       </div>
       <section class="wdgn-sections-view wdgn-tools-view" data-sections-view="tools" ${sectionsMode === 'tools' ? '' : 'hidden'}>
         <header class="wdgn-tools-head"><div><span>${icon('tabler:tool',22)}</span><div><h2>${copy.toolsTitle}</h2><p>${copy.toolsSub}</p></div></div></header>
-        <div class="wdgn-tool-grid">${toolCatalog.map(toolCardMarkup).join('')}</div>
+        <div class="wdgn-mobile-catalog-label">${isEnglish ? 'Pages hidden from the mobile bar' : 'Страницы, скрытые из нижней панели'}</div>
+        <div class="wdgn-tool-grid">${mobileCatalog.map(item => toolCardMarkup(item, true)).join('')}${toolCatalog.map(item => toolCardMarkup(item)).join('')}</div>
       </section>
       <div class="wdgn-catalog-empty" data-catalog-empty hidden>${icon('tabler:search-off',22)}<span>${catalogCopy.empty}</span></div>
     </div>`;
@@ -481,24 +534,14 @@ function continueLearning() {
       sectionsPage.querySelectorAll('[data-sections-view]').forEach(view => { view.hidden = view.dataset.sectionsView !== sectionsMode; });
       filterCatalog();
     }));
-    sectionsPage.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => {
-      const id = button.dataset.openTool;
-      if (id === 'naming') return openView('naming');
-      if (id === 'css-tools') {
-        showNativeTab('playground');
-        window.setTimeout(() => {
-          document.getElementById('pg-tools-dark-fix')?.scrollIntoView({ behavior:'smooth', block:'start' });
-        }, 80);
-        return;
-      }
-      showNativeTab(id);
-    }));
+    sectionsPage.querySelectorAll('[data-open-tool]').forEach(button => button.addEventListener('click', () => openCatalogItem(button.dataset.openTool)));
     const catalogSearch = sectionsPage.querySelector('[data-catalog-search]');
     const catalogEmpty = sectionsPage.querySelector('[data-catalog-empty]');
     const filterCatalog = () => {
       const query = catalogSearch?.value.trim().toLocaleLowerCase() || '';
       const currentCatalogView = sectionsPage.querySelector('[data-sections-view="' + sectionsMode + '"]');
-      const cards = [...(currentCatalogView?.querySelectorAll('.wdgn-section-card, .wdgn-tool-card') || [])];
+      const cards = [...(currentCatalogView?.querySelectorAll('.wdgn-section-card, .wdgn-tool-card') || [])]
+        .filter(card => !card.classList.contains('wdgn-mobile-catalog-card') || window.matchMedia('(max-width: 680px)').matches);
       let visible = 0;
       cards.forEach(card => {
         const matches = !query || card.textContent.toLocaleLowerCase().includes(query);
@@ -717,6 +760,8 @@ function continueLearning() {
 
   window.WebDevGymNext = Object.freeze({
     open: openView,
+    openCatalogItem,
+    catalog: () => appCatalog.map(([id, iconName, label, description, group]) => ({ id, icon:iconName, label, description, group })),
     overview: showOverview,
     tools: showTools,
     current: () => currentView

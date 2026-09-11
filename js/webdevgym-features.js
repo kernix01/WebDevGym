@@ -845,6 +845,18 @@
         if (typeof window.toggleBmFilter === 'function') window.toggleBmFilter();
       },t.action]
     ];
+    const catalogCommandIds = new Set(['today', 'routes', 'lab', 'forge', 'settings']);
+    (window.WebDevGymNext?.catalog?.() || []).forEach(item => {
+      if (!catalogCommandIds.has(item.id)) return;
+      entries.push([
+        'view-' + item.id,
+        item.label,
+        item.icon || 'tabler:apps',
+        () => window.WebDevGymNext?.openCatalogItem?.(item.id),
+        isEnglish ? 'WebDevGym page' : 'Страница WebDevGym',
+        item.description || ''
+      ]);
+    });
     extensionFeatures.forEach((feature, id) => {
       const meta = feature.meta || {};
       entries.push([id, meta.title || id, meta.icon || 'tabler:apps', () => openFeature(id), meta.group || t.action]);

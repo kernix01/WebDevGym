@@ -669,6 +669,8 @@ html[data-learning-priority="backend"] .wdgn-loader-copy-back { display: block !
 .wdgn-tool-card strong { font-size: 13px; }
 .wdgn-tool-card small { color: var(--wdgn-muted); font-size: 10px; line-height: 1.55; }
 .wdgn-tool-card > iconify-icon { color: #68758a; }
+.wdgn-mobile-catalog-card,
+.wdgn-mobile-catalog-label { display: none; }
 
 .wdgn-directions-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
 .wdgn-direction {
@@ -844,6 +846,17 @@ body.wdgn-ready:not(.dark) .wdgn-direction-icon { background: #f8fafc; }
   .wdgn-catalog-search { width: 100%; }
   .wdgn-tool-grid { grid-template-columns: 1fr; }
   .wdgn-tool-card { min-height: 92px; }
+  .wdgn-mobile-catalog-card { display: grid; }
+  .wdgn-mobile-catalog-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 -2px;
+    color: var(--wdgn-muted);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
   .wdgn-directions-grid { margin-top: 16px; gap: 12px; }
   .wdgn-direction { padding: 14px; }
   .wdgn-direction-head { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; }
