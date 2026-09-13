@@ -6,7 +6,7 @@
   const NEXUS_KEY = 'webdevgym_nexus_notes_v1';
   const PLAYGROUND_SNAPSHOT_KEY = 'wdg_playground_snapshot_v2';
   const TRAINER_CODE_KEY = 'wdgr_trainer_code_v1';
-  const TRAINER_SECTIONS = new Set(['html', 'css', 'js', 'ts', 'react', 'git', 'node', 'sql', 'devops', 'linux', 'pg', 'vite']);
+  const TRAINER_SECTIONS = new Set(['html', 'css', 'js', 'ts', 'react', 'electron', 'git', 'node', 'sql', 'devops', 'linux', 'pg', 'vite', 'python', 'csharp']);
   const state = {
     nexusId: '',
     nexusFilter: '',

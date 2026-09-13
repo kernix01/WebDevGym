@@ -7,13 +7,13 @@
     system:'Workspace', growth:'Catalog', tools:'Tools', account:'Account', search:'Search or run a command...', import:'Import', export:'Export', route:'Your route', routeSub:'Continue where you left off', current:'Current route', learned:'completed',
     todayTitle:'Today', todaySub:'Priority actions', work:'In progress', workSub:'Current project and code', review:'Review', reviewSub:'Review queue', continue:'Continue', start:'Start', open:'Open', lesson:'Next', practice:'Practice', mini:'Micro task',
     lessonFallback:'Continue the active lesson', practiceFallback:'Complete one focused practice', miniFallback:'Fix a small interface bug', inspector:'Inspector', streak:'day streak', focus:'Focus', activity:'Recent activity', nextReview:'Next review', noProject:'Start your first project in Forge', loader:'Assembling your workspace',
-    sectionsTitle:'Everything in WebDevGym', sectionsSub:'Learning paths, practice, projects and supporting tools in one searchable catalog.', frontendDesc:'Interfaces, browser logic, tooling and React.', backendDesc:'Server logic, databases, Linux and deployment.', shared:'Shared foundation', sharedDesc:'Git is useful in both routes.', topics:'topics', choosePriority:'Make primary', priorityActive:'Primary route', openSection:'Open topic', catalogAll:'All features', catalogRoutes:'Learning paths', catalogTools:'Tools', toolsTitle:'Developer tools', toolsSub:'References, generators and supporting materials that complement the main workspaces.', aiAssistant:'AI assistant'
+    sectionsTitle:'Everything in WebDevGym', sectionsSub:'Learning paths, practice, projects and supporting tools in one searchable catalog.', frontendDesc:'Interfaces, browser logic, React and optional desktop apps.', backendDesc:'Server logic, databases, Linux and deployment.', shared:'Shared foundation', sharedDesc:'Git is useful in both routes.', languages:'Other languages', languagesDesc:'Optional backend directions that do not change your main route.', topics:'topics', choosePriority:'Make primary', priorityActive:'Primary route', openSection:'Open topic', catalogAll:'All features', catalogRoutes:'Learning paths', catalogTools:'Tools', toolsTitle:'Developer tools', toolsSub:'References, generators and supporting materials that complement the main workspaces.', aiAssistant:'AI assistant'
   } : {
     overview:'Обзор', today:'Сегодня', routes:'Маршруты', learning:'Обучение', sections:'Каталог', trainers:'Тренажёры', forge:'Forge', playground:'Playground', nexus:'Nexus', calendar:'Календарь', profile:'Профиль', settings:'Настройки',
     system:'Рабочее пространство', growth:'Каталог', tools:'Инструменты', account:'Профиль', search:'Поиск или команда...', import:'Импорт', export:'Экспорт', route:'Твой маршрут', routeSub:'Продолжай с того места, где остановился', current:'Текущий маршрут', learned:'изучено',
     todayTitle:'Сегодня', todaySub:'Приоритетные задачи', work:'В работе', workSub:'Текущий проект и код', review:'Повторение', reviewSub:'Очередь повторения', continue:'Продолжить', start:'Начать', open:'Открыть', lesson:'Дальше', practice:'Практика', mini:'Микро-задача',
     lessonFallback:'Продолжить активный урок', practiceFallback:'Пройти одну точечную практику', miniFallback:'Исправить небольшую ошибку интерфейса', inspector:'Инспектор', streak:'дней серия', focus:'Фокус', activity:'Недавняя активность', nextReview:'Следующее повторение', noProject:'Начни первый проект в Forge', loader:'Собираем твоё рабочее пространство',
-    sectionsTitle:'Всё, что есть в WebDevGym', sectionsSub:'Обучение, практика, проекты и вспомогательные инструменты в одном каталоге с поиском.', frontendDesc:'Интерфейсы, логика браузера, инструменты сборки и React.', backendDesc:'Серверная логика, базы данных, Linux и развёртывание.', shared:'Общая основа', sharedDesc:'Git пригодится в обоих направлениях.', topics:'тем', choosePriority:'Сделать основным', priorityActive:'Основной маршрут', openSection:'Открыть тему', catalogAll:'Все возможности', catalogRoutes:'Обучение', catalogTools:'Инструменты', toolsTitle:'Инструменты разработчика', toolsSub:'Справочники, генераторы и материалы, которые дополняют основные рабочие пространства.', aiAssistant:'ИИ-помощник'
+    sectionsTitle:'Всё, что есть в WebDevGym', sectionsSub:'Обучение, практика, проекты и вспомогательные инструменты в одном каталоге с поиском.', frontendDesc:'Интерфейсы, логика браузера, React и необязательные desktop-приложения.', backendDesc:'Серверная логика, базы данных, Linux и развёртывание.', shared:'Общая основа', sharedDesc:'Git пригодится в обоих направлениях.', languages:'Другие языки', languagesDesc:'Необязательные backend-направления, которые не меняют основной маршрут.', topics:'тем', choosePriority:'Сделать основным', priorityActive:'Основной маршрут', openSection:'Открыть тему', catalogAll:'Все возможности', catalogRoutes:'Обучение', catalogTools:'Инструменты', toolsTitle:'Инструменты разработчика', toolsSub:'Справочники, генераторы и материалы, которые дополняют основные рабочие пространства.', aiAssistant:'ИИ-помощник'
   };
 
   const PRIORITY_KEY = 'wdgn_learning_priority_v1';
@@ -37,8 +37,15 @@
     { id:'git', label:'Git & GitHub', short:'GIT' },
     { id:'vite', label:'Vite', short:'VITE' }
   ];
+  const optionalLanguages = [
+    { id:'python', label:'Python', short:'PY' },
+    { id:'csharp', label:'C#', short:'C#' }
+  ];
+  const optionalFrontend = [
+    { id:'electron', label:'Electron', short:'EL' }
+  ];
   const sectionDefinitions = Object.fromEntries(
-    [...legacySectionSets.frontend, ...legacySectionSets.backend, ...routeExtras]
+    [...legacySectionSets.frontend, ...legacySectionSets.backend, ...routeExtras, ...optionalLanguages, ...optionalFrontend]
       .map(section => [section.id, section])
   );
   const configuredRoutes = window.WebDevGymLearningPath?.routes || {
@@ -52,11 +59,12 @@
     ])
   );
   const sectionCatalog = {
-    frontend: ['html', 'css', 'js', 'vite', 'ts', 'react'].map(id => sectionDefinitions[id]),
+    frontend: ['html', 'css', 'js', 'vite', 'ts', 'react', 'electron'].map(id => sectionDefinitions[id]),
     backend: [...legacySectionSets.backend],
     shared: [
       sectionDefinitions.git
-    ]
+    ],
+    languages: optionalLanguages
   };
   const sectionVisuals = {
     html:['tabler:brand-html5','#f97316'],
@@ -70,13 +78,16 @@
     pg:['tabler:database','#818cf8'],
     linux:['tabler:terminal-2','#fbbf24'],
     devops:['tabler:server-2','#fb7185'],
-    git:['tabler:brand-git','#fb923c']
+    git:['tabler:brand-git','#fb923c'],
+    python:['tabler:brand-python','#60a5fa'],
+    csharp:['tabler:brand-c-sharp','#c084fc'],
+    electron:['tabler:device-desktop-code','#7dd3fc']
   };
   const priorityCopy = isEnglish ? {
     question:'What do you want to learn first?',
     description:'Choose a priority route. You can switch it later without losing progress.',
     frontend:'Frontend',
-    frontendSub:'Interfaces, browser logic and React',
+    frontendSub:'Interfaces, React and optional desktop apps',
     backend:'Backend',
     backendSub:'Servers, databases and Node.js',
     switcher:'Learning priority',
@@ -88,7 +99,7 @@
     question:'Что хочешь изучать в приоритете?',
     description:'Выбери основной маршрут. Его можно сменить позже без потери прогресса.',
     frontend:'Frontend',
-    frontendSub:'Интерфейсы, логика браузера и React',
+    frontendSub:'Интерфейсы, React и необязательные desktop-приложения',
     backend:'Backend',
     backendSub:'Серверы, базы данных и Node.js',
     switcher:'Приоритет обучения',
@@ -312,7 +323,7 @@ function continueLearning() {
     setCustomPageOpen(false);
     closeLegacyPages();
     if (typeof window.switchTabByName === 'function') window.switchTabByName(id);
-    const curriculumIds = [...sectionCatalog.frontend, ...sectionCatalog.backend, ...sectionCatalog.shared].map(section => section.id);
+    const curriculumIds = [...sectionCatalog.frontend, ...sectionCatalog.backend, ...sectionCatalog.shared, ...sectionCatalog.languages].map(section => section.id);
     setActive(curriculumIds.includes(id) ? 'learning' : id);
   }
 
@@ -495,9 +506,10 @@ function continueLearning() {
   function renderSectionsPage() {
     if (!sectionsPage) return;
     const shared = sectionCatalog.shared;
+    const languages = sectionCatalog.languages;
     const frontendStats = catalogStats(sectionCatalog.frontend);
     const backendStats = catalogStats(sectionCatalog.backend);
-    const allTopics = sectionCatalog.frontend.length + sectionCatalog.backend.length + shared.length;
+    const allTopics = sectionCatalog.frontend.length + sectionCatalog.backend.length + shared.length + languages.length;
     sectionsPage.innerHTML = `<div class="wdgn-sections-shell">
       <header class="wdgn-sections-head"><div><div class="wdgn-eyebrow">${copy.growth}</div><h1>${copy.sectionsTitle}</h1><p>${copy.sectionsSub}</p></div></header>
       <section class="wdgn-catalog-summary" aria-label="${catalogCopy.summary}">
@@ -518,6 +530,7 @@ function continueLearning() {
           ${directionMarkup('backend','Backend',copy.backendDesc,'tabler:server-2')}
         </div>
         <section class="wdgn-shared-section"><div class="wdgn-shared-copy"><span>${icon('tabler:git-branch',20)}</span><div><h2>${copy.shared}</h2><p>${copy.sharedDesc}</p></div></div><div class="wdgn-shared-list">${shared.map(sectionCardMarkup).join('')}</div></section>
+        <section class="wdgn-shared-section wdgn-language-section"><div class="wdgn-shared-copy"><span>${icon('tabler:braces',20)}</span><div><h2>${copy.languages}</h2><p>${copy.languagesDesc}</p></div></div><div class="wdgn-shared-list">${languages.map(sectionCardMarkup).join('')}</div></section>
       </div>
       <section class="wdgn-sections-view wdgn-tools-view" data-sections-view="tools" ${sectionsMode === 'tools' ? '' : 'hidden'}>
         <header class="wdgn-tools-head"><div><span>${icon('tabler:tool',22)}</span><div><h2>${copy.toolsTitle}</h2><p>${copy.toolsSub}</p></div></div></header>
@@ -551,8 +564,9 @@ function continueLearning() {
       currentCatalogView?.querySelectorAll('.wdgn-direction').forEach(direction => {
         direction.classList.toggle('search-empty', !direction.querySelector('.wdgn-section-card:not([hidden])'));
       });
-      const sharedCatalog = currentCatalogView?.querySelector('.wdgn-shared-section');
-      if (sharedCatalog) sharedCatalog.hidden = !sharedCatalog.querySelector('.wdgn-section-card:not([hidden])');
+      currentCatalogView?.querySelectorAll('.wdgn-shared-section').forEach(sharedCatalog => {
+        sharedCatalog.hidden = !sharedCatalog.querySelector('.wdgn-section-card:not([hidden])');
+      });
       if (catalogEmpty) catalogEmpty.hidden = visible > 0;
     };
     catalogSearch?.addEventListener('input', filterCatalog);
@@ -703,7 +717,7 @@ function continueLearning() {
           <span class="wdgn-priority-icon">${icon('tabler:browser',27)}</span>
           <strong>${priorityCopy.frontend}</strong>
           <small>${priorityCopy.frontendSub}</small>
-          <i>HTML · CSS · JavaScript · TypeScript · React</i>
+          <i>HTML · CSS · JavaScript · TypeScript · React · Electron (${isEnglish ? 'optional' : 'необязательно'})</i>
         </button>
         <button type="button" data-priority-choice="backend">
           <span class="wdgn-priority-icon">${icon('tabler:server-2',27)}</span>

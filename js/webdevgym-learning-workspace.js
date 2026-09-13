@@ -2,8 +2,8 @@
   'use strict';
 
   const LEARNING_IDS = new Set([
-    'html', 'css', 'js', 'ts', 'react', 'vite',
-    'node', 'sql', 'pg', 'linux', 'devops', 'git'
+    'html', 'css', 'js', 'ts', 'react', 'electron', 'vite',
+    'node', 'sql', 'pg', 'linux', 'devops', 'git', 'python', 'csharp'
   ]);
   const INDEX_KEY = 'wdgl_lesson_index_v1';
   const NOTE_KEY = 'wdgl_lesson_notes_v1';
@@ -81,9 +81,9 @@
   function sectionTitle(section) {
     const heroTitle = section.querySelector('.lang-section-hero-title')?.textContent?.trim();
     const labels = {
-      html: 'HTML', css: 'CSS', js: 'JavaScript', ts: 'TypeScript', react: 'React', vite: 'Vite',
+      html: 'HTML', css: 'CSS', js: 'JavaScript', ts: 'TypeScript', react: 'React', electron: 'Electron', vite: 'Vite',
       node: 'Node.js', sql: 'SQL', pg: 'PostgreSQL', linux: 'Linux',
-      devops: isEnglish ? 'Servers' : 'Серверы', git: 'Git & GitHub'
+      devops: isEnglish ? 'Servers' : 'Серверы', git: 'Git & GitHub', python: 'Python', csharp: 'C#'
     };
     return heroTitle || labels[sectionId(section)] || sectionId(section).toUpperCase();
   }
@@ -137,6 +137,27 @@
     return Array.from({ length: 9 }, (_, offset) => start + offset);
   }
 
+  function sectionMaterials(section) {
+    const materials = {
+      python: [
+        ['Python Docs', 'https://docs.python.org/3/'],
+        ['Python Packaging Guide', 'https://packaging.python.org/']
+      ],
+      csharp: [
+        ['Microsoft Learn C#', 'https://learn.microsoft.com/en-us/dotnet/csharp/'],
+        ['ASP.NET Core', 'https://learn.microsoft.com/en-us/aspnet/core/']
+      ],
+      electron: [
+        ['Electron Docs', 'https://www.electronjs.org/docs/latest/'],
+        ['Electron Forge', 'https://www.electronforge.io/']
+      ]
+    };
+    return materials[sectionId(section)] || [
+      ['MDN Web Docs', 'https://developer.mozilla.org/'],
+      ['web.dev Learn', 'https://web.dev/learn/']
+    ];
+  }
+
   function renderTimeline(blocks, current) {
     return timelineIndexes(blocks.length, current).map(index => {
       const block = blocks[index];
@@ -156,6 +177,7 @@
     const note = state.notes[noteKey] || '';
     const directPlay = block.querySelector('[data-learning-direct-play]:not([disabled])');
     const hintButton = block.querySelector('[data-learning-open]');
+    const materials = sectionMaterials(section);
     return `<aside class="wdgl-practice">
       <header class="wdgl-practice-head">
         <div><span>${copy.practice}</span><small>${index + 1} / ${learningBlocks(section).length}</small></div>
@@ -180,8 +202,7 @@
       </button>
       <section class="wdgl-materials">
         <strong>${copy.materials}</strong>
-        <a href="https://developer.mozilla.org/" target="_blank" rel="noopener">MDN Web Docs ${icon('tabler:external-link', 13)}</a>
-        <a href="https://web.dev/learn/" target="_blank" rel="noopener">web.dev Learn ${icon('tabler:external-link', 13)}</a>
+        ${materials.map(material => `<a href="${material[1]}" target="_blank" rel="noopener">${material[0]} ${icon('tabler:external-link', 13)}</a>`).join('')}
       </section>
       <section class="wdgl-notes">
         <label for="wdgl-note-${escapeHtml(noteKey)}">${icon('tabler:pencil', 17)} ${copy.notes}</label>

@@ -10,6 +10,10 @@ const rendererSource = fs.readFileSync(
   path.join(ROOT, 'js', 'webdevgym-curriculum-renderer.js'),
   'utf8'
 );
+const languagesSource = fs.readFileSync(
+  path.join(ROOT, 'data', 'curriculum-languages-2026.js'),
+  'utf8'
+);
 const depthSource = fs.readFileSync(
   path.join(ROOT, 'data', 'curriculum-depth-2026.js'),
   'utf8'
@@ -33,6 +37,7 @@ for (const locale of ['ru', 'en']) {
     fs.readFileSync(path.join(ROOT, 'data', `curriculum-${locale}.js`), 'utf8'),
     dataSandbox
   );
+  vm.runInNewContext(languagesSource, dataSandbox);
   vm.runInNewContext(depthSource, dataSandbox);
   vm.runInNewContext(auditSource, dataSandbox);
   vm.runInNewContext(correctionsSource, dataSandbox);

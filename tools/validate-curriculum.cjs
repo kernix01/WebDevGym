@@ -21,6 +21,12 @@ function loadCurriculum(locale) {
   const source = fs.readFileSync(filename, 'utf8');
   const sandbox = { window: {} };
   vm.runInNewContext(source, sandbox, { filename });
+  const languagesFilename = path.join(ROOT, 'data', 'curriculum-languages-2026.js');
+  vm.runInNewContext(
+    fs.readFileSync(languagesFilename, 'utf8'),
+    sandbox,
+    { filename: languagesFilename }
+  );
   return { data: sandbox.window.WebDevGymCurriculumData, source };
 }
 
@@ -88,6 +94,34 @@ function validateCurriculum(locale) {
   if (locale === 'en') {
     if (/[А-Яа-яЁё]/.test(source)) fail('en: Cyrillic text remains in curriculum data');
     if (/вЂ|вњ|рџ|�/.test(source)) fail('en: mojibake remains in curriculum data');
+    const renderedText = data.sections.flatMap(section => (
+      section.lessons.map(lesson => `${lesson.title}\n${lesson.html}`)
+    )).join('\n');
+    if (/[А-Яа-яЁё]/.test(renderedText)) fail('en: Cyrillic text remains in rendered curriculum');
+  }
+
+  ['sec-python', 'sec-csharp'].forEach(sectionId => {
+    const section = data.sections.find(item => item.id === sectionId);
+    if (!section || section.lessons.length !== 13) {
+      fail(`${locale}: ${sectionId} must contain exactly 13 lessons`);
+      return;
+    }
+    section.lessons.forEach(lesson => {
+      if (!lesson.html.includes('wdg-depth-docs') || !lesson.html.includes('https://')) {
+        fail(`${locale}:${sectionId}:${lesson.id}: official sources are missing`);
+      }
+    });
+  });
+
+  const electronSection = data.sections.find(item => item.id === 'sec-electron');
+  if (!electronSection || electronSection.lessons.length !== 12) {
+    fail(`${locale}: sec-electron must contain exactly 12 lessons`);
+  } else {
+    electronSection.lessons.forEach(lesson => {
+      if (!lesson.html.includes('wdg-depth-docs') || !lesson.html.includes('https://')) {
+        fail(`${locale}:sec-electron:${lesson.id}: official sources are missing`);
+      }
+    });
   }
 
   return { data, lessonCount, sectionIds };
@@ -98,6 +132,7 @@ function validateIndex(locale, curriculum) {
   const filename = locale === 'ru' ? 'index.html' : 'index-en.html';
   const source = fs.readFileSync(path.join(ROOT, filename), 'utf8');
   const expectedData = `data/curriculum-${locale}.js`;
+  const languageData = 'data/curriculum-languages-2026.js';
   const renderer = 'js/webdevgym-curriculum-renderer.js';
   const core = `js/webdevgym-core-${locale}.js`;
 
@@ -113,10 +148,11 @@ function validateIndex(locale, curriculum) {
   }
 
   const dataIndex = source.indexOf(expectedData);
+  const languageDataIndex = source.indexOf(languageData);
   const rendererIndex = source.indexOf(renderer);
   const coreIndex = source.indexOf(core);
-  if (!(dataIndex >= 0 && dataIndex < rendererIndex && rendererIndex < coreIndex)) {
-    fail(`${filename}: scripts must load data, renderer, then core`);
+  if (!(dataIndex >= 0 && dataIndex < languageDataIndex && languageDataIndex < rendererIndex && rendererIndex < coreIndex)) {
+    fail(`${filename}: scripts must load base data, language data, renderer, then core`);
   }
 }
 

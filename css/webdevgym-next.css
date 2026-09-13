@@ -759,6 +759,17 @@ html[data-learning-priority="backend"] .wdgn-loader-copy-back { display: block !
 }
 .wdgn-shared-copy { display: flex; align-items: center; gap: 12px; }
 .wdgn-shared-copy > span { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid #604020; border-radius: 4px; color: #fb923c; background: #21150d; }
+.wdgn-language-section .wdgn-shared-copy > span { border-color: #3b4f72; color: #7dd3fc; background: #111d31; }
+
+.electron-section-hero {
+  background: #142733;
+  border-color: rgba(125, 211, 252, 0.3);
+}
+
+.electron-section-hero .lang-section-hero-icon {
+  background: rgba(125, 211, 252, 0.12);
+  border-color: rgba(125, 211, 252, 0.24);
+}
 .wdgn-shared-copy h2 { margin: 0; font-size: 15px; }
 .wdgn-shared-copy p { margin: 4px 0 0; color: var(--wdgn-muted); font-size: 11px; }
 .wdgn-shared-list { min-width: 0; }

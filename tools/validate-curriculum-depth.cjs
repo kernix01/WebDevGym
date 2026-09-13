@@ -3,6 +3,10 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.resolve(__dirname, '..');
+const languagesSource = fs.readFileSync(
+  path.join(root, 'data', 'curriculum-languages-2026.js'),
+  'utf8'
+);
 const extensionSource = fs.readFileSync(
   path.join(root, 'data', 'curriculum-depth-2026.js'),
   'utf8'
@@ -27,6 +31,7 @@ function load(locale) {
     fs.readFileSync(path.join(root, 'data', `curriculum-${locale}.js`), 'utf8'),
     context
   );
+  vm.runInContext(languagesSource, context);
   vm.runInContext(extensionSource, context);
   vm.runInContext(auditSource, context);
   vm.runInContext(correctionsSource, context);
@@ -54,8 +59,8 @@ const enLessons = lessons(en);
 const ruIds = ruLessons.map(lesson => lesson.id);
 const enIds = enLessons.map(lesson => lesson.id);
 
-if (ruLessons.length !== 255 || enLessons.length !== 255) {
-  errors.push(`Expected 255 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
+if (ruLessons.length !== 293 || enLessons.length !== 293) {
+  errors.push(`Expected 293 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
 }
 
 if (new Set(ruIds).size !== ruIds.length) errors.push('RU contains duplicate lesson ids.');
@@ -96,8 +101,8 @@ const depthLessons = [...ruLessons, ...enLessons].filter(lesson => (
   lesson.html.includes('wdg-depth-lesson')
 ));
 
-if (depthLessons.length !== 36) {
-  errors.push(`Expected 36 localized depth lessons, got ${depthLessons.length}.`);
+if (depthLessons.length !== 112) {
+  errors.push(`Expected 112 localized depth lessons, got ${depthLessons.length}.`);
 }
 
 for (const lesson of depthLessons) {

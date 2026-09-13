@@ -6,7 +6,7 @@
   const STORE_KEY = isEnglish ? 'wdg_mastery_en_v1' : 'wdg_mastery_ru_v1';
   const PATH_KEY = isEnglish ? 'wdg_active_path_en_v1' : 'wdg_active_path_ru_v1';
   const CHECKPOINT_KEY = isEnglish ? 'wdg_checkpoints_en_v1' : 'wdg_checkpoints_ru_v1';
-  const COURSE_SECTIONS = ['html','css','js','git','vite','ts','react','node','sql','pg','linux','devops'];
+  const COURSE_SECTIONS = ['html','css','js','git','vite','ts','react','electron','node','sql','pg','linux','devops','python','csharp'];
   const LEVELS = [
     { value:0, label:L('Not started','Не начато'), short:'0' },
     { value:1, label:L('Read','Прочитал'), short:'1' },

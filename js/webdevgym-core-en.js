@@ -716,7 +716,7 @@ function resetProgress() {
 
 // ===== TAB BADGES =====
 function updateTabBadges() {
-  ['html','css','js','ts','react','git','node','sql','devops','linux','vite','pg'].forEach(lang => {
+  ['html','css','js','ts','react','electron','git','node','sql','devops','linux','vite','pg','python','csharp'].forEach(lang => {
     const sec = document.getElementById('sec-' + lang);
     if (!sec) return;
     const all = sec.querySelectorAll('.prog-cb:not([disabled])');
@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== ПРОГРЕСС DASHBOARD BARS =====
 function updatePdcBars() {
-  ['html','css','js','ts','react','git','node','sql','devops','linux','vite','pg'].forEach(lang => {
+  ['html','css','js','ts','react','electron','git','node','sql','devops','linux','vite','pg','python','csharp'].forEach(lang => {
     const sec = document.getElementById('sec-' + lang);
     if (!sec) return;
     const all = sec.querySelectorAll('.prog-cb:not([disabled])');

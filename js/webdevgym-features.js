@@ -329,10 +329,10 @@
     const focus = readJson(KEYS.focus, { totalMinutes: 0, sessions: [] });
     const challengeState = readJson(KEYS.challenge, {});
     const challenge = dailyChallenge();
-    const sectionIds = ['html','css','js','ts','react','git','node','sql','devops','linux','pg','vite'];
+    const sectionIds = ['html','css','js','ts','react','electron','git','node','sql','devops','linux','pg','vite','python','csharp'];
     const courseRows = sectionIds.map(id => {
       const p = sectionProgress(id);
-      const labels = { html:'HTML', css:'CSS', js:'JavaScript', ts:'TypeScript', react:'React', git:'Git', node:'Node.js', sql:'SQL', devops:'Servers', linux:'Linux', pg:'PostgreSQL', vite:'Vite' };
+      const labels = { html:'HTML', css:'CSS', js:'JavaScript', ts:'TypeScript', react:'React', electron:'Electron', git:'Git', node:'Node.js', sql:'SQL', devops:'Servers', linux:'Linux', pg:'PostgreSQL', vite:'Vite', python:'Python', csharp:'C#' };
       return '<div class="wdgf-course-row"><span>' + labels[id] + '</span><div class="wdgf-course-track"><div class="wdgf-course-fill" style="width:' + p.pct + '%"></div></div><output>' + p.pct + '%</output></div>';
     }).join('');
     const quick = [
@@ -460,7 +460,7 @@
     const nodes = [
       ['html','HTML','tabler:brand-html5'],['css','CSS','tabler:brand-css3'],['js','JavaScript','tabler:brand-javascript'],['git','Git','tabler:brand-git'],['playground','Practice','tabler:code'],
       ['ts','TypeScript','tabler:brand-typescript'],['react','React','tabler:brand-react'],['vite','Vite','tabler:bolt'],['node','Node.js','tabler:brand-nodejs'],['sql','SQL','tabler:database'],
-      ['pg','PostgreSQL','tabler:database-cog'],['devops','Servers','tabler:server'],['linux','Linux','tabler:terminal-2'],['github','GitHub','tabler:brand-github'],['career','Portfolio','tabler:briefcase']
+      ['pg','PostgreSQL','tabler:database-cog'],['devops','Servers','tabler:server'],['linux','Linux','tabler:terminal-2'],['electron','Electron','tabler:device-desktop-code'],['python','Python','tabler:brand-python'],['csharp','C#','tabler:brand-c-sharp'],['github','GitHub','tabler:brand-github'],['career','Portfolio','tabler:briefcase']
     ];
     const body = '<div class="wdgf-skill-map">' + nodes.map(node => {
       const p = sectionProgress(node[0]);

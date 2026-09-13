@@ -4,6 +4,7 @@ const vm = require('vm');
 
 const root = path.resolve(__dirname, '..');
 const extensions = [
+  'curriculum-languages-2026.js',
   'curriculum-depth-2026.js',
   'curriculum-audit-2026.js',
   'curriculum-corrections-2026.js',
