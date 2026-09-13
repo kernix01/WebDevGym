@@ -297,7 +297,7 @@
       setTimeout(init, 100);
       return;
     }
-    api.register('today', render, { title:copy.title, icon:'tabler:sun-high', group:copy.group });
+    api.register('today', render, { title:copy.title, icon:'tabler:sun-high', group:copy.group, cacheOnNavigation:true });
     window.WebDevGymTodayV2 = { open:function () { api.open('today'); } };
   }
 

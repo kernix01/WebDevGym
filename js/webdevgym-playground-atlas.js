@@ -208,6 +208,7 @@
     problems: [],
     checks: [],
     emmetSuggestion: null,
+    previewReady: false,
     saveTimer: 0,
     db: null,
     layout: {
@@ -673,6 +674,7 @@
 
   function buildShell() {
     const section = state.section;
+    const legacyChildren = Array.from(section.children);
     section.querySelectorAll('[id]').forEach(element => {
       element.id = 'wdga-legacy-' + element.id;
     });
@@ -830,6 +832,7 @@
       </div>
     `);
     state.root = section.querySelector('.wdga-root');
+    legacyChildren.forEach(element => element.remove());
   }
 
   function syncCoreFiles() {
@@ -1502,6 +1505,7 @@
   }
 
   function runPreview() {
+    state.previewReady = true;
     captureEditor();
     syncCoreFiles();
     const iframe = document.getElementById('pg-iframe');
@@ -2438,11 +2442,15 @@
     installCompatibility();
     bindEvents();
     bindPreviewSplitter();
-    const layoutObserver = new MutationObserver(applyLayout);
+    const syncSectionState = () => {
+      applyLayout();
+      if (section.classList.contains('active') && !state.previewReady) runPreview();
+    };
+    const layoutObserver = new MutationObserver(syncSectionState);
     layoutObserver.observe(section, { attributes: true, attributeFilter: ['class'] });
     state.logs.push({ id: uid('log'), type: 'success', message: ui.ready, time: Date.now() });
     renderAll();
-    runPreview();
+    if (section.classList.contains('active')) runPreview();
     window.addEventListener('message', handleWindowMessage);
   }
 

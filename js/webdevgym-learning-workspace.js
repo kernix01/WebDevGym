@@ -2571,7 +2571,7 @@
   let activeSection = null;
   let activeBlockCount = 0;
   let syncTimer = 0;
-  const watchedSections = new WeakSet();
+  let activationObserver = null;
 
   function syncActiveSection(force = false) {
     const section = document.querySelector('.section.active');
@@ -2579,16 +2579,14 @@
     const sectionVisible = section && !section.hidden && !legacyAreaHidden;
     if (!section || !sectionVisible || !LEARNING_IDS.has(sectionId(section))) {
       document.body.classList.remove('wdgl-learning-open');
-      activeSection = null;
-      activeBlockCount = 0;
       return;
     }
+    document.body.classList.add('wdgl-learning-open');
     const blockCount = learningBlocks(section).length;
     const chromeReady = Boolean(section.querySelector(':scope > .wdgl-header'));
     if (!force && activeSection === section && activeBlockCount === blockCount && chromeReady) return;
     activeSection = section;
     activeBlockCount = blockCount;
-    document.body.classList.add('wdgl-learning-open');
     enhanceSection(section);
   }
 
@@ -2598,17 +2596,15 @@
   }
 
   function watchSectionActivation(root = document) {
-    const sections = [];
-    if (root instanceof Element && root.matches('.section')) sections.push(root);
-    root.querySelectorAll?.('.section').forEach(section => sections.push(section));
-    sections.forEach(section => {
-      if (watchedSections.has(section)) return;
-      watchedSections.add(section);
-      new MutationObserver(() => scheduleSync()).observe(section, {
-        attributes: true,
-        attributeFilter: ['class']
-      });
+    if (activationObserver) return;
+    const container = document.querySelector('.wrap') || document.body;
+    activationObserver = new MutationObserver(records => {
+      const sectionChanged = records.some(record =>
+        record.target instanceof Element && record.target.classList.contains('section')
+      );
+      if (sectionChanged) scheduleSync();
     });
+    activationObserver.observe(container, { subtree: true, attributes: true, attributeFilter: ['class'] });
   }
 
   function init() {

@@ -780,9 +780,6 @@ function switchTab(id, btn) {
   if (id === 'calendar' && typeof wdgCalRender === 'function') {
     setTimeout(wdgCalRender, 50);
   }
-  if (typeof applyMainLanguage === 'function') {
-    setTimeout(applyMainLanguage, 0);
-  }
 }
 
 // ===== ПРОГРЕСС =====
@@ -5364,6 +5361,16 @@ function pgBuildEntryDoc(entryName) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(entry.content, 'text/html');
 
+  // A sandboxed srcdoc inherits a file:// base URL and Chrome blocks relative navigation.
+  if (location.protocol === 'file:') {
+    doc.querySelectorAll('link[rel~="manifest"]').forEach(link => link.remove());
+    if (!doc.querySelector('base')) {
+      const base = doc.createElement('base');
+      base.setAttribute('href', 'about:blank');
+      (doc.head || doc.documentElement).prepend(base);
+    }
+  }
+
   // 1) Replace <link href="X.css"> with <style>...</style>
   doc.querySelectorAll('link[href]').forEach(link => {
     const href = (link.getAttribute('href') || '').replace(/^\.?\//, '').split(/[?#]/)[0];
@@ -5567,7 +5574,7 @@ function pgInitDefault() {
     ];
     pgActiveFile = 'index.html';
     pgSwitchFile('index.html');
-    runPlayground();
+    if (document.getElementById('sec-playground')?.classList.contains('active')) runPlayground();
   }
 }
 

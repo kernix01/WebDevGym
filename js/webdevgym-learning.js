@@ -464,9 +464,12 @@
     }, 160);
   }
 
-  function enhanceBlocks() {
+  function enhanceBlocks(root = document) {
     const learningSections = new Set(['html', 'css', 'js', 'ts', 'react', 'electron', 'vite', 'node', 'sql', 'pg', 'linux', 'devops', 'git', 'python', 'csharp']);
-    document.querySelectorAll('.section > .block').forEach(block => {
+    const blocks = root instanceof Element && root.matches('.section')
+      ? root.querySelectorAll(':scope > .block')
+      : document.querySelectorAll('.section > .block');
+    blocks.forEach(block => {
       const sectionId = block.closest('.section')?.id?.replace(/^sec-/, '');
       if (!learningSections.has(sectionId)) return;
       if (block.dataset.wdgDeepReady === '1') return;
@@ -488,7 +491,16 @@
   function init() {
     buildDrawer();
     enhanceBlocks();
-    document.querySelectorAll('.section').forEach(section => new MutationObserver(enhanceBlocks).observe(section, { childList:true, subtree:true }));
+    document.querySelectorAll('.section').forEach(section => {
+      let frame = 0;
+      new MutationObserver(() => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          enhanceBlocks(section);
+        });
+      }).observe(section, { childList:true });
+    });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && activeBlock) closeDrawer(); });
     window.WebDevGymLearning = { open:openDrawer, enhance:enhanceBlocks };
   }
@@ -705,8 +717,11 @@
     return wrap;
   }
 
-  function enhanceUsageGuides() {
-    document.querySelectorAll(sectionSelectors.map(id => `${id} .block`).join(',')).forEach(block => {
+  function enhanceUsageGuides(root = document) {
+    const blocks = root instanceof Element && root.matches('.section')
+      ? root.querySelectorAll(':scope > .block')
+      : document.querySelectorAll(sectionSelectors.map(id => `${id} .block`).join(','));
+    blocks.forEach(block => {
       if (block.dataset.wdgUsageGuide === '1') return;
       const code = block.querySelector('.code');
       const anchor = block.querySelector('.explain') || code || block.querySelector('.tip, .items') || block.querySelector('.block-title');
@@ -726,7 +741,15 @@
     enhanceUsageGuides();
     sectionSelectors.forEach(selector => {
       const section = document.querySelector(selector);
-      if (section) new MutationObserver(enhanceUsageGuides).observe(section, { childList:true, subtree:true });
+      if (!section) return;
+      let frame = 0;
+      new MutationObserver(() => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          enhanceUsageGuides(section);
+        });
+      }).observe(section, { childList:true });
     });
     window.WebDevGymUsageGuides = { enhance: enhanceUsageGuides };
   }

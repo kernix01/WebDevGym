@@ -25,7 +25,6 @@
 
   const running = new Map();
   const queued = new Set();
-  const watchedViews = new WeakSet();
   let ready = false;
   let frame = 0;
 
@@ -42,17 +41,16 @@
   function animateView(element) {
     if (!ready || !isVisibleView(element) || element.closest('[data-no-view-transition]')) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (element.matches('.section.active') && element.querySelectorAll('*').length > 700) return;
-
     running.get(element)?.cancel();
 
     const lightEffects = document.body.classList.contains('wdgr-light-effects');
+    const compactViewport = window.matchMedia('(max-width: 680px)').matches;
     const animation = element.animate([
-      { opacity: lightEffects ? 0.92 : 0.84, transform: `translate3d(0, ${lightEffects ? 2 : 4}px, 0)` },
-      { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+      { opacity: lightEffects ? 0.98 : 0.95 },
+      { opacity: 1 }
     ], {
-      duration: lightEffects ? 80 : 130,
-      easing: 'cubic-bezier(.22, .8, .32, 1)',
+      duration: compactViewport || lightEffects ? 70 : 100,
+      easing: 'ease-out',
       fill: 'both'
     });
     animation.id = 'webdevgym-view-transition';
@@ -88,29 +86,15 @@
     if (!frame && queued.size) frame = requestAnimationFrame(flushQueue);
   }
 
-  function watchView(view) {
-    if (!(view instanceof HTMLElement) || watchedViews.has(view)) return;
-    watchedViews.add(view);
-    new MutationObserver(() => queueView(view)).observe(view, {
-      attributes: true,
-      attributeFilter: ['class', 'hidden']
-    });
-  }
-
-  function discoverViews(root) {
-    if (!(root instanceof Element || root instanceof Document)) return;
-    if (root instanceof Element && root.matches(viewRootSelector)) watchView(root);
-    root.querySelectorAll?.(viewRootSelector).forEach(watchView);
-  }
-
   function start() {
-    discoverViews(document);
-
     const observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
+        if (mutation.type === 'attributes') {
+          queueView(mutation.target);
+          return;
+        }
         mutation.addedNodes.forEach(node => {
           if (!(node instanceof Element)) return;
-          discoverViews(node);
           queueView(node, true);
         });
       });
@@ -123,7 +107,9 @@
 
     observer.observe(document.body, {
       subtree: true,
-      childList: true
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'hidden']
     });
 
     // Existing content must stay still on the first paint. Only later

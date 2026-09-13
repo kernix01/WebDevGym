@@ -138,7 +138,9 @@
 
   function showPage(id, render) {
     pages.forEach(page => page.classList.remove('open'));
-    const page = render();
+    const cachedPage = pages.get(id);
+    const cacheOnNavigation = id === 'today' || id === 'paths' || extensionFeatures.get(id)?.meta?.cacheOnNavigation === true;
+    const page = cacheOnNavigation && cachedPage ? cachedPage : render();
     page.classList.add('open');
     currentPage = id;
     document.body.classList.add('wdgf-page-open');
@@ -640,6 +642,14 @@
     extensionFeatures.set(id, { renderer, meta: meta || {} });
   }
 
+  function invalidateFeature(id) {
+    const page = pages.get(id);
+    if (!page || page.classList.contains('open')) return false;
+    page.remove();
+    pages.delete(id);
+    return true;
+  }
+
   function addNavigationLabels() {
     document.querySelectorAll('.wdg-nav-btn').forEach(button => {
       const label = button.querySelector('span:last-child')?.textContent?.trim();
@@ -1074,6 +1084,7 @@
       open:openFeature,
       close:closePage,
       register:registerFeature,
+      invalidate:invalidateFeature,
       pageShell,
       openCommandPalette,
       logActivity,

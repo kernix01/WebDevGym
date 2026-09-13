@@ -220,6 +220,8 @@
   let restoringNavigationHistory = false;
   let overview;
   let sectionsPage;
+  let overviewDirty = false;
+  let sectionsDirty = false;
 
   function icon(name, size = 18) {
     return `<iconify-icon icon="${name}" width="${size}" height="${size}" aria-hidden="true"></iconify-icon>`;
@@ -311,10 +313,9 @@ function continueLearning() {
     closeLegacyPages();
     hideCustomPages();
     overview.hidden = false;
-    document.body.classList.add('wdgn-overview-open');
     setCustomPageOpen(true);
     setActive('overview');
-    renderOverview();
+    if (overviewDirty) renderOverview();
   }
 
   function showNativeTab(id) {
@@ -570,6 +571,7 @@ function continueLearning() {
       if (catalogEmpty) catalogEmpty.hidden = visible > 0;
     };
     catalogSearch?.addEventListener('input', filterCatalog);
+    sectionsDirty = false;
   }
 
   function buildSectionsPage() {
@@ -588,7 +590,7 @@ function continueLearning() {
     setCustomPageOpen(true);
     sectionsPage.hidden = false;
     setActive('sections');
-    renderSectionsPage();
+    if (sectionsDirty) renderSectionsPage();
   }
 
   function showTools() {
@@ -663,6 +665,7 @@ function continueLearning() {
     overview.querySelectorAll('[data-section]').forEach(button => button.addEventListener('click', () => showNativeTab(button.dataset.section)));
     overview.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => handleAction(button.dataset.action, active.id)));
     overview.querySelectorAll('[data-priority]').forEach(button => button.addEventListener('click', () => setLearningPriority(button.dataset.priority, { replay:false })));
+    overviewDirty = false;
   }
 
   function handleAction(action, sectionId) {
@@ -746,7 +749,13 @@ function continueLearning() {
       if (!event.target.matches('.prog-cb')) return;
       buildSidebar();
       if (!overview.hidden) renderOverview();
+      else overviewDirty = true;
       if (sectionsPage && !sectionsPage.hidden) renderSectionsPage();
+      else sectionsDirty = true;
+    });
+    document.addEventListener('webdevgym:forge-complete', () => {
+      if (!overview.hidden) renderOverview();
+      else overviewDirty = true;
     });
   }
 

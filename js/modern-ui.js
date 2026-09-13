@@ -30,6 +30,7 @@
     activeBlock: 0,
     graph: { x: 0, y: 0, scale: 1, positions: {} }
   };
+  let workspaceSyncFrame = 0;
 
   function icon(name, size) {
     return '<iconify-icon icon="' + name + '" width="' + (size || 18) + '" height="' + (size || 18) + '"></iconify-icon>';
@@ -46,7 +47,15 @@
       const button = document.querySelector('.tab[onclick*="\'' + tab + '\'"]');
       if (button) button.click();
     }
-    requestAnimationFrame(syncWorkspace);
+    scheduleWorkspaceSync();
+  }
+
+  function scheduleWorkspaceSync() {
+    if (workspaceSyncFrame) return;
+    workspaceSyncFrame = requestAnimationFrame(function () {
+      workspaceSyncFrame = 0;
+      syncWorkspace();
+    });
   }
 
   function buildSidebar() {
@@ -237,13 +246,17 @@
   }
 
   function observeOldApp() {
-    document.querySelectorAll('.section').forEach(function (section) {
-      new MutationObserver(syncWorkspace).observe(section, { attributes: true, attributeFilter: ['class'] });
-    });
+    const root = document.querySelector('.wrap') || document.body;
+    new MutationObserver(function (records) {
+      const sectionChanged = records.some(function (record) {
+        return record.target instanceof Element && record.target.classList.contains('section');
+      });
+      if (sectionChanged) scheduleWorkspaceSync();
+    }).observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
     document.addEventListener('change', function (event) {
       if (event.target.matches('.prog-cb')) requestAnimationFrame(updateProgressShell);
     });
-    window.addEventListener('hashchange', syncWorkspace);
+    window.addEventListener('hashchange', scheduleWorkspaceSync);
   }
 
   /* Nexus --------------------------------------------------------------- */
@@ -745,10 +758,10 @@
     loadGraphState();
     enhanceNexus();
     observeOldApp();
-    syncWorkspace();
+    scheduleWorkspaceSync();
     updateProgressShell();
-    setTimeout(syncWorkspace, 400);
-    setTimeout(syncWorkspace, 1500);
+    setTimeout(scheduleWorkspaceSync, 400);
+    setTimeout(scheduleWorkspaceSync, 1500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

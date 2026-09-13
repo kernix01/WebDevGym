@@ -245,6 +245,12 @@ body.wdgn-ready {
   background-color: var(--wdgn-bg) !important;
 }
 
+/* The shared transition runtime owns view motion, so the legacy section
+   animation must not run at the same time. */
+body.wdgn-ready .section {
+  animation: none !important;
+}
+
 body.wdgn-ready .wdg-sidebar,
 body.wdgn-ready .wdgn-inspector,
 body.wdg-modern .wdg-rightbar {
@@ -420,6 +426,24 @@ body.wdgr-settings-open :is(
 ) {
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+/* Remove the previous workspace from composition while Settings is open.
+   Keeping it merely invisible can leave a stale GPU layer behind the panel. */
+body.wdgr-settings-open > :is(
+  .wrap,
+  .wdgn-overview,
+  .wdgn-sections-page,
+  .wdgf-feature-page,
+  .wdgt-page,
+  .wdg-growth-page,
+  .wdgr-ai-main
+) {
+  display: none !important;
+}
+
+body.wdgr-settings-open > .wdgr-settings-view.open {
+  display: grid !important;
 }
 
 body.wdg-modern.has-custom-bg.wdgr-settings-open .wdgr-settings-view {

@@ -2,7 +2,15 @@
   'use strict';
 
   const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
+  const isWebProtocol = location.protocol === 'http:' || location.protocol === 'https:';
   let installPrompt = null;
+
+  if (isWebProtocol && !document.querySelector('link[rel="manifest"]')) {
+    const manifest = document.createElement('link');
+    manifest.rel = 'manifest';
+    manifest.href = 'manifest.webmanifest';
+    document.head.appendChild(manifest);
+  }
 
   function icon(name, size) {
     return '<iconify-icon icon="' + name + '" width="' + (size || 18) + '" height="' + (size || 18) + '"></iconify-icon>';

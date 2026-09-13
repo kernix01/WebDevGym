@@ -260,6 +260,12 @@ body:not(.dark).wdg-modern .wdgr-settings-v2-ready .wdgr-settings-footer { backg
     inset: 52px 0 calc(var(--wdg-mobile-dock-height, 58px) + var(--wdg-mobile-safe-bottom, 8px));
   }
 
+  .wdgr-settings-v2-ready .wdgr-setting-control {
+    width: 100%;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+  }
+
   .wdgr-settings-v2-ready .wdgr-settings-header {
     min-height: 74px;
     padding: 13px 15px 12px;
