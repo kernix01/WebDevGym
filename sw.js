@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-09-13-v127';
+const CACHE_NAME = 'webdevgym-shell-2026-09-13-v128';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -30,7 +30,7 @@ const APP_SHELL = [
   './css/webdevgym-nexus.css',
   './css/webdevgym-mobile.css',
   './css/webdevgym-ai-settings.css',
-  './css/webdevgym-settings-v2.css?v=20260803-1',
+  './css/webdevgym-settings-v2.css?v=20260913-3',
   './css/webdevgym-splash.css',
   './css/webdevgym-github-token-vault.css',
   './css/webdevgym-github-workspace.css',
@@ -46,7 +46,7 @@ const APP_SHELL = [
   './css/webdevgym-notebook.css',
   './css/webdevgym-mastery.css',
   './css/webdevgym-context-menu.css',
-  './css/webdevgym-comfort.css?v=20260906-3',
+  './css/webdevgym-comfort.css?v=20260913-3',
   './css/webdevgym-local-first.css?v=20260906-1',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',
@@ -60,7 +60,7 @@ const APP_SHELL = [
   './js/webdevgym-core-ru.js?v=20260913-2',
   './js/webdevgym-core-en.js?v=20260913-2',
   './js/modern-ui-bootstrap.js',
-  './js/modern-ui.js?v=20260906-1',
+  './js/modern-ui.js?v=20260913-3',
   './js/modern-ui-v2.js',
   './js/modern-ui-v3.js',
   './js/modern-ui-v4.js',
@@ -95,7 +95,7 @@ const APP_SHELL = [
   './js/webdevgym-naming.js?v=20260906-1',
   './js/webdevgym-calendar-v5.js',
   './js/webdevgym-nexus-v3.js?v=20260911-2',
-  './js/webdevgym-learning-workspace.js?v=20260913-2',
+  './js/webdevgym-learning-workspace.js?v=20260913-3',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
   './js/webdevgym-playground-atlas.js?v=20260911-3',
   './js/webdevgym-usability.js',
