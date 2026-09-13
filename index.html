@@ -52,7 +52,7 @@ try {
 <link rel="stylesheet" href="css/webdevgym-github-workspace.css">
 <link rel="stylesheet" href="css/curriculum-depth-2026.css">
 <link rel="stylesheet" href="css/webdevgym-profile-redesign.css?v=20260812-2">
-<link rel="stylesheet" href="css/webdevgym-next.css?v=20260911-2">
+<link rel="stylesheet" href="css/webdevgym-next.css?v=20260913-2">
 <link rel="stylesheet" href="css/webdevgym-calendar-v5.css?v=20260809-2">
 <link rel="stylesheet" href="css/webdevgym-nexus-v3.css?v=20260911-2">
 <link rel="stylesheet" href="css/webdevgym-learning-workspace.css">
@@ -150,6 +150,11 @@ try {
       <div class="pdc-bar"><div class="pdc-fill" id="pdc-react" style="background:#61dafb;width:0%"></div></div>
       <div class="pdc-pct" id="pdcp-react">0%</div>
     </div>
+    <div class="prog-dash-card" onclick="switchTabByName('electron')" style="cursor:pointer;border-left:3px solid #7dd3fc;">
+      <div class="pdc-icon"><img class="pdc-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/electron/electron-original.svg" alt="Electron"></div><div class="pdc-name">Electron</div>
+      <div class="pdc-bar"><div class="pdc-fill" id="pdc-electron" style="background:#7dd3fc;width:0%"></div></div>
+      <div class="pdc-pct" id="pdcp-electron">0%</div>
+    </div>
     <div class="prog-dash-card" onclick="switchTabByName('git')" style="cursor:pointer;border-left:3px solid #16a34a;">
       <div class="pdc-icon"><img class="pdc-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git"></div><div class="pdc-name">Git</div>
       <div class="pdc-bar"><div class="pdc-fill" id="pdc-git" style="background:#16a34a;width:0%"></div></div>
@@ -186,6 +191,17 @@ try {
       <div class="pdc-bar"><div class="pdc-fill" id="pdc-vite" style="background:#7c3aed;width:0%"></div></div>
       <div class="pdc-pct" id="pdcp-vite">0%</div>
     </div>
+    <div class="prog-dash-section-title">Другие направления</div>
+    <div class="prog-dash-card" onclick="switchTabByName('python')" style="cursor:pointer;border-left:3px solid #3776ab;">
+      <div class="pdc-icon"><img class="pdc-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python"></div><div class="pdc-name">Python</div>
+      <div class="pdc-bar"><div class="pdc-fill" id="pdc-python" style="background:#3776ab;width:0%"></div></div>
+      <div class="pdc-pct" id="pdcp-python">0%</div>
+    </div>
+    <div class="prog-dash-card" onclick="switchTabByName('csharp')" style="cursor:pointer;border-left:3px solid #9b4f96;">
+      <div class="pdc-icon"><img class="pdc-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" alt="C#"></div><div class="pdc-name">C#</div>
+      <div class="pdc-bar"><div class="pdc-fill" id="pdc-csharp" style="background:#9b4f96;width:0%"></div></div>
+      <div class="pdc-pct" id="pdcp-csharp">0%</div>
+    </div>
   </div>
   <div class="tabs-nav">
 
@@ -197,6 +213,7 @@ try {
       <button class="tab js-tab" onclick="switchTab('js', this)" data-sec="js"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt=""> JavaScript <span class="tab-badge" id="badge-js">0/0</span></button>
       <button class="tab ts-tab" onclick="switchTab('ts', this)" data-sec="ts"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt=""> TypeScript <span class="tab-badge" id="badge-ts">0/0</span></button>
       <button class="tab react-tab" onclick="switchTab('react', this)" data-sec="react"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt=""> React <span class="tab-badge" id="badge-react">0/0</span></button>
+      <button class="tab electron-tab" onclick="switchTab('electron', this)" data-sec="electron"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/electron/electron-original.svg" alt=""> Electron <span class="tab-badge" id="badge-electron">0/0</span></button>
     </div>
 
     <!-- ROW 2: Backend -->
@@ -212,6 +229,12 @@ try {
       <button class="tab" onclick="switchTab('linux', this)" data-sec="linux">🐧 Linux <span class="tab-badge" id="badge-linux">0/0</span></button>
       <button class="tab" onclick="switchTab('pg', this)" data-sec="pg"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt=""> PostgreSQL <span class="tab-badge" id="badge-pg">0/0</span></button>
       <button class="tab" onclick="switchTab('vite', this)" data-sec="vite">⚡ Vite <span class="tab-badge" id="badge-vite">0/0</span></button>
+    </div>
+
+    <div class="tabs-row">
+      <span class="tabs-row-label oth">Другие языки</span>
+      <button class="tab python-tab" onclick="switchTab('python', this)" data-sec="python"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt=""> Python <span class="tab-badge" id="badge-python">0/0</span></button>
+      <button class="tab csharp-tab" onclick="switchTab('csharp', this)" data-sec="csharp"><img class="tab-lang-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" alt=""> C# <span class="tab-badge" id="badge-csharp">0/0</span></button>
     </div>
 
     <!-- ROW 3: Other -->
@@ -1336,6 +1359,45 @@ try {
     <div class="tip" style="margin-bottom:1.2rem;">⚠️ <strong>Это далёкая цель, не сейчас.</strong> Сначала фронтенд → потом Node.js → потом базы данных → и только потом эта тема. Здесь даётся <em>обзорно</em>, чтобы ты понимал общую картину и куда ведёт путь.</div>
 
     <div data-curriculum-slot="sec-devops" hidden=""></div></div><!-- /sec-devops -->
+
+  <div class="section" id="sec-electron">
+    <div class="lang-section-hero electron-section-hero">
+      <div class="lang-section-hero-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/electron/electron-original.svg" alt="Electron"></div>
+      <div>
+        <div class="lang-section-hero-title">Electron — desktop-приложения на frontend-стеке</div>
+        <div class="lang-section-hero-sub">От первого окна и разделения main, preload и renderer до файлов, IPC, безопасности и установщика. Итоговая работа — desktop-версия Nightwave.</div>
+        <div class="lang-section-hero-badges"><span class="lang-section-hero-badge">12 уроков</span><span class="lang-section-hero-badge">Desktop</span><span class="lang-section-hero-badge">Nightwave</span></div>
+      </div>
+    </div>
+    <div class="tip" style="margin-bottom:1.2rem;"><strong>Дополнительная ветка Frontend.</strong> Начинай после уверенного JavaScript; TypeScript и React сделают дальнейшую работу удобнее, но не обязательны для первых уроков.</div>
+    <div data-curriculum-slot="sec-electron" hidden=""></div>
+  </div>
+
+  <div class="section" id="sec-python">
+    <div class="lang-section-hero" style="background:#17243a;">
+      <div class="lang-section-hero-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python"></div>
+      <div>
+        <div class="lang-section-hero-title">Python — дополнительный backend-маршрут</div>
+        <div class="lang-section-hero-sub">От синтаксиса и функций до файлов, тестов и первого API. Лучше начинать после уверенной базы JavaScript: так ты будешь сравнивать подходы, а не учить программирование заново.</div>
+        <div class="lang-section-hero-badges"><span class="lang-section-hero-badge">13 уроков</span><span class="lang-section-hero-badge">Backend</span><span class="lang-section-hero-badge">Проект</span></div>
+      </div>
+    </div>
+    <div class="tip" style="margin-bottom:1.2rem;"><strong>Не входит в текущий frontend-календарь.</strong> Это самостоятельное направление: открывай его, когда захочешь изучать Python, не сбивая основной маршрут.</div>
+    <div data-curriculum-slot="sec-python" hidden=""></div>
+  </div>
+
+  <div class="section" id="sec-csharp">
+    <div class="lang-section-hero" style="background:#30203f;">
+      <div class="lang-section-hero-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" alt="C#"></div>
+      <div>
+        <div class="lang-section-hero-title">C# и .NET — типизированный backend-маршрут</div>
+        <div class="lang-section-hero-sub">От консольного проекта и системы типов до LINQ, async/await, тестов и ASP.NET Core API. Маршрут показывает не только синтаксис, но и границы ответственности в проекте.</div>
+        <div class="lang-section-hero-badges"><span class="lang-section-hero-badge">13 уроков</span><span class="lang-section-hero-badge">.NET</span><span class="lang-section-hero-badge">ASP.NET Core</span></div>
+      </div>
+    </div>
+    <div class="tip" style="margin-bottom:1.2rem;"><strong>Не входит в текущий frontend-календарь.</strong> Проходи отдельно после базы функций, коллекций и асинхронности на JavaScript.</div>
+    <div data-curriculum-slot="sec-csharp" hidden=""></div>
+  </div>
 
   <!-- ===================== ШПАРГАЛКИ ===================== -->
   <!-- ===================== POSTGRESQL ===================== -->
@@ -2717,12 +2779,13 @@ try {
 </div>
 
 <script src="data/curriculum-ru.js"></script>
+<script src="data/curriculum-languages-2026.js?v=20260913-2"></script>
 <script src="data/curriculum-depth-2026.js"></script>
 <script src="data/curriculum-audit-2026.js?v=20260811-1"></script>
 <script src="data/curriculum-corrections-2026.js?v=20260811-1"></script>
 <script src="data/curriculum-order-2026.js?v=20260810-1"></script>
 <script src="js/webdevgym-curriculum-renderer.js"></script>
-<script src="js/webdevgym-core-ru.js?v=20260907-1"></script>
+<script src="js/webdevgym-core-ru.js?v=20260913-2"></script>
 <script src="js/modern-ui-bootstrap.js"></script>
 <script src="js/modern-ui.js?v=20260906-1"></script>
 <script src="js/modern-ui-v2.js"></script>
@@ -2731,12 +2794,12 @@ try {
 <script src="js/modern-ui-v5.js"></script>
 <script src="js/modern-ui-v6.js"></script>
 <script src="js/webdevgym-shared-runtime.js"></script>
-  <script src="js/webdevgym-features.js?v=20260911-2"></script>
+  <script src="js/webdevgym-features.js?v=20260913-2"></script>
 <script src="js/webdevgym-profile-redesign.js?v=20260812-2"></script>
 <script src="js/webdevgym-today.js"></script>
 <script src="js/webdevgym-today-v2.js"></script>
-<script src="js/webdevgym-learning.js"></script>
-<script src="js/webdevgym-growth.js"></script>
+<script src="js/webdevgym-learning.js?v=20260913-2"></script>
+<script src="js/webdevgym-growth.js?v=20260913-2"></script>
 <script src="js/webdevgym-api-lab.js?v=20260813-1"></script>
 <script src="js/webdevgym-lab.js?v=20260813-1"></script>
 <script src="js/webdevgym-trainers-v2.js?v=20260813-1"></script>
@@ -2753,18 +2816,18 @@ try {
 <script src="js/webdevgym-studio-suite.js"></script>
 <script src="js/webdevgym-github-workspace.js?v=20260907-1"></script>
 <script src="js/webdevgym-mobile-performance.js"></script>
-<script src="js/webdevgym-next.js?v=20260911-2"></script>
+<script src="js/webdevgym-next.js?v=20260913-2"></script>
 <script src="js/webdevgym-naming-engine.js?v=20260906-1"></script>
 <script src="js/webdevgym-naming.js?v=20260906-1"></script>
 <script src="js/webdevgym-calendar-v5.js?v=20260809-1"></script>
 <script src="js/webdevgym-nexus-v3.js?v=20260911-2"></script>
-<script src="js/webdevgym-learning-workspace.js?v=20260911-2"></script>
+<script src="js/webdevgym-learning-workspace.js?v=20260913-2"></script>
 <script src="js/vendor/emmet-browser.min.js?v=2.4.11"></script>
 <script src="js/webdevgym-playground-atlas.js?v=20260911-3"></script>
 <script src="js/webdevgym-usability.js?v=20260824-6"></script>
 <script src="js/webdevgym-project-mode.js?v=20260812-1"></script>
 <script src="js/webdevgym-notebook.js?v=20260911-2"></script>
-<script src="js/webdevgym-mastery.js?v=20260906-1"></script>
+<script src="js/webdevgym-mastery.js?v=20260913-2"></script>
 <script src="js/webdevgym-context-menu.js?v=20260819-3"></script>
 <script src="js/webdevgym-optimizer.js?v=20260906-1"></script>
 <script src="js/webdevgym-transitions.js?v=20260906-3"></script>
