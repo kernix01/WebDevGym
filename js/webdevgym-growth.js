@@ -153,9 +153,17 @@
   function blockTitle(block) {
     const node = block.querySelector('.block-title, h2, h3');
     if (!node) return L('Untitled topic','Тема без названия');
-    const clone = node.cloneNode(true);
-    clone.querySelectorAll('button,.badge,.anchor-icon,.wdgf-deep-actions,.wdg-mastery').forEach(item => item.remove());
-    return clone.textContent.replace(/\s+/g,' ').trim();
+    const excluded = 'button,.badge,.anchor-icon,.wdgf-deep-actions,.wdg-mastery';
+    const parts = [];
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
+      acceptNode(textNode) {
+        return textNode.parentElement?.closest(excluded)
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    while (walker.nextNode()) parts.push(walker.currentNode.nodeValue);
+    return parts.join(' ').replace(/\s+/g,' ').trim();
   }
 
   function topics() {
@@ -519,7 +527,13 @@
     enhanceMastery();
     document.querySelectorAll('.section').forEach(section => {
       let frame = 0;
+      let knownBlocks = Array.from(section.querySelectorAll(':scope > .block'));
       new MutationObserver(() => {
+        const currentBlocks = Array.from(section.querySelectorAll(':scope > .block'));
+        const topicsChanged = currentBlocks.length !== knownBlocks.length ||
+          currentBlocks.some((block, index) => block !== knownBlocks[index]);
+        if (!topicsChanged) return;
+        knownBlocks = currentBlocks;
         invalidateTopicsCache();
         api?.invalidate?.('paths');
         if (frame) return;
