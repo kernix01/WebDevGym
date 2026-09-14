@@ -1,6 +1,7 @@
-const CACHE_NAME = 'webdevgym-shell-2026-09-14-v136';
+const CACHE_NAME = 'webdevgym-shell-2026-09-14-v138';
 const APP_SHELL = [
   './index.html',
+  './index-en.html',
   './favicon.svg',
   './manifest.webmanifest',
   './css/modern-language-fixes.css',
@@ -96,6 +97,7 @@ const APP_SHELL = [
   './js/webdevgym-nexus-v3.js?v=20260911-2',
   './js/webdevgym-learning-workspace.js?v=20260913-3',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
+  './js/webdevgym-code-editor.js?v=20260914-2',
   './js/webdevgym-playground-atlas.js?v=20260913-4',
   './js/webdevgym-usability.js',
   './js/webdevgym-project-mode.js',
