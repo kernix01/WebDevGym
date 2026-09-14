@@ -2372,19 +2372,28 @@
         applyEmmetSuggestion(true);
         return;
       }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        runPreview();
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        createSnapshot();
+        return;
+      }
+      if (window.WebDevGymCodeEditor?.handleKeydown(editor, event, {
+        fileName: currentFile()?.name || '',
+        expandAbbreviation: () => applyEmmetSuggestion(false)
+      })) {
+        hideEmmetSuggestion();
+        return;
+      }
       if (event.key === 'Tab') {
         event.preventDefault();
         if (!event.shiftKey && editor.selectionStart === editor.selectionEnd && applyEmmetSuggestion(false)) return;
         indentEditorSelection(editor, event.shiftKey);
         return;
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        runPreview();
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-        event.preventDefault();
-        createSnapshot();
       }
     });
     updateEmmetStatus();
