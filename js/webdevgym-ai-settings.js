@@ -13,7 +13,7 @@
     accent: 'Accent color', interfaceFont: 'Interface font', density: 'Interface density', compact: 'Compact',
     comfortable: 'Comfortable', codeFont: 'Code font', reduceMotion: 'Reduce animations', background: 'Background',
     currentBackground: 'Custom background', noBackground: 'No custom background', upload: 'Upload', remove: 'Remove',
-    opacity: 'Background opacity', soundSettings: 'Click and custom sounds', aiSettings: 'Model and connection',
+    opacity: 'Background opacity', soundSettings: 'Interface and AI sounds', aiSettings: 'Model and connection',
     activeModel: 'Active model', manageModels: 'Manage API models', apiNote: 'API keys stay in this browser and are sent only to the selected provider.',
     storage: 'Local storage', storageCopy: 'Progress, settings, files and PWA cache are stored on this device.',
     used: 'Used', exportSettings: 'Export progress', importSettings: 'Import progress', pwa: 'Application mode',
@@ -22,7 +22,7 @@
     preview: 'Preview', localSummary: 'Local data', settingsSaved: 'Settings are already applied and saved locally.',
     cancel: 'Close without resetting', saveSettings: 'Save settings', noChats: 'No chats found',
     pageTopic: 'Current WebDevGym lesson', openHistory: 'Open chat list', close: 'Close',
-    soundPageCopy: 'Choose a built-in sound or upload your own short click.', appearancePageCopy: 'Theme, accent, fonts and background.',
+    soundPageCopy: 'Choose interface sounds and a separate notification for completed AI replies.', appearancePageCopy: 'Theme, accent, fonts and background.',
     learningPageCopy: 'Control interface density and focus-friendly behavior.', dataPageCopy: 'Manage local progress and app data.',
     accessibilityPageCopy: 'Reduce motion and use keyboard shortcuts.', aiPageCopy: 'Connect your own compatible model and explicitly enable its capabilities.', imageMode: 'Image', chatMode: 'Chat', imagePrompt: 'Describe the image you want to generate...', minimize: 'Minimize', maximize: 'Maximize', visionTitle: 'Image understanding', visionCopy: 'Only models with Vision support can inspect attached images. Other readable files are sent as text.', imageTitle: 'Image generation', imageCopy: 'Only models and providers with a dedicated image-generation endpoint can create images.'
   } : {
@@ -36,7 +36,7 @@
     accent: 'Цветовой акцент', interfaceFont: 'Шрифт интерфейса', density: 'Плотность интерфейса', compact: 'Компактно',
     comfortable: 'Удобно', codeFont: 'Моношрифт кода', reduceMotion: 'Уменьшить анимации', background: 'Фон',
     currentBackground: 'Пользовательский фон', noBackground: 'Свой фон не выбран', upload: 'Загрузить', remove: 'Удалить',
-    opacity: 'Непрозрачность фона', soundSettings: 'Клики и свои звуки', aiSettings: 'Модель и подключение',
+    opacity: 'Непрозрачность фона', soundSettings: 'Интерфейс и ответы ИИ', aiSettings: 'Модель и подключение',
     activeModel: 'Активная модель', manageModels: 'Настроить API-модели', apiNote: 'API-ключи остаются в этом браузере и отправляются только выбранному провайдеру.',
     storage: 'Локальное хранилище', storageCopy: 'Прогресс, настройки, файлы и PWA-кэш хранятся на этом устройстве.',
     used: 'Занято', exportSettings: 'Экспортировать прогресс', importSettings: 'Импортировать прогресс', pwa: 'Режим приложения',
@@ -45,7 +45,7 @@
     preview: 'Предпросмотр', localSummary: 'Локальные данные', settingsSaved: 'Изменения применяются сразу и сохраняются локально.',
     cancel: 'Закрыть без сброса', saveSettings: 'Сохранить настройки', noChats: 'Чаты не найдены',
     pageTopic: 'Текущий урок WebDevGym', openHistory: 'Открыть список чатов', close: 'Закрыть',
-    soundPageCopy: 'Выбери встроенный звук или загрузи свой короткий клик.', appearancePageCopy: 'Тема, акцент, шрифты и пользовательский фон.',
+    soundPageCopy: 'Настрой звуки интерфейса и отдельное уведомление о готовом ответе ИИ.', appearancePageCopy: 'Тема, акцент, шрифты и пользовательский фон.',
     learningPageCopy: 'Настрой плотность интерфейса и спокойный режим работы.', dataPageCopy: 'Управляй локальным прогрессом и данными приложения.',
     accessibilityPageCopy: 'Уменьши движение и используй клавиатурную навигацию.', aiPageCopy: 'Подключи свою совместимую модель и явно укажи её возможности.', imageMode: 'Изображение', chatMode: 'Чат', imagePrompt: 'Опиши изображение, которое нужно создать...', minimize: 'Свернуть', maximize: 'Развернуть', visionTitle: 'Распознавание изображений', visionCopy: 'Прикреплённые изображения видят только модели с поддержкой Vision. Остальные читаемые файлы передаются как текст.', imageTitle: 'Генерация изображений', imageCopy: 'Создавать изображения умеют только специальные модели и провайдеры с отдельным endpoint генерации.'
   };
@@ -354,7 +354,34 @@
     };
     setImageMode(false);
 
-    shell.querySelector('.wdgr-ai-attach').addEventListener('click', () => fileInput.click());
+    shell.querySelector('.wdgr-ai-attach').addEventListener('click', async () => {
+      const chooseChatFiles = window.webdevgymDesktop?.desktop?.chooseChatFiles;
+      if (typeof chooseChatFiles !== 'function') {
+        if (typeof fileInput.showPicker === 'function') fileInput.showPicker();
+        else fileInput.click();
+        return;
+      }
+
+      try {
+        const selected = await chooseChatFiles();
+        const files = (Array.isArray(selected) ? selected : []).map(file => {
+          const bytes = file.data instanceof Uint8Array
+            ? file.data
+            : new Uint8Array(file.data?.data || file.data || []);
+          return new File([bytes], file.name, {
+            type: file.type || 'application/octet-stream',
+            lastModified: file.lastModified || Date.now()
+          });
+        });
+        if (files.length && typeof window.aiHandleFiles === 'function') {
+          await window.aiHandleFiles(files);
+        }
+      } catch (error) {
+        notify(isEnglish
+          ? `Could not attach files: ${error.message}`
+          : `Не удалось прикрепить файлы: ${error.message}`);
+      }
+    });
     shell.querySelector('#wdgrAiImageMode').addEventListener('click', () => setImageMode(!window.wdgrAiImageMode));
     shell.querySelectorAll('[data-ai-close]').forEach(button => button.addEventListener('click', () => window.toggleAiChat?.()));
     shell.querySelector('[data-ai-history-close]').addEventListener('click', () => win.classList.remove('wdgr-history-open'));

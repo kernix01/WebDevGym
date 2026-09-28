@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-09-14-v138';
+const CACHE_NAME = 'webdevgym-shell-2026-09-28-v139';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -47,6 +47,7 @@ const APP_SHELL = [
   './css/webdevgym-mastery.css',
   './css/webdevgym-context-menu.css',
   './css/webdevgym-comfort.css?v=20260913-5',
+  './css/webdevgym-scrollbars.css?v=20260928-1',
   './css/webdevgym-local-first.css?v=20260906-1',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',

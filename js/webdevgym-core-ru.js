@@ -8181,6 +8181,7 @@ const AI_ATTACH_TEXT_LIMIT = 12000;
 const AI_ATTACH_TOTAL_TEXT_LIMIT = 30000;
 const AI_ATTACH_VISION_MAX_BYTES = 4 * 1024 * 1024;
 const AI_ATTACH_MAX_FILES = 8;
+const AI_ATTACH_THUMBNAIL_MAX_CHARS = 60000;
 let aiAttachments = [];
 
 const AI_TEXT_EXTENSIONS = new Set([
@@ -8229,6 +8230,22 @@ function aiOnModelChange() {
 }
 // aiOnModelChange called on first open
 
+function aiNormalizeDisplayAttachments(attachments) {
+  if (!Array.isArray(attachments)) return [];
+  return attachments.slice(0, AI_ATTACH_MAX_FILES).map((attachment, index) => {
+    const thumbnail = String(attachment?.thumbnail || '');
+    return {
+      name: String(attachment?.name || 'file').slice(0, 160),
+      type: String(attachment?.type || 'unknown').slice(0, 100),
+      size: Math.max(0, Number(attachment?.size) || 0),
+      isImage: Boolean(attachment?.isImage),
+      thumbnail: index < 2 && /^data:image\//i.test(thumbnail) && thumbnail.length <= AI_ATTACH_THUMBNAIL_MAX_CHARS
+        ? thumbnail
+        : ''
+    };
+  });
+}
+
 function aiNormalizeHistory(history) {
   if (!Array.isArray(history)) return [];
   return history
@@ -8237,7 +8254,8 @@ function aiNormalizeHistory(history) {
       role: msg.role,
       content: msg.content.slice(0, 8000),
       display: typeof msg.display === 'string' ? msg.display.slice(0, 8000) : undefined,
-      image: typeof msg.image === 'string' && !msg.image.startsWith('data:') ? msg.image : undefined
+      image: typeof msg.image === 'string' && !msg.image.startsWith('data:') ? msg.image : undefined,
+      attachments: aiNormalizeDisplayAttachments(msg.attachments)
     }))
     .slice(-AI_HISTORY_LIMIT);
 }
@@ -8246,7 +8264,15 @@ function aiSaveHistory() {
   try {
     aiHistory = aiNormalizeHistory(aiHistory);
     localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(aiHistory));
-  } catch (e) {}
+  } catch (e) {
+    try {
+      aiHistory = aiHistory.map(message => ({
+        ...message,
+        attachments: aiNormalizeDisplayAttachments(message.attachments).map(attachment => ({ ...attachment, thumbnail: '' }))
+      }));
+      localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(aiHistory));
+    } catch (storageError) {}
+  }
 }
 
 function aiLoadHistory() {
@@ -8285,7 +8311,7 @@ function aiRenderHistory() {
   }
   aiHistory.forEach(msg => {
     if (msg.image) aiAddImageMsg(msg.image, msg.content);
-    else aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.display || msg.content);
+    else aiAddMsg(msg.role === 'user' ? 'user' : 'bot', msg.display || msg.content, msg.attachments);
   });
   const quick = document.getElementById('aiQuickRow');
   if (quick) quick.style.display = 'none';
@@ -8362,6 +8388,26 @@ async function aiPrepareVisionDataUrl(file) {
   }
 }
 
+async function aiCreateAttachmentThumbnail(file) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 220;
+    const ratio = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+    canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#111827';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const thumbnail = canvas.toDataURL('image/jpeg', .68);
+    return thumbnail.length <= AI_ATTACH_THUMBNAIL_MAX_CHARS ? thumbnail : '';
+  } catch (error) {
+    return '';
+  }
+}
+
 async function aiHandleFiles(fileList) {
   const files = Array.from(fileList || []);
   if (!files.length) return;
@@ -8382,6 +8428,7 @@ async function aiHandleFiles(fileList) {
       ext: aiFileExt(file.name),
       isImage,
       previewUrl: isImage ? URL.createObjectURL(file) : '',
+      thumbnail: isImage ? await aiCreateAttachmentThumbnail(file) : '',
       dataUrl: '',
       text: '',
       textTruncated: false
@@ -8474,10 +8521,7 @@ function aiBuildAttachmentContext(attachments) {
 }
 
 function aiBuildVisibleUserText(text, attachments) {
-  if (!attachments.length) return text;
-  const names = attachments.map(att => att.name).join(', ');
-  const base = text || 'Проанализируй прикреплённые файлы.';
-  return base + '\n\n📎 Прикреплено: ' + names;
+  return text || (attachments.length ? 'Проанализируй прикреплённые файлы.' : '');
 }
 
 function aiBuildCurrentUserContent(text, attachments) {
@@ -8763,6 +8807,7 @@ async function aiSend() {
   }
 
   const sentAttachments = aiAttachments.slice();
+  const displayAttachments = aiNormalizeDisplayAttachments(sentAttachments);
   const visibleText = aiBuildVisibleUserText(text, sentAttachments);
   const userContent = aiBuildCurrentUserContent(text, sentAttachments);
   inp.value = '';
@@ -8770,8 +8815,8 @@ async function aiSend() {
   const quickRow = document.getElementById('aiQuickRow');
   if (quickRow) quickRow.style.display = 'none';
 
-  aiAddMsg('user', visibleText);
-  aiHistory.push({ role: 'user', content: userContent, display: visibleText });
+  aiAddMsg('user', visibleText, sentAttachments);
+  aiHistory.push({ role: 'user', content: userContent, display: visibleText, attachments: displayAttachments });
   aiSaveHistory();
   aiClearAttachments();
 
@@ -8803,6 +8848,7 @@ async function aiSend() {
       aiHistory.push({ role: 'assistant', content: "Сгенерированное изображение", image: imageSource });
       aiSaveHistory();
       aiAddImageMsg(imageSource, "Сгенерированное изображение");
+      void window.WebDevGymAiNotifications?.complete?.({ title: 'WebDevGym: ИИ ответил', body: 'Изображение готово' });
     } else {
       const endpoint = baseUrl + '/chat/completions';
       const messages = aiBuildMessagesForApi("Ты Frontend Mentor внутри WebDevGym. Отвечай кратко, понятно и по делу. Сначала объясняй механику и давай небольшие подсказки. Не выдавай полное решение, если пользователь просит обучение через практику.", userContent, sentAttachments, Boolean(customCfg.vision));
@@ -8838,6 +8884,7 @@ async function aiSend() {
       aiHistory.push({ role: 'assistant', content: reply });
       aiSaveHistory();
       aiAddMsg('bot', reply);
+      void window.WebDevGymAiNotifications?.complete?.({ title: 'WebDevGym: ИИ ответил', body: reply });
       if (!toolReply) setTimeout(aiAddInsertButtons, 50);
     }
   } catch (err) {
@@ -8859,7 +8906,40 @@ function aiEscapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function aiAddMsg(role, text) {
+function aiRenderMessageAttachments(bubble, attachments) {
+  if (!bubble || !Array.isArray(attachments) || !attachments.length) return;
+  const list = document.createElement('div');
+  list.className = 'ai-msg-attachments';
+  attachments.slice(0, AI_ATTACH_MAX_FILES).forEach(attachment => {
+    const item = document.createElement('div');
+    item.className = `ai-msg-attachment${attachment.isImage ? ' is-image' : ''}`;
+    const source = String(attachment.thumbnail || attachment.dataUrl || attachment.previewUrl || '');
+    if (attachment.isImage && /^(?:blob:|data:image\/)/i.test(source)) {
+      const image = document.createElement('img');
+      image.src = source;
+      image.alt = attachment.name || 'Прикреплённое изображение';
+      image.loading = 'lazy';
+      item.appendChild(image);
+    } else {
+      const icon = document.createElement('span');
+      icon.className = 'ai-msg-attachment-icon';
+      icon.textContent = attachment.isImage ? 'IMG' : (aiFileExt(attachment.name).toUpperCase() || 'FILE');
+      item.appendChild(icon);
+    }
+    const meta = document.createElement('span');
+    meta.className = 'ai-msg-attachment-meta';
+    const name = document.createElement('strong');
+    name.textContent = attachment.name || 'file';
+    const size = document.createElement('small');
+    size.textContent = aiFormatBytes(attachment.size);
+    meta.append(name, size);
+    item.appendChild(meta);
+    list.appendChild(item);
+  });
+  bubble.appendChild(list);
+}
+
+function aiAddMsg(role, text, attachments = []) {
   const container = document.getElementById('aiMsgs');
   const el = document.createElement('div');
   el.className = `ai-msg ${role}`;
@@ -8873,10 +8953,15 @@ function aiAddMsg(role, text) {
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>');
 
-  el.innerHTML = `
-    <div class="ai-msg-av">${role === 'user' ? '👤' : '✨'}</div>
-    <div class="ai-msg-bbl">${fmt}</div>
-  `;
+  el.innerHTML = `<div class="ai-msg-av">${role === 'user' ? '👤' : '✨'}</div>`;
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-msg-bbl';
+  const messageText = document.createElement('div');
+  messageText.className = 'ai-msg-text';
+  messageText.innerHTML = fmt;
+  bubble.appendChild(messageText);
+  aiRenderMessageAttachments(bubble, attachments);
+  el.appendChild(bubble);
   container.appendChild(el);
   aiScrollBottom();
 }
