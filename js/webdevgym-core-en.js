@@ -8196,6 +8196,7 @@ function toggleAiChat() {
   aiChatOpen = !aiChatOpen;
   const win = document.getElementById('aiChatWin');
   if (aiChatOpen) {
+    win.classList.remove('wdgr-ai-minimized');
     win.classList.add('open');
     const badge = document.getElementById('aiFabBadge');
     if (badge) badge.style.display = 'none';
@@ -8411,22 +8412,46 @@ async function aiCreateAttachmentThumbnail(file) {
 
 async function aiHandleFiles(fileList) {
   const files = Array.from(fileList || []);
-  if (!files.length) return;
+  if (!files.length) return 0;
 
-  const slots = Math.max(0, AI_ATTACH_MAX_FILES - aiAttachments.length);
-  const selected = files.slice(0, slots);
-  if (files.length > selected.length && typeof showToast === 'function') {
+  const keyForFile = file => file.webdevgymPath
+    ? `${file.webdevgymProjectRoot || ''}\u0000${file.webdevgymPath}`
+    : '';
+  const keyForAttachment = attachment => attachment.projectPath
+    ? `${attachment.projectRoot || ''}\u0000${attachment.projectPath}`
+    : '';
+  const seen = new Set();
+  const uniqueFiles = files.filter(file => {
+    const key = keyForFile(file);
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  let slots = Math.max(0, AI_ATTACH_MAX_FILES - aiAttachments.length);
+  const selected = uniqueFiles.filter(file => {
+    const key = keyForFile(file);
+    const replacesExisting = key && aiAttachments.some(attachment => keyForAttachment(attachment) === key);
+    if (replacesExisting) return true;
+    if (slots <= 0) return false;
+    slots -= 1;
+    return true;
+  });
+  if (uniqueFiles.length > selected.length && typeof showToast === 'function') {
     showToast('Можно onкрепить up to ' + AI_ATTACH_MAX_FILES + ' files за раз');
   }
 
   for (const file of selected) {
     const isImage = String(file.type || '').startsWith('image/');
+    const displayName = file.webdevgymPath || file.name || 'file';
     const att = {
       id: 'att_' + Date.now() + '_' + Math.random().toString(36).slice(2),
-      name: file.name || 'file',
+      name: displayName,
+      projectPath: file.webdevgymPath || '',
+      projectRoot: file.webdevgymProjectRoot || '',
       type: file.type || 'unknown',
       size: file.size || 0,
-      ext: aiFileExt(file.name),
+      ext: aiFileExt(displayName),
       isImage,
       previewUrl: isImage ? URL.createObjectURL(file) : '',
       thumbnail: isImage ? await aiCreateAttachmentThumbnail(file) : '',
@@ -8447,9 +8472,46 @@ async function aiHandleFiles(fileList) {
       att.textTruncated = file.size > AI_ATTACH_TEXT_LIMIT;
     }
 
-    aiAttachments.push(att);
+    const projectKey = keyForAttachment(att);
+    const existingIndex = projectKey
+      ? aiAttachments.findIndex(attachment => keyForAttachment(attachment) === projectKey)
+      : -1;
+    if (existingIndex >= 0) {
+      const previous = aiAttachments[existingIndex];
+      if (previous.previewUrl) URL.revokeObjectURL(previous.previewUrl);
+      aiAttachments.splice(existingIndex, 1, att);
+    } else {
+      aiAttachments.push(att);
+    }
   }
 
+  aiRenderAttachments();
+  return selected.length;
+}
+
+async function aiRefreshProjectAttachments() {
+  const projectAttachments = aiAttachments.filter(attachment => attachment.projectPath);
+  const context = window.WebDevGymDesktopProjectContext;
+  if (!projectAttachments.length || typeof context?.read !== 'function') return;
+  const roots = [...new Set(projectAttachments.map(attachment => attachment.projectRoot).filter(Boolean))];
+  if (roots.length > 1) throw new Error('The attached files belong to different projects. Remove the old files and attach them again.');
+  const result = await context.read(projectAttachments.map(attachment => attachment.projectPath), roots[0] || '');
+  const freshFiles = new Map((result.files || []).map(file => [file.path, file]));
+  if (freshFiles.size !== projectAttachments.length) throw new Error('The attached project files could not be refreshed.');
+  aiAttachments = aiAttachments.map(attachment => {
+    if (!attachment.projectPath) return attachment;
+    const fresh = freshFiles.get(attachment.projectPath);
+    if (!fresh) return attachment;
+    return {
+      ...attachment,
+      projectRoot: result.projectRoot || attachment.projectRoot,
+      name: fresh.path,
+      type: fresh.type || attachment.type,
+      size: fresh.size,
+      text: fresh.text,
+      textTruncated: fresh.size > AI_ATTACH_TEXT_LIMIT
+    };
+  });
   aiRenderAttachments();
 }
 
@@ -8746,19 +8808,21 @@ function aiNormalizeOpenAiBaseUrl(baseUrl) {
   return clean;
 }
 
-function aiCreateProviderError(response, payload) {
+function aiCreateProviderError(response, payload, endpoint = '', model = '') {
   const error = payload?.error;
   const message = typeof error === 'string' ? error
     : error?.message || payload?.message || payload?.detail || ('HTTP ' + response.status);
   const result = new Error(Array.isArray(message) ? JSON.stringify(message) : String(message));
   result.status = response.status;
+  result.endpoint = endpoint;
+  result.model = model;
   return result;
 }
 
 function aiProviderErrorMessage(error, customCfg) {
   const status = Number(error?.status || 0);
-  const endpoint = aiNormalizeOpenAiBaseUrl(customCfg?.baseUrl) + '/chat/completions';
-  const model = customCfg?.model || 'unknown';
+  const endpoint = error?.endpoint || (aiNormalizeOpenAiBaseUrl(customCfg?.baseUrl) + '/chat/completions');
+  const model = error?.model || customCfg?.model || 'unknown';
   const lower = String(error?.message || '').toLowerCase();
   let advice = '';
   if (status === 401 || status === 403 || lower.includes('api key') || lower.includes('credentials')) {
@@ -8778,6 +8842,15 @@ function aiProviderErrorMessage(error, customCfg) {
   }
   const diagnostic = (status ? `HTTP ${status}\n` : '') + `Endpoint: ${endpoint}\nModel: ${model}`;
   return 'Error: ' + (error?.message || 'unknown error') + '\n\n' + diagnostic + (advice ? '\n\n' + advice : '');
+}
+
+function aiGeneratedImageSource(payload) {
+  const item = payload?.data?.[0] || payload?.output?.[0] || payload?.result || {};
+  const directUrl = item?.url || item?.image_url?.url || item?.image_url || payload?.url || '';
+  if (typeof directUrl === 'string' && directUrl) return directUrl;
+  const encoded = item?.b64_json || item?.base64 || item?.image_base64 || payload?.b64_json || '';
+  if (typeof encoded !== 'string' || !encoded) return '';
+  return encoded.startsWith('data:') ? encoded : 'data:image/png;base64,' + encoded;
 }
 
 // ---- Send message ----
@@ -8806,6 +8879,15 @@ async function aiSend() {
     return;
   }
 
+  if (!imageMode) {
+    try {
+      await aiRefreshProjectAttachments();
+    } catch (error) {
+      aiAddMsg('bot', error.message || 'The attached project files could not be refreshed.');
+      return;
+    }
+  }
+
   const sentAttachments = aiAttachments.slice();
   const displayAttachments = aiNormalizeDisplayAttachments(sentAttachments);
   const visibleText = aiBuildVisibleUserText(text, sentAttachments);
@@ -8818,7 +8900,6 @@ async function aiSend() {
   aiAddMsg('user', visibleText, sentAttachments);
   aiHistory.push({ role: 'user', content: userContent, display: visibleText, attachments: displayAttachments });
   aiSaveHistory();
-  aiClearAttachments();
 
   const typingId = 'aiTyping_' + Date.now();
   const typEl = document.createElement('div');
@@ -8834,15 +8915,25 @@ async function aiSend() {
   const baseUrl = aiNormalizeOpenAiBaseUrl(customCfg.baseUrl);
   try {
     if (imageMode) {
-      const response = await fetch(baseUrl + '/images/generations', {
+      const endpoint = baseUrl + '/images/generations';
+      const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + customCfg.apiKey };
+      const request = { model: customCfg.imageModel || customCfg.model, prompt: text, size: '1024x1024' };
+      let response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + customCfg.apiKey },
-        body: JSON.stringify({ model: customCfg.imageModel || customCfg.model, prompt: text, size: '1024x1024', n: 1 })
+        headers,
+        body: JSON.stringify(request)
       });
-      const data = await response.json();
-      if (!response.ok || data.error) throw new Error(data.error?.message || 'HTTP ' + response.status);
-      const item = data.data?.[0];
-      const imageSource = item?.url || (item?.b64_json ? 'data:image/png;base64,' + item.b64_json : '');
+      let data = await response.json();
+      if ((!response.ok || data.error) && [400, 422].includes(response.status)) {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ model: request.model, prompt: request.prompt })
+        });
+        data = await response.json();
+      }
+      if (!response.ok || data.error) throw aiCreateProviderError(response, data, endpoint, request.model);
+      const imageSource = aiGeneratedImageSource(data);
       if (!imageSource) throw new Error("The provider did not return an image.");
       document.getElementById(typingId)?.remove();
       aiHistory.push({ role: 'assistant', content: "Generated image", image: imageSource });
@@ -8851,7 +8942,8 @@ async function aiSend() {
       void window.WebDevGymAiNotifications?.complete?.({ title: 'WebDevGym: AI replied', body: 'Your image is ready' });
     } else {
       const endpoint = baseUrl + '/chat/completions';
-      const messages = aiBuildMessagesForApi("You are the Frontend Mentor inside WebDevGym. Be concise, clear, and practical. Explain the mechanics first and give small hints. Do not provide a complete solution when the user is learning through practice.", userContent, sentAttachments, Boolean(customCfg.vision));
+      const editPrompt = window.WebDevGymAiEdits?.systemPrompt?.(sentAttachments) || '';
+      const messages = aiBuildMessagesForApi("You are the Frontend Mentor inside WebDevGym. Be concise, clear, and practical. Explain the mechanics first and give small hints. Do not provide a complete solution when the user is learning through practice." + editPrompt, userContent, sentAttachments, Boolean(customCfg.vision));
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + customCfg.apiKey,
@@ -8863,7 +8955,7 @@ async function aiSend() {
         body: JSON.stringify({
           model: customCfg.model,
           messages,
-          max_tokens: 1024,
+          max_tokens: editPrompt ? 8192 : 1024,
           ...(aiIsClaudeHub(baseUrl) ? {} : { temperature: 0.7 })
         })
       });
@@ -8939,19 +9031,106 @@ function aiRenderMessageAttachments(bubble, attachments) {
   bubble.appendChild(list);
 }
 
+function aiInlineMarkdown(value) {
+  const code = [];
+  let safe = aiEscapeHtml(String(value || ''));
+  safe = safe.replace(/`([^`\n]+)`/g, (_, content) => {
+    const token = `\u0000INLINE${code.length}\u0000`;
+    code.push(`<code>${content}</code>`);
+    return token;
+  });
+  safe = safe
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/__([^_\n]+)__/g, '<strong>$1</strong>')
+    .replace(/(^|\s)\*([^*\n]+)\*(?=\s|$|[.,!?;:])/g, '$1<em>$2</em>');
+  return safe.replace(/\u0000INLINE(\d+)\u0000/g, (_, index) => code[Number(index)] || '');
+}
+
+function aiRenderMarkdown(value) {
+  const blocks = [];
+  const source = String(value || '').replace(/\r\n?/g, '\n').replace(/```([^\n`]*)\n?([\s\S]*?)```/g, (_, language, code) => {
+    const token = `\u0000BLOCK${blocks.length}\u0000`;
+    blocks.push({ language: String(language || '').trim(), code: String(code || '').replace(/\n$/, '') });
+    return token;
+  });
+  const output = [];
+  let paragraph = [];
+  let listType = '';
+  const closeParagraph = () => {
+    if (!paragraph.length) return;
+    output.push(`<p>${paragraph.map(aiInlineMarkdown).join('<br>')}</p>`);
+    paragraph = [];
+  };
+  const closeList = () => {
+    if (!listType) return;
+    output.push(`</${listType}>`);
+    listType = '';
+  };
+  const openList = type => {
+    closeParagraph();
+    if (listType === type) return;
+    closeList();
+    listType = type;
+    output.push(`<${type}>`);
+  };
+
+  source.split('\n').forEach(line => {
+    const blockMatch = line.match(/^\u0000BLOCK(\d+)\u0000$/);
+    if (blockMatch) {
+      closeParagraph();
+      closeList();
+      const block = blocks[Number(blockMatch[1])] || { language: '', code: '' };
+      const language = block.language.replace(/[^\w-]/g, '');
+      output.push(`<pre><code${language ? ` data-language="${language}"` : ''}>${aiEscapeHtml(block.code)}</code></pre>`);
+      return;
+    }
+    if (!line.trim()) {
+      closeParagraph();
+      closeList();
+      return;
+    }
+    const heading = line.match(/^\s*(#{1,6})\s*(.+)$/);
+    if (heading) {
+      closeParagraph();
+      closeList();
+      const level = Math.min(5, heading[1].length + 2);
+      output.push(`<h${level}>${aiInlineMarkdown(heading[2])}</h${level}>`);
+      return;
+    }
+    const unordered = line.match(/^\s*[-*+]\s+(.+)$/);
+    if (unordered) {
+      openList('ul');
+      output.push(`<li>${aiInlineMarkdown(unordered[1])}</li>`);
+      return;
+    }
+    const ordered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (ordered) {
+      openList('ol');
+      output.push(`<li>${aiInlineMarkdown(ordered[1])}</li>`);
+      return;
+    }
+    const quote = line.match(/^\s*>\s?(.*)$/);
+    if (quote) {
+      closeParagraph();
+      closeList();
+      output.push(`<blockquote>${aiInlineMarkdown(quote[1])}</blockquote>`);
+      return;
+    }
+    closeList();
+    paragraph.push(line);
+  });
+  closeParagraph();
+  closeList();
+  return output.join('');
+}
+
 function aiAddMsg(role, text, attachments = []) {
   const container = document.getElementById('aiMsgs');
   const el = document.createElement('div');
   el.className = `ai-msg ${role}`;
 
-  // Formatирование: code, bold, переносы
-  const safeText = aiEscapeHtml(text);
-  const fmt = safeText
-    .replace(/```([\w]*)?\n?([\s\S]*?)```/g, (_, lang, code) =>
-      `<pre><code>${code.trim()}</code></pre>`)
-    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
+  const displayText = role === 'user' ? text : (window.WebDevGymAiEdits?.displayText?.(text) ?? text);
+  const fmt = aiRenderMarkdown(displayText);
 
   el.innerHTML = `<div class="ai-msg-av">${role === 'user' ? '👤' : '✨'}</div>`;
   const bubble = document.createElement('div');
@@ -8963,6 +9142,7 @@ function aiAddMsg(role, text, attachments = []) {
   aiRenderMessageAttachments(bubble, attachments);
   el.appendChild(bubble);
   container.appendChild(el);
+  if (role !== 'user') window.WebDevGymAiEdits?.enhanceMessage?.({ element: el, bubble, text });
   aiScrollBottom();
 }
 
@@ -8994,6 +9174,17 @@ function aiScrollBottom() {
   const c = document.getElementById('aiMsgs');
   if (c) c.scrollTop = c.scrollHeight;
 }
+
+window.WebDevGymAiAttachments = Object.freeze({
+  refresh: aiRefreshProjectAttachments,
+  snapshot: () => aiAttachments.map(attachment => ({
+    name: attachment.name,
+    projectPath: attachment.projectPath,
+    projectRoot: attachment.projectRoot,
+    size: attachment.size,
+    text: attachment.text
+  }))
+});
 
 aiLoadHistory();
 
