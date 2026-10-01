@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-09-28-v139';
+const CACHE_NAME = 'webdevgym-shell-2026-10-01-v146';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -40,7 +40,7 @@ const APP_SHELL = [
   './css/webdevgym-calendar-v5.css',
   './css/webdevgym-nexus-v3.css?v=20260911-2',
   './css/webdevgym-learning-workspace.css',
-  './css/webdevgym-playground-atlas.css?v=20260907-2',
+  './css/webdevgym-playground-atlas.css?v=20260930-2',
   './css/webdevgym-usability.css',
   './css/webdevgym-project-mode.css',
   './css/webdevgym-notebook.css',
@@ -48,6 +48,7 @@ const APP_SHELL = [
   './css/webdevgym-context-menu.css',
   './css/webdevgym-comfort.css?v=20260913-5',
   './css/webdevgym-scrollbars.css?v=20260928-1',
+  './css/webdevgym-device-sync.css?v=20261001-2',
   './css/webdevgym-local-first.css?v=20260906-1',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',
@@ -99,7 +100,7 @@ const APP_SHELL = [
   './js/webdevgym-learning-workspace.js?v=20260913-3',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
   './js/webdevgym-code-editor.js?v=20260914-2',
-  './js/webdevgym-playground-atlas.js?v=20260913-4',
+  './js/webdevgym-playground-atlas.js?v=20260930-2',
   './js/webdevgym-usability.js',
   './js/webdevgym-project-mode.js',
   './js/webdevgym-notebook.js?v=20260911-2',
@@ -107,7 +108,8 @@ const APP_SHELL = [
   './js/webdevgym-context-menu.js',
   './js/webdevgym-optimizer.js?v=20260906-1',
   './js/webdevgym-transitions.js?v=20260913-5',
-  './js/webdevgym-local-first.js?v=20260906-1'
+  './js/webdevgym-local-first.js?v=20260906-1',
+  './js/webdevgym-device-sync.js?v=20261001-4'
 ];
 
 self.addEventListener('install', event => {
