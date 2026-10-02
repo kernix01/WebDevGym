@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-10-01-v146';
+const CACHE_NAME = 'webdevgym-shell-2026-10-01-v148';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -109,7 +109,7 @@ const APP_SHELL = [
   './js/webdevgym-optimizer.js?v=20260906-1',
   './js/webdevgym-transitions.js?v=20260913-5',
   './js/webdevgym-local-first.js?v=20260906-1',
-  './js/webdevgym-device-sync.js?v=20261001-4'
+  './js/webdevgym-device-sync.js?v=20261001-6'
 ];
 
 self.addEventListener('install', event => {
