@@ -7,6 +7,7 @@
   const PORTS = [47831];
   const POLL_MS = 30000;
   const LOCAL_SYNC_DELAY = 80;
+  const SOCKET_REQUEST_TIMEOUT = 1000;
   const SOCKET_RECONNECT_MAX = 10000;
   const MAX_VALUE_LENGTH = 1024 * 1024;
   const desktopApi = window.webdevgymDesktop?.desktop || null;
@@ -39,6 +40,7 @@
     wrongCode: 'The code is incorrect or expired.',
     connectionError: 'Could not connect to Desktop.',
     copied: 'Code copied',
+    copyFailed: 'Could not copy the code',
     close: 'Close'
   } : {
     title: 'Синхронизация устройств',
@@ -66,6 +68,7 @@
     wrongCode: 'Код неверный или уже истёк.',
     connectionError: 'Не удалось подключиться к Desktop.',
     copied: 'Код скопирован',
+    copyFailed: 'Не удалось скопировать код',
     close: 'Закрыть'
   };
 
@@ -83,6 +86,8 @@
     pendingSync: false
   };
   let syncSocket = null;
+  const socketRequests = new Map();
+  let socketRequestSequence = 0;
   let socketReconnectTimer = 0;
   let socketReconnectAttempt = 0;
   let localSyncTimer = 0;
@@ -327,20 +332,24 @@
         result = await desktopApi.syncExchange(state.clientId, entries);
         state.info = await desktopApi.syncInfo();
       } else {
-        const response = await requestWithTimeout(`http://127.0.0.1:${state.connection.port}/sync`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${state.connection.token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ clientId: state.clientId, entries })
-        }, 2500);
-        if (response.status === 401) {
-          disconnectBrowser();
-          return;
+        try {
+          result = await exchangeOverWebSocket(entries);
+        } catch {
+          const response = await requestWithTimeout(`http://127.0.0.1:${state.connection.port}/sync`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${state.connection.token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ clientId: state.clientId, entries })
+          }, 2500);
+          if (response.status === 401) {
+            disconnectBrowser();
+            return;
+          }
+          if (!response.ok) throw new Error('sync-failed');
+          result = await response.json();
         }
-        if (!response.ok) throw new Error('sync-failed');
-        result = await response.json();
       }
       applyRemoteEntries(result.entries);
       state.status = 'paired';
@@ -407,7 +416,54 @@
     socketReconnectTimer = 0;
     const socket = syncSocket;
     syncSocket = null;
+    rejectSocketRequests(new Error('socket-closed'));
     if (socket && socket.readyState < WebSocket.CLOSING) socket.close(1000, 'Client closed');
+  }
+
+  function rejectSocketRequests(error) {
+    for (const pending of socketRequests.values()) {
+      window.clearTimeout(pending.timer);
+      pending.reject(error);
+    }
+    socketRequests.clear();
+  }
+
+  function exchangeOverWebSocket(entries) {
+    const socket = syncSocket;
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      return Promise.reject(new Error('socket-unavailable'));
+    }
+    const requestId = `${state.clientId}:${Date.now()}:${socketRequestSequence += 1}`;
+    return new Promise((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        socketRequests.delete(requestId);
+        reject(new Error('socket-timeout'));
+      }, SOCKET_REQUEST_TIMEOUT);
+      socketRequests.set(requestId, { resolve, reject, timer });
+      try {
+        socket.send(JSON.stringify({ type: 'sync', requestId, entries }));
+      } catch (error) {
+        window.clearTimeout(timer);
+        socketRequests.delete(requestId);
+        reject(error);
+      }
+    });
+  }
+
+  function handleSocketMessage(event) {
+    try {
+      const message = JSON.parse(String(event.data || '{}'));
+      if (message.type === 'sync-result' || message.type === 'sync-error') {
+        const pending = socketRequests.get(String(message.requestId || ''));
+        if (!pending) return;
+        window.clearTimeout(pending.timer);
+        socketRequests.delete(String(message.requestId));
+        if (message.type === 'sync-error') pending.reject(new Error(message.error || 'socket-sync-failed'));
+        else pending.resolve(message);
+        return;
+      }
+      if (message.type === 'sync-changed' && message.source !== state.clientId) void exchange();
+    } catch {}
   }
 
   function scheduleWebSocketReconnect() {
@@ -444,14 +500,12 @@
       render();
       void exchange();
     });
-    socket.addEventListener('message', event => {
-      try {
-        const message = JSON.parse(String(event.data || '{}'));
-        if (message.type === 'sync-changed' && message.source !== state.clientId) void exchange();
-      } catch {}
-    });
+    socket.addEventListener('message', handleSocketMessage);
     socket.addEventListener('close', event => {
-      if (syncSocket === socket) syncSocket = null;
+      if (syncSocket === socket) {
+        syncSocket = null;
+        rejectSocketRequests(new Error('socket-closed'));
+      }
       if (event.code === 4001) {
         disconnectBrowser();
         return;
@@ -473,6 +527,30 @@
     if (!value) return copy.never;
     if (Date.now() - value < 60000) return copy.now;
     return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function copyText(value) {
+    const text = String(value ?? '');
+    if (isDesktop && desktopApi?.copyText) {
+      try {
+        if (await desktopApi.copyText(text)) return true;
+      } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {}
+    const input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch {}
+    input.remove();
+    return copied;
   }
 
   function icon(name, size = 18) {
@@ -620,8 +698,8 @@
         </div>
         <p class="wdg-device-sync-protected">${icon('tabler:shield-lock', 16)}${copy.protected}</p>`;
       content.querySelector('[data-sync-copy-code]')?.addEventListener('click', async () => {
-        await navigator.clipboard?.writeText(code);
-        window.showToast?.(copy.copied);
+        const copied = await copyText(code);
+        window.showToast?.(copied ? copy.copied : copy.copyFailed);
       });
       content.querySelector('[data-sync-regenerate]')?.addEventListener('click', async () => {
         state.info = await desktopApi.syncRegenerateCode();

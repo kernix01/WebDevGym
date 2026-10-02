@@ -3,6 +3,8 @@
 
   const api = window.webdevgymDesktop?.desktop;
   if (!api) return;
+  if (window.__webdevgymDesktopCenterInitialized) return;
+  window.__webdevgymDesktopCenterInitialized = true;
 
   const isEnglish = document.documentElement.lang === 'en' || location.pathname.endsWith('index-en.html');
   const copy = isEnglish ? {
@@ -50,7 +52,21 @@
     dependencyMissing: 'Not installed', dependencyUpdate: 'Update', dependencyRemove: 'Remove',
     dependencyEmpty: 'No dependencies in package.json', dependencyNoProject: 'Open a project with package.json first',
     dependencyConfirmRemove: 'Remove this package from the project?', dependencyUpdatesReady: 'Package versions checked',
-    dependencyOperationDone: 'Package operation completed', dependencyCount: 'packages'
+    dependencyOperationDone: 'Package operation completed', dependencyCount: 'packages',
+    resetLayout: 'Reset layout', splitEditor: 'Split editor', splitDirection: 'Split direction',
+    splitVertical: 'Side by side', splitHorizontal: 'Stacked', openToSide: 'Open in split editor',
+    editorTheme: 'Editor theme', importTheme: 'Import VS Code theme JSON', importSnippets: 'Import VS Code snippets JSON',
+    extensions: 'VS Code extensions', marketplaceTab: 'Marketplace', installedTab: 'Installed',
+    extensionSearchPlaceholder: 'Search Open VSX extensions...', extensionSearchAction: 'Search', extensionSearching: 'Searching Open VSX...',
+    extensionSearchEmpty: 'No extensions found', extensionSearchHint: 'Search the Open VSX catalog by name or keyword.', extensionDownloads: 'downloads',
+    extensionMarketplaceFailed: 'Could not load the extension catalog', extensionInstallAction: 'Install', extensionInstalledAction: 'Installed', extensionInstalling: 'Installing...',
+    installExtension: 'Install from .vsix', removeExtension: 'Uninstall', noExtensions: 'No extensions installed',
+    extensionInfo: 'Themes, snippets, Auto Close Tag, Auto Rename Tag, Color Highlight, Error Lens, and Live Preview compatibility are enabled. Extension code and VS Code commands are not executed.', verifiedLabel: 'Open VSX verified',
+    themeCountLabel: 'themes', snippetCountLabel: 'snippets', nativeFeatureCountLabel: 'compatible features',
+    extensionInstalled: 'Extension installed', extensionRemoved: 'Extension removed', extensionRemoveFailed: 'Could not uninstall extension', extensionInstallFailed: 'Could not install extension',
+    themeImported: 'Theme imported', snippetsImported: 'Snippets imported', invalidTheme: 'Theme JSON is not valid',
+    invalidSnippets: 'Snippet JSON is not valid', previewViewport: 'Preview viewport', viewportDesktop: 'Desktop',
+    viewportTablet: 'Tablet', viewportMobile: 'Mobile', reopenClosedTab: 'Reopen closed tab'
   } : {
     title: 'Desktop Center', subtitle: 'Локальное рабочее пространство', open: 'Открыть папку', projects: 'Файлы', search: 'Поиск',
     terminal: 'Runner', git: 'Git', docs: 'Документация', backups: 'Снимки', app: 'Приложение', recents: 'Недавние проекты',
@@ -99,8 +115,41 @@
     dependencyMissing: 'Не установлена', dependencyUpdate: 'Обновить', dependencyRemove: 'Удалить',
     dependencyEmpty: 'В package.json пока нет зависимостей', dependencyNoProject: 'Сначала открой проект с package.json',
     dependencyConfirmRemove: 'Удалить этот пакет из проекта?', dependencyUpdatesReady: 'Версии пакетов проверены',
-    dependencyOperationDone: 'Операция с пакетом завершена', dependencyCount: 'пакетов'
+    dependencyOperationDone: 'Операция с пакетом завершена', dependencyCount: 'пакетов',
+    resetLayout: 'Сбросить раскладку', splitEditor: 'Разделить редактор', splitDirection: 'Направление разделения',
+    splitVertical: 'Рядом', splitHorizontal: 'Сверху и снизу', openToSide: 'Открыть в разделённом редакторе',
+    editorTheme: 'Тема редактора', importTheme: 'Импорт темы VS Code JSON', importSnippets: 'Импорт сниппетов VS Code JSON',
+    extensions: 'Расширения VS Code', marketplaceTab: 'Магазин', installedTab: 'Установленные',
+    extensionSearchPlaceholder: 'Поиск расширений Open VSX...', extensionSearchAction: 'Найти', extensionSearching: 'Ищем в Open VSX...',
+    extensionSearchEmpty: 'Расширения не найдены', extensionSearchHint: 'Ищи в каталоге Open VSX по названию или ключевым словам.', extensionDownloads: 'загрузок',
+    extensionMarketplaceFailed: 'Не удалось загрузить каталог расширений', extensionInstallAction: 'Установить', extensionInstalledAction: 'Установлено', extensionInstalling: 'Установка...',
+    installExtension: 'Установить из .vsix', removeExtension: 'Удалить', noExtensions: 'Расширения не установлены',
+    extensionInfo: 'Поддерживаются темы, snippets, Auto Close Tag, Auto Rename Tag, Color Highlight, Error Lens и Live Preview. Код расширений и команды VS Code не запускаются.', verifiedLabel: 'Проверено Open VSX',
+    themeCountLabel: 'тем', snippetCountLabel: 'snippets', nativeFeatureCountLabel: 'совместимых функций',
+    extensionInstalled: 'Расширение установлено', extensionRemoved: 'Расширение удалено', extensionRemoveFailed: 'Не удалось удалить расширение', extensionInstallFailed: 'Не удалось установить расширение',
+    themeImported: 'Тема импортирована', snippetsImported: 'Сниппеты импортированы', invalidTheme: 'Некорректный JSON темы',
+    invalidSnippets: 'Некорректный JSON сниппетов', previewViewport: 'Размер предпросмотра', viewportDesktop: 'Компьютер',
+    viewportTablet: 'Планшет', viewportMobile: 'Телефон', reopenClosedTab: 'Открыть закрытую вкладку'
   };
+
+  const LAYOUT_KEY = 'wdgd_layout_v1';
+  function readLayout() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}');
+      return {
+        sidebarCollapsed: Boolean(saved.sidebarCollapsed),
+        explorerCollapsed: Boolean(saved.explorerCollapsed),
+        previewCollapsed: Boolean(saved.previewCollapsed),
+        splitEditor: Boolean(saved.splitEditor),
+        splitDirection: saved.splitDirection === 'horizontal' ? 'horizontal' : 'vertical',
+        sidebarWidth: Math.max(180, Number(saved.sidebarWidth) || 230),
+        explorerWidth: Math.max(170, Number(saved.explorerWidth) || 230),
+        previewWidth: Math.max(280, Number(saved.previewWidth) || 420)
+      };
+    } catch {
+      return { sidebarCollapsed: false, explorerCollapsed: false, previewCollapsed: false, splitEditor: false, splitDirection: 'vertical', sidebarWidth: 230, explorerWidth: 230, previewWidth: 420 };
+    }
+  }
 
   const state = {
     activeView: 'projects',
@@ -113,6 +162,8 @@
     docsQuery: '',
     docsSelectedId: '',
     dirty: false,
+    editorChangeFrame: 0,
+    editorChangePaths: new Set(),
     expandedFolders: new Set(),
     externalConflict: false,
     externalPath: '',
@@ -124,7 +175,16 @@
     packageUpdatesChecked: false,
     ownWriteAt: 0,
     ownWritePath: '',
+    openFiles: [],
+    recentlyClosedFiles: [],
+    splitFile: '',
+    splitDirty: false,
+    splitSaveTimer: 0,
+    splitDirection: readLayout().splitDirection,
+    layout: readLayout(),
     preview: null,
+    previewEntry: '',
+    previewTimer: 0,
     processCommand: '',
     processContext: '',
     processId: '',
@@ -143,6 +203,21 @@
   };
 
   const icon = (name, size = 17) => `<iconify-icon icon="tabler:${name}" width="${size}" height="${size}" aria-hidden="true"></iconify-icon>`;
+
+  function fileKindMarkup(filePath, size = 15) {
+    const fileName = String(filePath || '').split('/').at(-1).toLowerCase();
+    const extension = fileName.includes('.') ? fileName.split('.').at(-1) : '';
+    const types = {
+      html: ['brand-html5', 'html'], htm: ['brand-html5', 'html'],
+      css: ['brand-css3', 'css'], scss: ['brand-sass', 'scss'], sass: ['brand-sass', 'scss'], less: ['brand-css3', 'less'],
+      js: ['brand-javascript', 'js'], mjs: ['brand-javascript', 'js'], cjs: ['brand-javascript', 'js'],
+      jsx: ['brand-react', 'react'], ts: ['brand-typescript', 'ts'], tsx: ['brand-react', 'react'],
+      json: ['braces', 'json'], md: ['markdown', 'markdown'], svg: ['file-type-svg', 'svg'],
+      vue: ['brand-vue', 'vue'], py: ['brand-python', 'python']
+    };
+    const [iconName, kind] = types[extension] || ['file-code', 'default'];
+    return `<span class="wdgd-file-kind kind-${kind}" aria-hidden="true">${icon(iconName, size)}</span>`;
+  }
 
   function buildShell() {
     const launcher = document.createElement('button');
@@ -166,6 +241,10 @@
         <header class="wdgd-titlebar">
           ${icon('device-desktop-code', 20)}
           <div class="wdgd-titlebar-copy"><strong>${copy.title}</strong><small data-desktop-project-name>${copy.noProjectShort}</small></div>
+          <button class="wdgd-icon-button" type="button" data-desktop-sidebar-toggle title="${copy.app}" aria-label="${copy.app}">${icon('layout-sidebar-left-collapse', 18)}</button>
+          <button class="wdgd-icon-button" type="button" data-desktop-explorer-toggle title="${copy.projects}" aria-label="${copy.projects}">${icon('files', 18)}</button>
+          <button class="wdgd-icon-button" type="button" data-desktop-preview-toggle title="${copy.preview}" aria-label="${copy.preview}">${icon('layout-sidebar-right-collapse', 18)}</button>
+          <button class="wdgd-icon-button" type="button" data-desktop-layout-reset title="${copy.resetLayout}" aria-label="${copy.resetLayout}">${icon('layout-dashboard', 18)}</button>
           <button class="wdgd-icon-button" type="button" data-desktop-tray title="${copy.tray}" aria-label="${copy.tray}">${icon('minus', 18)}</button>
           <button class="wdgd-icon-button" type="button" data-desktop-close title="${copy.close}" aria-label="${copy.close}">${icon('x', 18)}</button>
         </header>
@@ -184,32 +263,46 @@
             </nav>
             <div class="wdgd-recents"><span class="wdgd-section-label">${copy.recents}</span><div data-desktop-recents></div></div>
           </aside>
+          <div class="wdgd-main-splitter" data-desktop-splitter="sidebar" role="separator" tabindex="0" aria-orientation="vertical"></div>
           <main class="wdgd-content">
             <section class="wdgd-view" data-desktop-view="projects">
               <div class="wdgd-empty" data-desktop-empty><div>${icon('folder-plus', 34)}<strong>${copy.noProject}</strong><button class="wdgd-button primary" type="button" data-desktop-open>${copy.open}</button></div></div>
               <div class="wdgd-workspace" data-desktop-workspace hidden>
-                <section class="wdgd-pane">
+                <section class="wdgd-pane wdgd-explorer-pane">
                   <header class="wdgd-pane-head"><strong data-desktop-tree-title>${copy.project}</strong><button class="wdgd-icon-button" type="button" data-desktop-new-file title="${copy.newFile}" aria-label="${copy.newFile}">${icon('file-plus', 16)}</button><button class="wdgd-icon-button" type="button" data-desktop-new-folder title="${copy.newFolder}" aria-label="${copy.newFolder}">${icon('folder-plus', 16)}</button><button class="wdgd-icon-button" type="button" data-desktop-collapse title="${copy.collapseAll}" aria-label="${copy.collapseAll}">${icon('chevrons-up', 16)}</button><button class="wdgd-icon-button" type="button" data-desktop-refresh title="${copy.refresh}" aria-label="${copy.refresh}">${icon('refresh', 16)}</button></header>
                   <div class="wdgd-tree" data-desktop-tree></div>
                 </section>
-                <section class="wdgd-pane">
-                  <header class="wdgd-pane-head"><strong data-desktop-file-name>${copy.file}</strong><button class="wdgd-icon-button" type="button" data-desktop-ai-context disabled title="${copy.aiContext}" aria-label="${copy.aiContext}">${icon('sparkles', 16)}</button><button class="wdgd-button" type="button" data-desktop-reveal>${icon('folder-share', 15)} ${copy.reveal}</button><button class="wdgd-button primary" type="button" data-desktop-save>${icon('device-floppy', 15)} ${copy.save}</button></header>
+                <div class="wdgd-splitter" data-desktop-splitter="explorer" role="separator" tabindex="0" aria-orientation="vertical"></div>
+                <section class="wdgd-pane wdgd-editor-pane">
+                  <header class="wdgd-pane-head"><strong data-desktop-file-name>${copy.file}</strong>
+                    <select class="wdgd-editor-theme" data-editor-theme aria-label="${copy.editorTheme}" title="${copy.editorTheme}"></select>
+                    <button class="wdgd-icon-button" type="button" data-import-editor-theme title="${copy.importTheme}" aria-label="${copy.importTheme}">${icon('palette', 16)}</button>
+                    <button class="wdgd-icon-button" type="button" data-import-editor-snippets title="${copy.importSnippets}" aria-label="${copy.importSnippets}">${icon('braces', 16)}</button>
+                    <button class="wdgd-icon-button" type="button" data-editor-extensions title="${copy.extensions}" aria-label="${copy.extensions}">${icon('puzzle', 16)}</button>
+                    <button class="wdgd-icon-button" type="button" data-editor-split-toggle title="${copy.splitEditor}" aria-label="${copy.splitEditor}">${icon('layout-columns', 16)}</button>
+                    <select class="wdgd-editor-split-file" data-editor-split-file aria-label="${copy.splitEditor}" title="${copy.splitEditor}" hidden></select>
+                    <select class="wdgd-editor-split-direction" data-editor-split-direction aria-label="${copy.splitDirection}" title="${copy.splitDirection}" hidden><option value="vertical">${copy.splitVertical}</option><option value="horizontal">${copy.splitHorizontal}</option></select>
+                    <button class="wdgd-icon-button" type="button" data-desktop-ai-context disabled title="${copy.aiContext}" aria-label="${copy.aiContext}">${icon('sparkles', 16)}</button><button class="wdgd-button" type="button" data-desktop-reveal>${icon('folder-share', 15)} ${copy.reveal}</button><button class="wdgd-button primary" type="button" data-desktop-save>${icon('device-floppy', 15)} ${copy.save}</button>
+                    <input type="file" data-editor-theme-file accept="application/json,.json" hidden><input type="file" data-editor-snippets-file accept="application/json,.json" hidden>
+                  </header>
+                  <div class="wdgd-file-tabs" data-desktop-file-tabs role="tablist"></div>
                   <div class="wdgd-editor-wrap">
                     <div class="wdgd-file-change" data-desktop-file-change hidden>
                       <div>${icon('file-alert', 18)}<span><strong>${copy.externalChange}</strong><small>${copy.externalChangeHint}</small></span></div>
                       <div class="wdgd-file-change-actions"><button class="wdgd-button" type="button" data-external-keep>${copy.keepMine}</button><button class="wdgd-button primary" type="button" data-external-reload>${copy.loadDisk}</button></div>
                     </div>
-                    <textarea class="wdgd-editor" data-desktop-editor spellcheck="false" disabled></textarea>
-                    <details class="wdgd-problems" data-desktop-problems open>
+                    <div class="wdgd-editor-surface" data-editor-surface><textarea class="wdgd-editor" data-desktop-editor spellcheck="false" disabled></textarea></div>
+                    <details class="wdgd-problems" data-desktop-problems>
                       <summary><span>${icon('alert-triangle', 15)} ${copy.problems}</span><span class="wdgd-problem-count" data-desktop-problem-count>0</span></summary>
                       <div class="wdgd-problem-list" data-desktop-problem-list><p class="wdgd-problem-empty">${copy.noProblems}</p></div>
                     </details>
                     <div class="wdgd-editor-status" data-desktop-editor-status>${copy.ready}</div>
                   </div>
                 </section>
+                <div class="wdgd-splitter" data-desktop-splitter="preview" role="separator" tabindex="0" aria-orientation="vertical"></div>
                 <section class="wdgd-pane wdgd-preview-pane">
-                  <header class="wdgd-pane-head"><strong>${copy.preview}</strong><button class="wdgd-icon-button" type="button" data-desktop-preview-refresh title="${copy.refresh}" aria-label="${copy.refresh}">${icon('refresh', 16)}</button><button class="wdgd-button" type="button" data-desktop-preview>${icon('player-play', 15)} ${copy.preview}</button></header>
-                  <iframe class="wdgd-preview" data-desktop-preview-frame title="${copy.preview}" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"></iframe>
+                  <header class="wdgd-pane-head"><strong>${copy.preview}</strong><select class="wdgd-preview-viewport" data-preview-viewport aria-label="${copy.previewViewport}" title="${copy.previewViewport}"><option value="desktop">${copy.viewportDesktop}</option><option value="tablet">${copy.viewportTablet}</option><option value="mobile">${copy.viewportMobile}</option></select><button class="wdgd-icon-button" type="button" data-desktop-preview-refresh title="${copy.refresh}" aria-label="${copy.refresh}">${icon('refresh', 16)}</button><button class="wdgd-button" type="button" data-desktop-preview>${icon('player-play', 15)} ${copy.preview}</button></header>
+                  <div class="wdgd-preview-stage" data-preview-stage><iframe class="wdgd-preview" data-desktop-preview-frame title="${copy.preview}" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"></iframe></div>
                 </section>
               </div>
             </section>
@@ -305,6 +398,19 @@
           </main>
         </div>
         <footer class="wdgd-statusbar"><span data-desktop-status>${copy.ready}</span><span data-desktop-root></span></footer>
+        <dialog class="wdgd-extension-dialog" data-extension-dialog>
+          <header><h2>${copy.extensions}</h2><button class="wdgd-icon-button" type="button" data-extension-close title="${copy.close}" aria-label="${copy.close}">${icon('x', 16)}</button></header>
+          <p>${copy.extensionInfo}</p>
+          <div class="wdgd-extension-tabs" role="tablist"><button class="active" type="button" role="tab" aria-selected="true" data-extension-tab="marketplace">${copy.marketplaceTab}</button><button type="button" role="tab" aria-selected="false" data-extension-tab="installed">${copy.installedTab}</button></div>
+          <section class="wdgd-extension-marketplace" data-extension-marketplace-panel>
+            <form class="wdgd-extension-search" data-extension-search-form><input type="search" data-extension-query placeholder="${copy.extensionSearchPlaceholder}" maxlength="100" autocomplete="off"><button class="wdgd-button primary" type="submit">${icon('search', 15)} ${copy.extensionSearchAction}</button></form>
+            <div class="wdgd-extension-list" data-extension-results><p class="wdgd-extension-empty">${copy.extensionSearchHint}</p></div>
+          </section>
+          <section class="wdgd-extension-installed" data-extension-installed-panel hidden>
+            <div class="wdgd-extension-list" data-extension-list></div>
+            <button class="wdgd-button" type="button" data-extension-install>${icon('puzzle', 15)} ${copy.installExtension}</button>
+          </section>
+        </dialog>
       </div>`;
 
     document.body.append(shell, launcher);
@@ -319,6 +425,23 @@
   const shell = elements.shell;
   const launcher = elements.launcher;
   const editor = shell.querySelector('[data-desktop-editor]');
+  const editorSurface = shell.querySelector('[data-editor-surface]');
+  const editorTheme = shell.querySelector('[data-editor-theme]');
+  const editorThemeFile = shell.querySelector('[data-editor-theme-file]');
+  const editorSnippetsFile = shell.querySelector('[data-editor-snippets-file]');
+  const extensionDialog = shell.querySelector('[data-extension-dialog]');
+  const extensionList = shell.querySelector('[data-extension-list]');
+  const extensionResults = shell.querySelector('[data-extension-results]');
+  const extensionQuery = shell.querySelector('[data-extension-query]');
+  const extensionSearchForm = shell.querySelector('[data-extension-search-form]');
+  const extensionMarketplacePanel = shell.querySelector('[data-extension-marketplace-panel]');
+  const extensionInstalledPanel = shell.querySelector('[data-extension-installed-panel]');
+  let currentMarketplaceResults = [];
+  const splitDirectionSelect = shell.querySelector('[data-editor-split-direction]');
+  const splitFileSelect = shell.querySelector('[data-editor-split-file]');
+  const previewViewport = shell.querySelector('[data-preview-viewport]');
+  const previewStage = shell.querySelector('[data-preview-stage]');
+  const fileTabs = shell.querySelector('[data-desktop-file-tabs]');
   const editorStatus = shell.querySelector('[data-desktop-editor-status]');
   const fileChange = shell.querySelector('[data-desktop-file-change]');
   const problemCount = shell.querySelector('[data-desktop-problem-count]');
@@ -343,6 +466,36 @@
   const docsList = shell.querySelector('[data-docs-list]');
   const docsArticle = shell.querySelector('[data-docs-article]');
   const docsCount = shell.querySelector('[data-docs-count]');
+  let monacoController = null;
+  const editorAutocomplete = window.WebDevGymCodeEditor?.attachAutocomplete?.(editor, {
+    fileName: () => state.currentFile,
+    disabled: () => Boolean(monacoController)
+  });
+  window.WebDevGymMonaco?.mount(editor, {
+    fileName: () => state.currentFile,
+    onDidChange: handleEditorChange
+  })
+    .then(async controller => {
+      monacoController = controller;
+      editorAutocomplete?.hide();
+      if (state.currentFile) controller.openFile(state.currentFile, editor.value);
+      if (state.layout.splitEditor) {
+        controller.setSplit(true, editorSurface);
+        editorSurface.classList.add('is-split-editor');
+        controller.setSplitDirection(state.splitDirection);
+        const splitPath = state.splitFile || state.currentFile;
+        if (splitPath) {
+          const splitContent = await api.readFile(state.project?.root, splitPath).catch(() => null);
+          if (splitContent) {
+            controller.openSplitFile(splitPath, splitContent.content);
+            state.splitFile = splitPath;
+          }
+        }
+      }
+      renderEditorThemeOptions();
+      scheduleEditorLayout();
+    })
+    .catch(error => console.warn('[Desktop Center] Monaco fallback enabled:', error));
   const PROJECT_CONTEXT_EVENT = 'webdevgym:desktop-project-context-changed';
   const PROJECT_CONTEXT_MAX_FILES = 5;
   const PROJECT_CONTEXT_MAX_BYTES = 2 * 1024 * 1024;
@@ -513,7 +666,7 @@
       void runDiagnostics();
     }
     await refreshProject();
-    if (state.preview) previewFrame.src = `${state.preview.url}?refresh=${Date.now()}`;
+    if (state.preview) refreshPreview();
     emitProjectContext();
     return { applied: files.map(file => file.path) };
   }
@@ -572,7 +725,18 @@
     shell.hidden = !open;
     document.body.classList.toggle('wdgd-open', open);
     launcher.setAttribute('aria-expanded', String(open));
-    if (open) shell.querySelector('[data-desktop-open]').focus();
+    if (open) {
+      shell.querySelector('[data-desktop-open]').focus();
+      scheduleEditorLayout();
+    } else {
+      window.requestAnimationFrame(() => launcher.focus({ preventScroll: true }));
+    }
+  }
+
+  function closeDesktopCenter() {
+    flushEditorChanges();
+    void saveAll();
+    setOpen(false);
   }
 
   function setStatus(message, kind = '') {
@@ -605,6 +769,7 @@
 
   function renderDiagnostics(problems = []) {
     state.diagnostics = problems;
+    if (state.currentFile) monacoController?.setDiagnostics(state.currentFile, problems);
     const errors = problems.filter(problem => problem.severity === 'error').length;
     problemCount.textContent = problems.length ? `${errors}/${problems.length}` : '0';
     problemCount.dataset.hasErrors = String(errors > 0);
@@ -651,7 +816,7 @@
 
   function scheduleDiagnostics() {
     clearTimeout(state.diagnosticsTimer);
-    state.diagnosticsTimer = window.setTimeout(runDiagnostics, 450);
+    state.diagnosticsTimer = window.setTimeout(runDiagnostics, 1400);
   }
 
   function resetDiagnostics() {
@@ -783,6 +948,551 @@
     });
   }
 
+  function renderFileTabs() {
+    fileTabs.replaceChildren();
+    state.openFiles.forEach(filePath => {
+      const tab = document.createElement('div');
+      const dirty = (filePath === state.currentFile && state.dirty) || (filePath === state.splitFile && state.splitDirty);
+      tab.className = `wdgd-file-tab${filePath === state.currentFile ? ' active' : ''}${dirty ? ' dirty' : ''}`;
+      tab.dataset.desktopOpenFile = filePath;
+      tab.draggable = true;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-selected', String(filePath === state.currentFile));
+      tab.title = filePath;
+      const label = document.createElement('button');
+      label.type = 'button';
+      label.className = 'wdgd-file-tab-label';
+      label.innerHTML = fileKindMarkup(filePath, 14);
+      const fileName = document.createElement('span');
+      fileName.textContent = filePath.split('/').at(-1);
+      label.append(fileName);
+      const openSide = document.createElement('button');
+      openSide.type = 'button';
+      openSide.className = 'wdgd-file-tab-side';
+      openSide.dataset.desktopOpenSide = filePath;
+      openSide.title = copy.openToSide;
+      openSide.setAttribute('aria-label', `${copy.openToSide}: ${filePath}`);
+      openSide.innerHTML = icon('layout-columns', 13);
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'wdgd-file-tab-close';
+      close.dataset.desktopCloseFile = filePath;
+      close.title = copy.close;
+      close.setAttribute('aria-label', `${copy.close}: ${filePath}`);
+      close.innerHTML = icon('x', 13);
+      tab.append(label, openSide, close);
+      fileTabs.append(tab);
+    });
+    renderSplitFileOptions();
+  }
+
+  function renderSplitFileOptions() {
+    if (!splitFileSelect) return;
+    splitFileSelect.replaceChildren(...state.openFiles.map(filePath => {
+      const option = document.createElement('option');
+      option.value = filePath;
+      option.textContent = filePath.split('/').at(-1);
+      option.title = filePath;
+      return option;
+    }));
+    splitFileSelect.value = state.splitFile || state.currentFile || '';
+  }
+
+  function updateFileTabState() {
+    fileTabs.querySelectorAll('[data-desktop-open-file]').forEach(tab => {
+      const active = tab.dataset.desktopOpenFile === state.currentFile;
+      const dirty = (active && state.dirty) || (tab.dataset.desktopOpenFile === state.splitFile && state.splitDirty);
+      tab.classList.toggle('active', active);
+      tab.classList.toggle('dirty', dirty);
+      tab.setAttribute('aria-selected', String(active));
+    });
+  }
+
+  function clearEditor() {
+    state.currentFile = '';
+    state.dirty = false;
+    if (monacoController) monacoController.clear();
+    else editor.value = '';
+    editor.disabled = true;
+    shell.querySelector('[data-desktop-file-name]').textContent = copy.file;
+    editorStatus.textContent = copy.ready;
+    resetDiagnostics();
+    editorAutocomplete?.hide();
+    renderFileTabs();
+    renderTree();
+    emitProjectContext();
+  }
+
+  async function closeFileTab(filePath) {
+    const index = state.openFiles.indexOf(filePath);
+    if (index < 0) return;
+    if (state.currentFile === filePath) await saveNow();
+    if (state.splitFile === filePath) {
+      await saveSplitNow();
+      state.splitFile = '';
+      state.splitDirty = false;
+      state.layout.splitEditor = false;
+      monacoController?.setSplit(false);
+      shell.classList.remove('is-split-editor');
+      editorSurface.classList.remove('is-split-editor');
+      editorSurface.classList.remove('is-split-horizontal');
+      splitDirectionSelect.hidden = true;
+      splitFileSelect.hidden = true;
+      saveLayout();
+    }
+    state.recentlyClosedFiles.push(filePath);
+    if (state.recentlyClosedFiles.length > 20) state.recentlyClosedFiles.shift();
+    state.openFiles = state.openFiles.filter(path => path !== filePath);
+    monacoController?.closeFile(filePath);
+    if (state.currentFile !== filePath) return renderFileTabs();
+    const next = state.openFiles[Math.min(index, state.openFiles.length - 1)] || '';
+    if (next) await openFile(next);
+    else clearEditor();
+  }
+
+  function saveLayout() {
+    state.layout.splitDirection = state.splitDirection;
+    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(state.layout)); } catch {}
+  }
+
+  function resetLayout() {
+    Object.assign(state.layout, {
+      sidebarCollapsed: false,
+      explorerCollapsed: false,
+      previewCollapsed: false,
+      sidebarWidth: 230,
+      explorerWidth: 230,
+      previewWidth: 420,
+      splitEditor: false,
+      splitDirection: 'vertical'
+    });
+    state.splitDirection = 'vertical';
+    state.splitFile = '';
+    state.splitDirty = false;
+    monacoController?.setSplit(false);
+    editorSurface.classList.remove('is-split-horizontal');
+    applyLayout();
+    saveLayout();
+  }
+
+  function normalizeLayoutForViewport() {
+    const mainWidth = shell.querySelector('.wdgd-main')?.getBoundingClientRect().width || 0;
+    if (mainWidth > 0 && !state.layout.sidebarCollapsed) {
+      state.layout.sidebarWidth = Math.min(state.layout.sidebarWidth, Math.max(180, mainWidth - 520));
+    }
+
+    const contentWidth = shell.querySelector('.wdgd-content')?.getBoundingClientRect().width || 0;
+    if (contentWidth <= 0) return;
+    const previewSpace = state.layout.previewCollapsed ? 0 : state.layout.previewWidth + 4;
+    if (!state.layout.explorerCollapsed) {
+      state.layout.explorerWidth = Math.min(state.layout.explorerWidth, Math.max(170, contentWidth - previewSpace - 320));
+    }
+    const explorerSpace = state.layout.explorerCollapsed ? 0 : state.layout.explorerWidth + 4;
+    if (!state.layout.previewCollapsed) {
+      state.layout.previewWidth = Math.min(state.layout.previewWidth, Math.max(280, contentWidth - explorerSpace - 320));
+    }
+  }
+
+  function scheduleEditorLayout() {
+    window.requestAnimationFrame(() => {
+      monacoController?.layout();
+      window.requestAnimationFrame(() => monacoController?.layout());
+    });
+  }
+
+  function applyLayout() {
+    shell.classList.toggle('is-sidebar-collapsed', state.layout.sidebarCollapsed);
+    shell.classList.toggle('is-explorer-collapsed', state.layout.explorerCollapsed);
+    shell.classList.toggle('is-preview-collapsed', state.layout.previewCollapsed);
+    normalizeLayoutForViewport();
+    shell.style.setProperty('--wdgd-sidebar-size', `${state.layout.sidebarWidth}px`);
+    shell.style.setProperty('--wdgd-explorer-size', `${state.layout.explorerWidth}px`);
+    shell.style.setProperty('--wdgd-preview-size', `${state.layout.previewWidth}px`);
+    const sidebarButton = shell.querySelector('[data-desktop-sidebar-toggle]');
+    const explorerButton = shell.querySelector('[data-desktop-explorer-toggle]');
+    const previewButton = shell.querySelector('[data-desktop-preview-toggle]');
+    if (sidebarButton) sidebarButton.innerHTML = icon(state.layout.sidebarCollapsed ? 'layout-sidebar-left-expand' : 'layout-sidebar-left-collapse', 18);
+    if (explorerButton) explorerButton.classList.toggle('active', !state.layout.explorerCollapsed);
+    if (previewButton) previewButton.innerHTML = icon(state.layout.previewCollapsed ? 'layout-sidebar-right-expand' : 'layout-sidebar-right-collapse', 18);
+    shell.classList.toggle('is-split-editor', Boolean(state.layout.splitEditor));
+    editorSurface.classList.toggle('is-split-editor', Boolean(state.layout.splitEditor));
+    monacoController?.setSplit(Boolean(state.layout.splitEditor), editorSurface);
+    splitDirectionSelect.hidden = !state.layout.splitEditor;
+    splitFileSelect.hidden = !state.layout.splitEditor;
+    splitDirectionSelect.value = state.splitDirection;
+    monacoController?.setSplitDirection(state.splitDirection);
+    scheduleEditorLayout();
+  }
+
+  async function openFileToSide(filePath) {
+    if (!state.project) return;
+    await saveSplitNow();
+    if (!state.layout.splitEditor) {
+      state.layout.splitEditor = true;
+      state.splitDirection = 'vertical';
+      state.splitFile = state.currentFile;
+      applyLayout();
+      saveLayout();
+    }
+    const result = await withStatus(() => api.readFile(state.project.root, filePath));
+    if (!result || !monacoController?.openSplitFile(filePath, result.content)) return;
+    state.splitFile = filePath;
+    state.splitDirty = false;
+    if (!state.openFiles.includes(filePath)) state.openFiles.push(filePath);
+    renderFileTabs();
+    splitFileSelect.hidden = false;
+  }
+
+  function applyEditorChange(filePath) {
+    if (!filePath || filePath === state.currentFile) {
+      scheduleSave();
+      return;
+    }
+    if (filePath !== state.splitFile) return;
+    const wasDirty = state.splitDirty;
+    state.splitDirty = true;
+    if (!wasDirty) {
+      editorStatus.textContent = copy.saving;
+      updateFileTabState();
+    }
+    clearTimeout(state.splitSaveTimer);
+    if (state.externalConflict) return;
+    state.splitSaveTimer = window.setTimeout(saveSplitNow, 1000);
+  }
+
+  function flushEditorChanges() {
+    if (state.editorChangeFrame) cancelAnimationFrame(state.editorChangeFrame);
+    state.editorChangeFrame = 0;
+    const paths = [...state.editorChangePaths];
+    state.editorChangePaths.clear();
+    paths.forEach(applyEditorChange);
+  }
+
+  function handleEditorChange(filePath) {
+    state.editorChangePaths.add(filePath || state.currentFile);
+    if (state.editorChangeFrame) return;
+    state.editorChangeFrame = window.requestAnimationFrame(flushEditorChanges);
+  }
+
+  async function saveSplitNow() {
+    clearTimeout(state.splitSaveTimer);
+    if (!state.project || !state.splitFile || !state.splitDirty) return true;
+    const filePath = state.splitFile;
+    const content = monacoController?.getFileValue(filePath) ?? '';
+    state.ownWriteAt = Date.now();
+    state.ownWritePath = filePath;
+    const result = await api.writeFile(state.project.root, filePath, content).catch(error => {
+      setStatus(errorMessage(error), 'error');
+      return null;
+    });
+    if (!result) return false;
+    if (state.splitFile === filePath) state.splitDirty = false;
+    editorStatus.textContent = state.dirty ? copy.saving : copy.saved;
+    renderFileTabs();
+    schedulePreviewRefresh();
+    return true;
+  }
+
+  async function reopenLastClosedFile() {
+    const filePath = state.recentlyClosedFiles.pop();
+    if (filePath && state.project) await openFile(filePath);
+  }
+
+  function renderEditorThemeOptions() {
+    if (!editorTheme || !window.WebDevGymMonaco) return;
+    const selected = window.WebDevGymMonaco.activeTheme();
+    editorTheme.replaceChildren(...window.WebDevGymMonaco.themes().map(theme => {
+      const option = document.createElement('option');
+      option.value = theme.id;
+      option.textContent = theme.label;
+      return option;
+    }));
+    if ([...editorTheme.options].some(option => option.value === selected)) editorTheme.value = selected;
+  }
+
+  async function importEditorTheme(file) {
+    try {
+      const data = JSON.parse(await file.text());
+      if (!data || typeof data !== 'object' || (!data.colors && !data.tokenColors)) throw new Error('invalid');
+      const label = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 80);
+      const id = `wdgd-import-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || Date.now()}`;
+      monacoController?.importTheme({ id, label, base: data.type === 'light' ? 'light' : 'dark', colors: data.colors || {}, tokenColors: data.tokenColors || [] });
+      renderEditorThemeOptions();
+      editorTheme.value = id;
+      setStatus(copy.themeImported, 'ok');
+    } catch {
+      setStatus(copy.invalidTheme, 'error');
+    }
+  }
+
+  async function importEditorSnippets(file) {
+    try {
+      const data = JSON.parse(await file.text());
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('invalid');
+      const snippets = {};
+      for (const [name, value] of Object.entries(data)) {
+        if (!value || typeof value !== 'object' || (!value.prefix && !name) || (!value.body && !value.body?.length)) continue;
+        const scope = typeof value.scope === 'string' ? value.scope.split(',').map(item => item.trim().toLowerCase()).filter(Boolean) : [];
+        snippets[name] = { prefix: value.prefix || name, body: value.body, description: value.description || '', languages: scope };
+      }
+      if (!Object.keys(snippets).length) throw new Error('invalid');
+      const count = monacoController?.importSnippets(snippets) || 0;
+      setStatus(`${copy.snippetsImported}: ${count}`, 'ok');
+    } catch {
+      setStatus(copy.invalidSnippets, 'error');
+    }
+  }
+
+  function renderExtensions() {
+    extensionList.replaceChildren();
+    const extensions = window.WebDevGymMonaco?.extensions?.() || [];
+    if (!extensions.length) {
+      const empty = document.createElement('p');
+      empty.className = 'wdgd-extension-empty';
+      empty.textContent = copy.noExtensions;
+      extensionList.append(empty);
+      return;
+    }
+    for (const extension of extensions) {
+      const row = document.createElement('div');
+      row.className = 'wdgd-extension-row';
+      const details = document.createElement('div');
+      const name = document.createElement('strong');
+      name.textContent = `${extension.publisher ? `${extension.publisher}.` : ''}${extension.name}`;
+      const summary = document.createElement('small');
+      const themeCount = Array.isArray(extension.themes) ? extension.themes.length : 0;
+      const snippetCount = Array.isArray(extension.snippets) ? extension.snippets.length : 0;
+      const features = Array.isArray(extension.features) ? extension.features : [];
+      const featureText = features.length ? ` · ${features.map(feature => feature.label).join(', ')}` : '';
+      summary.textContent = `${extension.version || ''} · ${themeCount} ${copy.themeCountLabel} · ${snippetCount} ${copy.snippetCountLabel} · ${features.length} ${copy.nativeFeatureCountLabel}${featureText}`;
+      details.append(name, summary);
+      const remove = document.createElement('button');
+      remove.className = 'wdgd-icon-button';
+      remove.type = 'button';
+      remove.title = copy.removeExtension;
+      remove.setAttribute('aria-label', copy.removeExtension);
+      remove.innerHTML = icon('trash', 15);
+      remove.addEventListener('click', async () => {
+        remove.disabled = true;
+        try {
+          await api.removeExtension(extension.id);
+          monacoController?.removeExtension(extension.id);
+          renderEditorThemeOptions();
+          renderExtensions();
+          renderMarketplaceResults(currentMarketplaceResults);
+          setStatus(copy.extensionRemoved, 'ok');
+        } catch (error) {
+          remove.disabled = false;
+          setStatus(`${copy.extensionRemoveFailed}: ${error.message}`, 'error');
+        }
+      });
+      row.append(details, remove);
+      extensionList.append(row);
+    }
+  }
+
+  function setExtensionTab(tab) {
+    const installed = tab === 'installed';
+    extensionMarketplacePanel.hidden = installed;
+    extensionInstalledPanel.hidden = !installed;
+    shell.querySelectorAll('[data-extension-tab]').forEach(button => {
+      const active = button.dataset.extensionTab === tab;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+    if (installed) renderExtensions();
+  }
+
+  function renderMarketplaceResults(items) {
+    extensionResults.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'wdgd-extension-empty';
+      empty.textContent = copy.extensionSearchEmpty;
+      extensionResults.append(empty);
+      return;
+    }
+    const installed = window.WebDevGymMonaco?.extensions?.() || [];
+    for (const extension of items) {
+      const row = document.createElement('article');
+      row.className = 'wdgd-extension-marketplace-item';
+      const info = document.createElement('div');
+      const title = document.createElement('strong');
+      title.textContent = extension.displayName;
+      const id = document.createElement('small');
+      const downloadCount = new Intl.NumberFormat(isEnglish ? 'en-US' : 'ru-RU', { notation: 'compact' }).format(extension.downloadCount);
+      id.textContent = `${extension.namespace}.${extension.name} · ${extension.version} · ${downloadCount} ${copy.extensionDownloads}${extension.verified ? ` · ${copy.verifiedLabel}` : ''}`;
+      const description = document.createElement('p');
+      description.textContent = extension.description || `${extension.downloadCount.toLocaleString()} downloads`;
+      info.append(title, id, description);
+      const action = document.createElement('button');
+      action.className = 'wdgd-button primary';
+      action.type = 'button';
+      const isInstalled = installed.some(item => item.id.toLowerCase() === extension.id.toLowerCase() && item.version === extension.version);
+      action.textContent = isInstalled ? copy.extensionInstalledAction : copy.extensionInstallAction;
+      action.disabled = isInstalled;
+      action.addEventListener('click', () => void installMarketplaceExtension(extension, action));
+      row.append(info, action);
+      extensionResults.append(row);
+    }
+  }
+
+  async function searchExtensionMarketplace() {
+    const query = extensionQuery.value.trim();
+    if (!query) return;
+    extensionResults.replaceChildren();
+    const loading = document.createElement('p');
+    loading.className = 'wdgd-extension-empty';
+    loading.textContent = copy.extensionSearching;
+    extensionResults.append(loading);
+    const submit = extensionSearchForm.querySelector('[type="submit"]');
+    submit.disabled = true;
+    try {
+      currentMarketplaceResults = await api.searchExtensions(query);
+      renderMarketplaceResults(currentMarketplaceResults);
+    } catch (error) {
+      extensionResults.replaceChildren();
+      const failed = document.createElement('p');
+      failed.className = 'wdgd-extension-empty';
+      failed.textContent = `${copy.extensionMarketplaceFailed}: ${error.message}`;
+      extensionResults.append(failed);
+    } finally {
+      submit.disabled = false;
+    }
+  }
+
+  async function installMarketplaceExtension(extension, button) {
+    if (!monacoController) {
+      setStatus('Open a project file before installing editor extensions', 'error');
+      return;
+    }
+    button.disabled = true;
+    button.textContent = copy.extensionInstalling;
+    try {
+      const packageData = await api.installMarketplaceExtension({
+        namespace: extension.namespace,
+        name: extension.name,
+        version: extension.version
+      });
+      const installed = monacoController.importExtension(packageData);
+      renderEditorThemeOptions();
+      renderExtensions();
+      button.textContent = copy.extensionInstalledAction;
+      setStatus(`${copy.extensionInstalled}: ${packageData.displayName} · ${installed.themes} themes · ${installed.snippets} snippets · ${installed.features} compatible features`, 'ok');
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = copy.extensionInstallAction;
+      setStatus(`${copy.extensionInstallFailed}: ${error.message}`, 'error');
+    }
+  }
+
+  async function installVsixExtension() {
+    if (!monacoController) {
+      setStatus('Open a project file before installing editor extensions', 'error');
+      return;
+    }
+    try {
+      const extension = await api.installVsix();
+      if (!extension) return;
+      const installed = monacoController.importExtension(extension);
+      renderEditorThemeOptions();
+      renderExtensions();
+      setExtensionTab('installed');
+      setStatus(`${copy.extensionInstalled}: ${extension.displayName} · ${installed.themes} themes · ${installed.snippets} snippets · ${installed.features} compatible features`, 'ok');
+    } catch (error) {
+      setStatus(`${copy.extensionInstallFailed}: ${error.message}`, 'error');
+    }
+  }
+
+  function applyPreviewViewport() {
+    const widths = { desktop: '100%', tablet: '768px', mobile: '390px' };
+    const mode = previewViewport.value;
+    previewFrame.style.width = widths[mode] || widths.desktop;
+    previewFrame.style.maxWidth = '100%';
+    previewStage.dataset.viewport = mode;
+    try { localStorage.setItem('wdgd_preview_viewport_v1', mode); } catch {}
+  }
+
+  function toggleLayoutPart(part) {
+    state.layout[part] = !state.layout[part];
+    applyLayout();
+    saveLayout();
+  }
+
+  function bindSplitter(name) {
+    const splitter = shell.querySelector(`[data-desktop-splitter="${name}"]`);
+    if (!splitter) return;
+    const defaults = { sidebar: 230, explorer: 230, preview: 420 };
+    const sizeKeys = { sidebar: 'sidebarWidth', explorer: 'explorerWidth', preview: 'previewWidth' };
+    const collapsedKeys = { sidebar: 'sidebarCollapsed', explorer: 'explorerCollapsed', preview: 'previewCollapsed' };
+    const resize = clientX => {
+      if (name === 'sidebar') {
+        const rect = shell.querySelector('.wdgd-main').getBoundingClientRect();
+        const requested = clientX - rect.left;
+        state.layout.sidebarCollapsed = requested < 110;
+        if (!state.layout.sidebarCollapsed) {
+          state.layout.sidebarWidth = Math.round(Math.min(Math.max(220, rect.width - 420), Math.max(160, requested)));
+        }
+      } else {
+        const rect = shell.querySelector('.wdgd-workspace').getBoundingClientRect();
+        if (name === 'explorer') {
+          const requested = clientX - rect.left;
+          state.layout.explorerCollapsed = requested < 90;
+          if (!state.layout.explorerCollapsed) {
+            const previewSpace = state.layout.previewCollapsed ? 0 : state.layout.previewWidth + 4;
+            state.layout.explorerWidth = Math.round(Math.min(Math.max(180, rect.width - previewSpace - 320), Math.max(150, requested)));
+          }
+        } else {
+          const requested = rect.right - clientX;
+          state.layout.previewCollapsed = requested < 130;
+          if (!state.layout.previewCollapsed) {
+            const explorerSpace = state.layout.explorerCollapsed ? 0 : state.layout.explorerWidth + 4;
+            state.layout.previewWidth = Math.round(Math.min(Math.max(260, rect.width - explorerSpace - 320), Math.max(240, requested)));
+          }
+        }
+      }
+      applyLayout();
+    };
+    splitter.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      splitter.classList.add('active');
+      document.body.classList.add('wdgd-resizing');
+      const shield = document.createElement('div');
+      shield.className = 'wdgd-drag-shield';
+      document.body.append(shield);
+      const move = moveEvent => resize(moveEvent.clientX);
+      const stop = () => {
+        splitter.classList.remove('active');
+        document.body.classList.remove('wdgd-resizing');
+        shield.removeEventListener('pointermove', move);
+        shield.removeEventListener('pointerup', stop);
+        shield.removeEventListener('pointercancel', stop);
+        shield.remove();
+        saveLayout();
+      };
+      shield.addEventListener('pointermove', move);
+      shield.addEventListener('pointerup', stop);
+      shield.addEventListener('pointercancel', stop);
+    });
+    splitter.addEventListener('dblclick', () => {
+      state.layout[sizeKeys[name]] = defaults[name];
+      state.layout[collapsedKeys[name]] = false;
+      applyLayout();
+      saveLayout();
+    });
+    splitter.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === 'ArrowLeft' ? -20 : 20;
+      if (name === 'sidebar') state.layout.sidebarWidth = Math.max(180, state.layout.sidebarWidth + direction);
+      else if (name === 'explorer') state.layout.explorerWidth = Math.max(170, state.layout.explorerWidth + direction);
+      else state.layout.previewWidth = Math.max(280, state.layout.previewWidth - direction);
+      applyLayout();
+      saveLayout();
+    });
+  }
+
   function renderProject() {
     const hasProject = Boolean(state.project);
     shell.querySelector('[data-desktop-empty]').hidden = hasProject;
@@ -832,7 +1542,10 @@
         twisty.className = 'wdgd-tree-twisty';
         twisty.innerHTML = entry.type === 'directory' ? icon(expanded ? 'chevron-down' : 'chevron-right', 14) : '';
         const marker = document.createElement('span');
-        marker.innerHTML = icon(entry.type === 'file' ? 'file-code' : expanded ? 'folder-open' : 'folder', 15);
+        marker.className = 'wdgd-tree-kind';
+        marker.innerHTML = entry.type === 'file'
+          ? fileKindMarkup(entry.path)
+          : icon(expanded ? 'folder-open' : 'folder', 15);
         const label = document.createElement('span');
         label.textContent = entry.path.split('/').at(-1);
         row.append(twisty, marker, label);
@@ -1177,6 +1890,7 @@
     const result = await withStatus(() => api.renameEntry(state.project.root, entry.path, nextPath));
     if (!result) return;
     state.expandedFolders = new Set([...state.expandedFolders].map(value => rebasePath(value, entry.path, nextPath)));
+    state.openFiles = state.openFiles.map(value => rebasePath(value, entry.path, nextPath));
     state.selectedPath = rebasePath(state.selectedPath, entry.path, nextPath);
     state.currentFile = rebasePath(state.currentFile, entry.path, nextPath);
     await refreshProject();
@@ -1188,15 +1902,12 @@
     await saveNow();
     const result = await withStatus(() => api.deleteEntry(state.project.root, entry.path));
     if (!result) return;
+    state.openFiles = state.openFiles.filter(filePath => filePath !== entry.path && !filePath.startsWith(`${entry.path}/`));
     const containsCurrentFile = state.currentFile === entry.path || state.currentFile.startsWith(`${entry.path}/`);
     if (containsCurrentFile) {
-      state.currentFile = '';
-      state.dirty = false;
-      editor.value = '';
-      editor.disabled = true;
-      shell.querySelector('[data-desktop-file-name]').textContent = copy.file;
-      editorStatus.textContent = copy.ready;
-      resetDiagnostics();
+      const next = state.openFiles[0] || '';
+      if (next) await openFile(next);
+      else clearEditor();
     }
     if (state.selectedPath === entry.path || state.selectedPath.startsWith(`${entry.path}/`)) {
       state.selectedPath = '';
@@ -1219,6 +1930,7 @@
     if (state.project?.root === root) {
       state.project = null;
       state.currentFile = '';
+      state.openFiles = [];
       state.packageData = null;
       state.packageQuery = '';
       state.packageUpdatesChecked = false;
@@ -1228,12 +1940,14 @@
       state.dirty = false;
       state.watchedRoot = '';
       hideExternalChange();
-      editor.value = '';
+      if (monacoController) monacoController.clear();
+      else editor.value = '';
       editor.disabled = true;
       shell.querySelector('[data-desktop-file-name]').textContent = copy.file;
       resetDiagnostics();
       packageSearch.value = '';
       renderPackages();
+      renderFileTabs();
     }
     renderProject();
   }
@@ -1250,6 +1964,14 @@
     await selectProject(project);
   }
 
+  function defaultProjectFile(project) {
+    const files = project?.entries?.filter(entry => entry.type === 'file').map(entry => entry.path) || [];
+    return files.find(filePath => /(^|\/)index\.html?$/i.test(filePath)) ||
+      files.find(filePath => /\.html?$/i.test(filePath)) ||
+      files.find(filePath => /\.(?:css|[cm]?[jt]sx?|json|md|txt|ya?ml|xml|svg)$/i.test(filePath)) ||
+      '';
+  }
+
   async function openLaunchRequest(request) {
     if (!request?.root) return;
     setOpen(true);
@@ -1262,10 +1984,13 @@
   async function selectProject(project) {
     if (state.processId) await stopProcess();
     await stopPreview();
-    await saveNow();
+    await saveAll();
     await api.unwatchProject().catch(() => {});
     state.project = project;
     state.currentFile = '';
+    state.openFiles = [];
+    state.splitFile = '';
+    state.splitDirty = false;
     state.gitFiles = [];
     state.gitSelectedPath = '';
     state.packageData = null;
@@ -1275,8 +2000,11 @@
     state.selectedType = '';
     state.expandedFolders.clear();
     hideExternalChange();
-    editor.value = '';
+    if (monacoController) monacoController.clear();
+    else editor.value = '';
     editor.disabled = true;
+    shell.querySelector('[data-desktop-file-name]').textContent = copy.file;
+    renderFileTabs();
     resetDiagnostics();
     resetSearchResults();
     terminal.replaceChildren();
@@ -1294,6 +2022,8 @@
     renderProject();
     switchView('projects');
     await startWatchingProject(project.root);
+    const initialFile = defaultProjectFile(project);
+    if (initialFile) await openFile(initialFile);
   }
 
   async function refreshProject() {
@@ -1301,35 +2031,70 @@
     const project = await withStatus(() => api.refreshProject(state.project.root));
     if (!project) return;
     state.project = project;
+    const projectFiles = new Set(project.entries.filter(entry => entry.type === 'file').map(entry => entry.path));
+    state.openFiles = state.openFiles.filter(filePath => projectFiles.has(filePath));
+    if (state.currentFile && !projectFiles.has(state.currentFile)) {
+      const next = state.openFiles[0] || '';
+      if (next) return openFile(next);
+      clearEditor();
+    }
+    renderFileTabs();
     renderProject();
   }
 
   async function openFile(filePath) {
     if (!state.project) return;
+    if (state.currentFile === filePath && !editor.disabled) {
+      shell.querySelector('[data-desktop-file-name]').textContent = filePath;
+      renderFileTabs();
+      editorAutocomplete?.refresh();
+      editor.focus();
+      return;
+    }
     await saveNow();
     const result = await withStatus(() => api.readFile(state.project.root, filePath));
     if (!result) return;
     state.currentFile = filePath;
+    if (!state.openFiles.includes(filePath)) state.openFiles.push(filePath);
     state.selectedPath = filePath;
     state.selectedType = 'file';
     state.dirty = false;
     hideExternalChange();
-    editor.value = result.content;
+    if (monacoController) {
+      monacoController.openFile(filePath, result.content);
+      if (state.layout.splitEditor && !state.splitFile) {
+        monacoController.openSplitFile(filePath, result.content);
+        state.splitFile = filePath;
+      }
+    }
+    else editor.value = result.content;
     editor.disabled = false;
     shell.querySelector('[data-desktop-file-name]').textContent = filePath;
     editorStatus.textContent = copy.ready;
+    renderFileTabs();
     renderTree();
     emitProjectContext();
     void runDiagnostics();
+    editorAutocomplete?.refresh();
+    if (/\.html?$/i.test(filePath)) {
+      state.previewEntry = filePath;
+      void startPreview();
+    } else if (state.preview) {
+      refreshPreview();
+    }
   }
 
   function scheduleSave() {
     if (!state.currentFile) return;
+    const wasDirty = state.dirty;
     state.dirty = true;
-    editorStatus.textContent = copy.saving;
+    if (!wasDirty) {
+      editorStatus.textContent = copy.saving;
+      updateFileTabState();
+    }
     clearTimeout(state.saveTimer);
     if (state.externalConflict) return;
-    state.saveTimer = window.setTimeout(saveNow, 700);
+    state.saveTimer = window.setTimeout(saveNow, 1000);
     scheduleDiagnostics();
   }
 
@@ -1342,8 +2107,16 @@
     if (!result) return false;
     state.dirty = false;
     editorStatus.textContent = copy.saved;
-    if (state.preview) previewFrame.src = `${state.preview.url}?refresh=${Date.now()}`;
+    updateFileTabState();
+    schedulePreviewRefresh();
     return true;
+  }
+
+  async function saveAll() {
+    flushEditorChanges();
+    const splitSaved = await saveSplitNow();
+    const currentSaved = await saveNow();
+    return splitSaved && currentSaved;
   }
 
   function hideExternalChange() {
@@ -1409,23 +2182,59 @@
         renderProject();
       }
     }
-    if (state.preview && !isOwnWrite) previewFrame.src = `${state.preview.url}?refresh=${Date.now()}`;
+    if (state.preview && !isOwnWrite) refreshPreview();
     if (state.activeView === 'git') void refreshGitChanges();
+  }
+
+  function previewEntryPath() {
+    if (!state.project) return '';
+    const htmlFiles = state.project.entries
+      .filter(entry => entry.type === 'file' && /\.html?$/i.test(entry.path))
+      .map(entry => entry.path);
+    if (state.previewEntry && htmlFiles.includes(state.previewEntry)) return state.previewEntry;
+    if (/\.html?$/i.test(state.currentFile) && htmlFiles.includes(state.currentFile)) return state.currentFile;
+    return htmlFiles.find(path => /(^|\/)index\.html?$/i.test(path)) || htmlFiles[0] || '';
+  }
+
+  function refreshPreview() {
+    if (!state.preview) return;
+    const entry = previewEntryPath();
+    if (!entry) {
+      previewFrame.removeAttribute('src');
+      return;
+    }
+    state.previewEntry = entry;
+    const encodedPath = entry.split('/').map(encodeURIComponent).join('/');
+    const url = new URL(encodedPath, state.preview.url);
+    url.searchParams.set('refresh', Date.now());
+    previewFrame.src = url.href;
+  }
+
+  function schedulePreviewRefresh() {
+    window.clearTimeout(state.previewTimer);
+    state.previewTimer = window.setTimeout(() => {
+      if (state.preview) refreshPreview();
+      else if (/\.html?$/i.test(state.currentFile)) void startPreview();
+    }, 250);
   }
 
   async function startPreview() {
     if (!state.project) return setStatus(copy.noProjectShort, 'error');
     await saveNow();
-    const preview = await withStatus(() => api.startPreview(state.project.root));
-    if (!preview) return;
-    state.preview = preview;
-    previewFrame.src = preview.url;
+    if (!state.preview) {
+      const preview = await withStatus(() => api.startPreview(state.project.root));
+      if (!preview) return;
+      state.preview = preview;
+    }
+    refreshPreview();
   }
 
   async function stopPreview() {
     if (!state.preview) return;
     await api.stopPreview(state.preview.id).catch(() => {});
     state.preview = null;
+    state.previewEntry = '';
+    window.clearTimeout(state.previewTimer);
     previewFrame.removeAttribute('src');
   }
 
@@ -1874,7 +2683,8 @@
     if (tab) switchView(tab.dataset.desktopTab);
   });
   shell.querySelectorAll('[data-desktop-open]').forEach(button => button.addEventListener('click', chooseProject));
-  shell.querySelector('[data-desktop-close]').addEventListener('click', () => setOpen(false));
+  shell.querySelector('[data-desktop-close]').addEventListener('click', closeDesktopCenter);
+  shell.querySelector('[data-desktop-layout-reset]').addEventListener('click', resetLayout);
   shell.querySelectorAll('[data-desktop-tray]').forEach(button => button.addEventListener('click', () => api.hideToTray()));
   shell.querySelector('[data-desktop-new-file]').addEventListener('click', () => void createEntry('file'));
   shell.querySelector('[data-desktop-new-folder]').addEventListener('click', () => void createEntry('directory'));
@@ -1883,7 +2693,72 @@
     renderTree();
   });
   shell.querySelector('[data-desktop-refresh]').addEventListener('click', refreshProject);
-  shell.querySelector('[data-desktop-save]').addEventListener('click', saveNow);
+  shell.querySelector('[data-desktop-save]').addEventListener('click', saveAll);
+  editorTheme.addEventListener('change', () => monacoController?.setTheme(editorTheme.value));
+  shell.querySelector('[data-import-editor-theme]').addEventListener('click', () => editorThemeFile.click());
+  shell.querySelector('[data-import-editor-snippets]').addEventListener('click', () => editorSnippetsFile.click());
+  shell.querySelector('[data-editor-extensions]').addEventListener('click', () => {
+    renderExtensions();
+    setExtensionTab('marketplace');
+    extensionDialog.showModal();
+    requestAnimationFrame(() => extensionQuery.focus());
+  });
+  shell.querySelector('[data-extension-close]').addEventListener('click', () => extensionDialog.close());
+  shell.querySelector('[data-extension-install]').addEventListener('click', () => void installVsixExtension());
+  shell.querySelectorAll('[data-extension-tab]').forEach(button => button.addEventListener('click', () => setExtensionTab(button.dataset.extensionTab)));
+  extensionSearchForm.addEventListener('submit', event => {
+    event.preventDefault();
+    void searchExtensionMarketplace();
+  });
+  editorThemeFile.addEventListener('change', () => {
+    const file = editorThemeFile.files?.[0];
+    if (file) void importEditorTheme(file);
+    editorThemeFile.value = '';
+  });
+  editorSnippetsFile.addEventListener('change', () => {
+    const file = editorSnippetsFile.files?.[0];
+    if (file) void importEditorSnippets(file);
+    editorSnippetsFile.value = '';
+  });
+  shell.querySelector('[data-editor-split-toggle]').addEventListener('click', async () => {
+    if (state.layout.splitEditor) {
+      await saveSplitNow();
+      state.layout.splitEditor = false;
+      state.splitFile = '';
+      state.splitDirty = false;
+      monacoController?.setSplit(false);
+      editorSurface.classList.remove('is-split-horizontal');
+    } else {
+      state.layout.splitEditor = true;
+      state.splitDirection = 'vertical';
+      state.splitFile = state.currentFile;
+    }
+    applyLayout();
+    saveLayout();
+    renderFileTabs();
+  });
+  splitDirectionSelect.addEventListener('change', () => {
+    state.splitDirection = splitDirectionSelect.value;
+    state.layout.splitDirection = state.splitDirection;
+    monacoController?.setSplitDirection(state.splitDirection);
+    saveLayout();
+    scheduleEditorLayout();
+  });
+  splitFileSelect.addEventListener('change', async () => {
+    const filePath = splitFileSelect.value;
+    if (!filePath || !state.project) return;
+    await saveSplitNow();
+    const result = await api.readFile(state.project.root, filePath).catch(() => null);
+    if (!result || !monacoController?.openSplitFile(filePath, result.content)) return;
+    state.splitFile = filePath;
+    state.splitDirty = false;
+    renderFileTabs();
+  });
+  previewViewport.addEventListener('change', applyPreviewViewport);
+  try {
+    previewViewport.value = localStorage.getItem('wdgd_preview_viewport_v1') || 'desktop';
+  } catch {}
+  applyPreviewViewport();
   shell.querySelector('[data-desktop-ai-context]').addEventListener('click', () => void attachCurrentFileToAi());
   shell.querySelector('[data-external-keep]').addEventListener('click', () => {
     hideExternalChange();
@@ -1897,12 +2772,57 @@
   });
   shell.querySelector('[data-desktop-preview]').addEventListener('click', startPreview);
   shell.querySelector('[data-desktop-preview-refresh]').addEventListener('click', () => {
-    if (state.preview) previewFrame.src = `${state.preview.url}?refresh=${Date.now()}`;
+    if (state.preview) refreshPreview();
+    else void startPreview();
   });
   editor.addEventListener('keydown', event => {
+    if (editorAutocomplete?.handleKeydown(event)) return;
     window.WebDevGymCodeEditor?.handleKeydown(editor, event, { fileName: state.currentFile });
   });
   editor.addEventListener('input', scheduleSave);
+  fileTabs.addEventListener('click', event => {
+    const openSide = event.target.closest('[data-desktop-open-side]');
+    if (openSide) {
+      event.stopPropagation();
+      void openFileToSide(openSide.dataset.desktopOpenSide);
+      return;
+    }
+    const close = event.target.closest('[data-desktop-close-file]');
+    if (close) {
+      event.stopPropagation();
+      void closeFileTab(close.dataset.desktopCloseFile);
+      return;
+    }
+    const tab = event.target.closest('[data-desktop-open-file]');
+    if (tab) void openFile(tab.dataset.desktopOpenFile);
+  });
+  fileTabs.addEventListener('auxclick', event => {
+    if (event.button !== 1) return;
+    const tab = event.target.closest('[data-desktop-open-file]');
+    if (tab) void closeFileTab(tab.dataset.desktopOpenFile);
+  });
+  fileTabs.addEventListener('dragstart', event => {
+    const tab = event.target.closest('[data-desktop-open-file]');
+    if (!tab) return;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', tab.dataset.desktopOpenFile);
+  });
+  fileTabs.addEventListener('dragover', event => {
+    if (event.target.closest('[data-desktop-open-file]')) event.preventDefault();
+  });
+  fileTabs.addEventListener('drop', event => {
+    const target = event.target.closest('[data-desktop-open-file]');
+    const sourcePath = event.dataTransfer.getData('text/plain');
+    if (!target || !state.openFiles.includes(sourcePath)) return;
+    event.preventDefault();
+    const next = state.openFiles.filter(path => path !== sourcePath);
+    next.splice(next.indexOf(target.dataset.desktopOpenFile), 0, sourcePath);
+    state.openFiles = next;
+    renderFileTabs();
+  });
+  shell.querySelector('[data-desktop-sidebar-toggle]').addEventListener('click', () => toggleLayoutPart('sidebarCollapsed'));
+  shell.querySelector('[data-desktop-explorer-toggle]').addEventListener('click', () => toggleLayoutPart('explorerCollapsed'));
+  shell.querySelector('[data-desktop-preview-toggle]').addEventListener('click', () => toggleLayoutPart('previewCollapsed'));
   shell.querySelector('[data-project-search-form]').addEventListener('submit', runProjectSearch);
   shell.querySelector('[data-search-case]').addEventListener('click', event => {
     state.searchCaseSensitive = !state.searchCaseSensitive;
@@ -1989,6 +2909,28 @@
     setStatus(`${copy.watchError}: ${payload.message || ''}`, 'error');
   });
   document.addEventListener('keydown', event => {
+    const command = event.ctrlKey || event.metaKey;
+    if (command && !shell.hidden && state.activeView === 'projects' && event.key === 'Tab') {
+      if (state.openFiles.length > 1) {
+        event.preventDefault();
+        const direction = event.shiftKey ? -1 : 1;
+        const index = state.openFiles.indexOf(state.currentFile);
+        void openFile(state.openFiles[(index + direction + state.openFiles.length) % state.openFiles.length]);
+      }
+      return;
+    }
+    if (command && !shell.hidden && state.activeView === 'projects' && event.key.toLowerCase() === 'w') {
+      if (state.currentFile) {
+        event.preventDefault();
+        void closeFileTab(state.currentFile);
+      }
+      return;
+    }
+    if (command && event.shiftKey && !shell.hidden && state.activeView === 'projects' && event.key.toLowerCase() === 't') {
+      event.preventDefault();
+      void reopenLastClosedFile();
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !shell.hidden && state.activeView === 'docs') {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -2003,10 +2945,10 @@
       searchInput.select();
       return;
     }
-    if (event.key === 'Escape' && !shell.hidden) setOpen(false);
+    if (event.key === 'Escape' && !shell.hidden) closeDesktopCenter();
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && !shell.hidden) {
       event.preventDefault();
-      void saveNow();
+      void saveAll();
     }
   }, true);
 
@@ -2016,6 +2958,16 @@
   observer.observe(document.body, { childList: true, subtree: true });
   window.setTimeout(mountLauncher, 0);
   window.setTimeout(mountLauncher, 1200);
+  bindSplitter('sidebar');
+  bindSplitter('explorer');
+  bindSplitter('preview');
+  renderEditorThemeOptions();
+  applyLayout();
+  let layoutResizeFrame = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(layoutResizeFrame);
+    layoutResizeFrame = requestAnimationFrame(applyLayout);
+  });
   monitorTimer();
 
   Promise.all([api.recentProjects(), api.appInfo()]).then(([recents, appInfo]) => {

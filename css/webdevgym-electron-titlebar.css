@@ -199,7 +199,7 @@ body.wdge-titlebar-ready .wdgd-shell {
 }
 
 body.wdge-titlebar-ready .wdgd-window {
-  height: min(900px, calc(100vh - var(--wdge-titlebar-height) - 40px));
+  height: 100%;
 }
 
 body.wdge-titlebar-ready #splash-screen {
