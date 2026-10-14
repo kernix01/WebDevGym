@@ -24,6 +24,7 @@
   const ui = isEnglish ? {
     atlas: 'Project Atlas',
     structure: 'Structure',
+    search: 'Search',
     tools: 'Tools',
     snapshots: 'Snapshots',
     projectStructure: 'Project structure',
@@ -83,6 +84,12 @@
     useHint: 'Start with the first failed check. Fix one reason, then run the check again.',
     inspectText: 'The check reads your HTML, CSS and JavaScript. It does not replace browser DevTools.',
     searchPrompt: 'Text to find',
+    searchProject: 'Search in project',
+    searchPlaceholder: 'Search files...',
+    searchNoResults: 'No matches in project.',
+    livePreview: 'Live preview',
+    focusMode: 'Focus mode',
+    exitFocus: 'Exit focus mode',
     replacePrompt: 'Replace with',
     insertSnippet: 'Snippet inserted',
     importProject: 'Import project',
@@ -116,6 +123,7 @@
   } : {
     atlas: 'Project Atlas',
     structure: 'Структура',
+    search: 'Поиск',
     tools: 'Инструменты',
     snapshots: 'Снимки',
     projectStructure: 'Структура проекта',
@@ -175,6 +183,12 @@
     useHint: 'Начни с первой непройденной проверки. Исправь одну причину и запусти проверку ещё раз.',
     inspectText: 'Проверка читает HTML, CSS и JavaScript. Она помогает найти направление, но не заменяет DevTools.',
     searchPrompt: 'Что найти',
+    searchProject: 'Поиск по проекту',
+    searchPlaceholder: 'Искать во всех файлах...',
+    searchNoResults: 'Совпадений в проекте нет.',
+    livePreview: 'Живой предпросмотр',
+    focusMode: 'Режим фокуса',
+    exitFocus: 'Выйти из режима фокуса',
     replacePrompt: 'На что заменить',
     insertSnippet: 'Заготовка вставлена',
     importProject: 'Импорт проекта',
@@ -219,20 +233,42 @@
     logs: [],
     problems: [],
     checks: [],
+    searchQuery: '',
+    searchResults: [],
     emmetSuggestion: null,
     previewReady: false,
     saveTimer: 0,
+    previewTimer: 0,
+    editorFrame: 0,
+    lastLineCount: 0,
+    lastEditorValue: '',
+    applyingHistory: false,
+    editorHistories: new Map(),
+    focusMode: false,
     db: null,
     layout: {
       globalSidebarCollapsed: false,
       explorerCollapsed: false,
       consoleCollapsed: false,
-      previewWidth: 390
+      previewWidth: 390,
+      livePreview: true
     }
   };
 
   function icon(name, size) {
     return '<iconify-icon icon="' + name + '" width="' + (size || 16) + '" height="' + (size || 16) + '"></iconify-icon>';
+  }
+
+  function fileIcon(type, size) {
+    const names = {
+      html: 'tabler:brand-html5', htm: 'tabler:brand-html5', css: 'tabler:brand-css3',
+      js: 'tabler:brand-javascript', mjs: 'tabler:brand-javascript', cjs: 'tabler:brand-javascript',
+      ts: 'tabler:brand-typescript', tsx: 'tabler:brand-typescript', jsx: 'tabler:brand-react',
+      json: 'tabler:braces', md: 'tabler:markdown', svg: 'tabler:vector',
+      png: 'tabler:photo', jpg: 'tabler:photo', jpeg: 'tabler:photo', webp: 'tabler:photo', gif: 'tabler:photo',
+      mp3: 'tabler:music', wav: 'tabler:music', ogg: 'tabler:music', mp4: 'tabler:video', webm: 'tabler:video'
+    };
+    return '<span class="wdga-file-icon ' + escapeHtml(type) + '">' + icon(names[type] || 'tabler:file-code', size || 15) + '</span>';
   }
 
   function escapeHtml(value) {
@@ -707,13 +743,14 @@
             <button class="wdga-btn" type="button" data-wdga-snapshot>${icon('tabler:device-floppy', 15)} <span>${ui.snapshot}</span></button>
             <button class="wdga-btn" type="button" data-wdga-history>${icon('tabler:history', 15)} <span>${ui.history}</span></button>
             <button class="wdga-btn" type="button" data-wdga-download>${icon('tabler:file-zip', 15)} <span>${ui.download}</span></button>
+            <button class="wdga-icon-btn" type="button" data-wdga-focus-toggle title="${escapeHtml(ui.focusMode)}" aria-label="${escapeHtml(ui.focusMode)}">${icon('tabler:maximize', 17)}</button>
           </div>
         </header>
         <nav class="wdga-mobile-switcher" aria-label="Playground panels">
-          <button type="button" data-wdga-mobile="files">${ui.filesPanel}</button>
-          <button type="button" class="active" data-wdga-mobile="editor">${ui.editorPanel}</button>
-          <button type="button" data-wdga-mobile="preview">${ui.previewPanel}</button>
-          <button type="button" data-wdga-mobile="console">${ui.consolePanel}</button>
+          <button type="button" data-wdga-mobile="files">${icon('tabler:files', 17)}<span>${ui.filesPanel}</span></button>
+          <button type="button" class="active" data-wdga-mobile="editor">${icon('tabler:code', 17)}<span>${ui.editorPanel}</span></button>
+          <button type="button" data-wdga-mobile="preview">${icon('tabler:device-desktop', 17)}<span>${ui.previewPanel}</span></button>
+          <button type="button" data-wdga-mobile="console">${icon('tabler:terminal-2', 17)}<span>${ui.consolePanel}</span></button>
         </nav>
         <main class="wdga-workspace">
           <aside class="wdga-panel wdga-explorer">
@@ -729,9 +766,10 @@
               <button class="wdga-icon-btn wdga-delete-project" type="button" data-wdga-delete-project title="${escapeHtml(ui.deleteProject)}" aria-label="${escapeHtml(ui.deleteProject)}">${icon('tabler:trash', 16)}</button>
             </div>
             <div class="wdga-segmented" role="tablist">
-              <button class="active" type="button" data-wdga-explorer-tab="structure">${ui.structure}</button>
-              <button type="button" data-wdga-explorer-tab="tools">${ui.tools}</button>
-              <button type="button" data-wdga-explorer-tab="snapshots">${ui.snapshots}</button>
+              <button class="active" type="button" data-wdga-explorer-tab="structure" title="${escapeHtml(ui.structure)}">${icon('tabler:files', 14)}<span>${ui.structure}</span></button>
+              <button type="button" data-wdga-explorer-tab="search" title="${escapeHtml(ui.search)}">${icon('tabler:search', 14)}<span>${ui.search}</span></button>
+              <button type="button" data-wdga-explorer-tab="tools" title="${escapeHtml(ui.tools)}">${icon('tabler:tool', 14)}<span>${ui.tools}</span></button>
+              <button type="button" data-wdga-explorer-tab="snapshots" title="${escapeHtml(ui.snapshots)}">${icon('tabler:history', 14)}<span>${ui.snapshots}</span></button>
             </div>
             <div class="wdga-explorer-view" data-wdga-explorer-view="structure">
               <div class="wdga-path" data-wdga-path>atlas /</div>
@@ -745,6 +783,14 @@
                 <div class="wdga-snapshot-list" data-wdga-snapshot-list></div>
               </div>
             </div>
+            <div class="wdga-search-view" data-wdga-explorer-view="search" hidden>
+              <label class="wdga-search-field">
+                ${icon('tabler:search', 15)}
+                <input type="search" data-wdga-project-search placeholder="${escapeHtml(ui.searchPlaceholder)}" autocomplete="off" spellcheck="false">
+              </label>
+              <div class="wdga-search-summary" data-wdga-search-summary>${ui.searchProject}</div>
+              <div class="wdga-search-results" data-wdga-search-results></div>
+            </div>
             <div class="wdga-tools-view" data-wdga-explorer-view="tools" hidden></div>
             <div class="wdga-snapshots-view" data-wdga-explorer-view="snapshots" hidden></div>
           </aside>
@@ -756,6 +802,7 @@
                 <span class="wdga-breadcrumb" data-wdga-breadcrumb></span>
                 <span class="wdga-emmet-status" data-wdga-emmet-status hidden>${icon('tabler:bolt', 13)} Emmet 2.4 <kbd>Tab</kbd></span>
                 <div class="wdga-editor-actions">
+                  <button class="wdga-icon-btn is-active" type="button" data-wdga-live-toggle title="${escapeHtml(ui.livePreview)}" aria-label="${escapeHtml(ui.livePreview)}" aria-pressed="true">${icon('tabler:bolt', 15)}</button>
                   <button class="wdga-btn primary" type="button" data-wdga-run>${icon('tabler:player-play', 14)} ${ui.run}</button>
                   <button class="wdga-btn" type="button" data-wdga-format>${icon('tabler:braces', 14)} ${ui.format}</button>
                 </div>
@@ -773,11 +820,26 @@
                   <small>${isEnglish ? 'Expand abbreviation' : 'Развернуть сокращение'}</small>
                 </div>
               </div>
+              <div class="wdga-code-keys" data-wdga-code-keys aria-label="${isEnglish ? 'Code keyboard' : 'Клавиши для кода'}">
+                <button type="button" data-wdga-key-action="undo" title="Undo">${icon('tabler:arrow-back-up', 16)}</button>
+                <button type="button" data-wdga-key-action="redo" title="Redo">${icon('tabler:arrow-forward-up', 16)}</button>
+                <button type="button" data-wdga-key-action="tab">Tab</button>
+                <button type="button" data-wdga-key-action="outdent">⇤</button>
+                <button type="button" data-wdga-wrap="&lt;&gt;">&lt; &gt;</button>
+                <button type="button" data-wdga-wrap="{}">{ }</button>
+                <button type="button" data-wdga-wrap="()">( )</button>
+                <button type="button" data-wdga-wrap="[]">[ ]</button>
+                <button type="button" data-wdga-wrap="&quot;&quot;">&quot;</button>
+                <button type="button" data-wdga-wrap="''">'</button>
+                <button type="button" data-wdga-insert="=">=</button>
+                <button type="button" data-wdga-insert=";">;</button>
+              </div>
             </div>
             <section class="wdga-panel wdga-console">
               <div class="wdga-console-head">
                 <div class="wdga-console-tabs" role="tablist">
                   <button class="wdga-console-tab active" type="button" data-wdga-console-tab="console">${ui.console}</button>
+                  <button class="wdga-console-tab" type="button" data-wdga-console-tab="problems">${ui.problems}<span class="wdga-count" data-wdga-problem-count>0</span></button>
                 </div>
                 <div class="wdga-console-actions">
                   <button class="wdga-icon-btn" type="button" data-wdga-console-clear title="${escapeHtml(ui.clearConsole)}">${icon('tabler:trash', 14)}</button>
@@ -916,7 +978,7 @@
     tabs.innerHTML = openFiles.map(file => {
       const type = fileType(file.name);
       return '<button type="button" class="pg-tab-file' + (file.name === state.activeProject.activeFile ? ' active' : '') + '" data-wdga-file="' + escapeHtml(file.name) + '">' +
-        '<span class="ext ' + type + '">' + escapeHtml(type) + '</span>' +
+        fileIcon(type, 15) +
         '<span class="name" title="' + escapeHtml(file.name) + '">' + escapeHtml(fileName(file.name)) + '</span>' +
         '<span class="close" data-wdga-close-file="' + escapeHtml(file.name) + '" title="Close">×</span></button>';
     }).join('') + '<button type="button" class="wdga-icon-btn" data-wdga-tab-add title="' + escapeHtml(ui.file) + '">' + icon('tabler:plus', 15) + '</button>';
@@ -927,8 +989,27 @@
     const lines = state.root?.querySelector('[data-wdga-lines]');
     if (!editor || !lines) return;
     const count = Math.max(1, editor.value.split('\n').length);
-    lines.textContent = Array.from({ length: count }, (_, index) => index + 1).join('\n');
+    if (count !== state.lastLineCount) {
+      lines.textContent = Array.from({ length: count }, (_, index) => index + 1).join('\n');
+      state.lastLineCount = count;
+    }
     lines.scrollTop = editor.scrollTop;
+  }
+
+  function scheduleEditorRefresh() {
+    if (state.editorFrame) return;
+    state.editorFrame = requestAnimationFrame(() => {
+      state.editorFrame = 0;
+      captureEditor();
+      renderLineNumbers();
+      updateEmmetSuggestion();
+    });
+  }
+
+  function schedulePreview() {
+    clearTimeout(state.previewTimer);
+    if (!state.layout.livePreview) return;
+    state.previewTimer = setTimeout(() => runPreview({ silent: true }), 560);
   }
 
   function setActiveFile(path, options) {
@@ -948,6 +1029,7 @@
       editor.value = file.binary
         ? (isEnglish ? 'Binary file\n\n' : 'Бинарный файл\n\n') + file.name + '\n' + Math.max(0, Number(file.byteSize || 0)).toLocaleString() + ' bytes\n' + (file.mime || 'application/octet-stream')
         : file.content;
+      state.lastEditorValue = editor.value;
     }
     const formatButton = state.root.querySelector('[data-wdga-format]');
     if (formatButton) formatButton.disabled = Boolean(file.binary);
@@ -969,6 +1051,7 @@
     const editor = document.getElementById('pg-editor');
     if (editor) {
       editor.value = '';
+      state.lastEditorValue = '';
       editor.readOnly = true;
       editor.classList.remove('is-binary');
       editor.placeholder = isEnglish ? 'Open a file from the project tree' : 'Открой файл в дереве проекта';
@@ -1038,7 +1121,7 @@
     node.files.sort((a, b) => a.shortName.localeCompare(b.shortName)).forEach(file => {
       const type = fileType(file.name);
       html += '<div class="wdga-tree-row' + (file.name === state.activeProject.activeFile ? ' active' : '') + '" style="padding-left:' + (11 + depth * 18) + 'px" data-wdga-tree-file="' + escapeHtml(file.name) + '">' +
-        '<span class="wdga-file-badge ' + type + '">' + escapeHtml(type) + '</span><span class="wdga-tree-name">' + escapeHtml(file.shortName) + '</span>' +
+        fileIcon(type, 15) + '<span class="wdga-tree-name">' + escapeHtml(file.shortName) + '</span>' +
         '<button class="wdga-tree-more" type="button" data-wdga-item-menu="file" data-path="' + escapeHtml(file.name) + '">⋮</button></div>';
     });
     return html;
@@ -1048,6 +1131,135 @@
     const tree = state.root?.querySelector('[data-wdga-tree]');
     if (!tree || !state.activeProject) return;
     tree.innerHTML = renderTreeNode(treeModel(), 0) || '<div class="wdga-empty">' + ui.empty + '</div>';
+  }
+
+  function renderProjectSearch() {
+    const results = state.root?.querySelector('[data-wdga-search-results]');
+    const summary = state.root?.querySelector('[data-wdga-search-summary]');
+    if (!results || !summary) return;
+    const query = state.searchQuery.trim();
+    if (!query) {
+      summary.textContent = ui.searchProject;
+      results.innerHTML = '<div class="wdga-empty">' + escapeHtml(ui.searchPlaceholder) + '</div>';
+      return;
+    }
+    summary.textContent = state.searchResults.length + ' ' + (isEnglish ? 'matches' : 'совпадений');
+    results.innerHTML = state.searchResults.length ? state.searchResults.map(result => (
+      '<button type="button" class="wdga-search-result" data-wdga-search-file="' + escapeHtml(result.file) + '" data-wdga-search-start="' + result.start + '" data-wdga-search-end="' + result.end + '">' +
+        '<span>' + icon('tabler:file-code', 14) + '<strong>' + escapeHtml(result.file) + '</strong><small>' + result.line + ':' + result.column + '</small></span>' +
+        '<code>' + escapeHtml(result.preview) + '</code>' +
+      '</button>'
+    )).join('') : '<div class="wdga-empty">' + escapeHtml(ui.searchNoResults) + '</div>';
+  }
+
+  function searchProject(query) {
+    captureEditor();
+    state.searchQuery = String(query || '');
+    state.searchResults = [];
+    const needle = state.searchQuery.trim().toLocaleLowerCase();
+    if (needle) {
+      for (const file of state.activeProject.files) {
+        if (file.binary || state.searchResults.length >= 200) continue;
+        const lines = String(file.content || '').split('\n');
+        let lineStart = 0;
+        for (let lineIndex = 0; lineIndex < lines.length && state.searchResults.length < 200; lineIndex += 1) {
+          const line = lines[lineIndex];
+          const column = line.toLocaleLowerCase().indexOf(needle);
+          if (column >= 0) {
+            state.searchResults.push({
+              file: file.name,
+              line: lineIndex + 1,
+              column: column + 1,
+              start: lineStart + column,
+              end: lineStart + column + needle.length,
+              preview: line.trim().slice(0, 140)
+            });
+          }
+          lineStart += line.length + 1;
+        }
+      }
+    }
+    renderProjectSearch();
+  }
+
+  function openSearchResult(button) {
+    setActiveFile(button.dataset.wdgaSearchFile);
+    state.mobilePanel = 'editor';
+    state.root.dataset.mobilePanel = 'editor';
+    state.root.querySelectorAll('[data-wdga-mobile]').forEach(item => item.classList.toggle('active', item.dataset.wdgaMobile === 'editor'));
+    requestAnimationFrame(() => {
+      const editor = document.getElementById('pg-editor');
+      const start = Number(button.dataset.wdgaSearchStart) || 0;
+      const end = Number(button.dataset.wdgaSearchEnd) || start;
+      editor.focus({ preventScroll: true });
+      editor.setSelectionRange(start, end);
+      const before = editor.value.slice(0, start);
+      editor.scrollTop = Math.max(0, before.split('\n').length * 19 - editor.clientHeight / 3);
+    });
+  }
+
+  function replaceEditorSelection(text, cursorOffset) {
+    const editor = document.getElementById('pg-editor');
+    if (!editor || editor.readOnly) return;
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    editor.setRangeText(text, start, end, 'end');
+    const cursor = start + (cursorOffset == null ? text.length : cursorOffset);
+    editor.setSelectionRange(cursor, cursor);
+    editor.focus({ preventScroll: true });
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function editorHistory() {
+    const key = state.activeProject?.id + ':' + (currentFile()?.name || '');
+    if (!state.editorHistories.has(key)) state.editorHistories.set(key, { undo: [], redo: [] });
+    return state.editorHistories.get(key);
+  }
+
+  function recordEditorHistory(value) {
+    if (state.applyingHistory || value === state.lastEditorValue) return;
+    const history = editorHistory();
+    history.undo.push(state.lastEditorValue);
+    if (history.undo.length > 100) history.undo.shift();
+    history.redo = [];
+    state.lastEditorValue = value;
+  }
+
+  function applyEditorHistory(direction) {
+    const editor = document.getElementById('pg-editor');
+    const history = editorHistory();
+    const source = direction === 'undo' ? history.undo : history.redo;
+    const target = direction === 'undo' ? history.redo : history.undo;
+    if (!editor || !source.length) return;
+    target.push(editor.value);
+    state.applyingHistory = true;
+    editor.value = source.pop();
+    state.lastEditorValue = editor.value;
+    editor.setSelectionRange(editor.value.length, editor.value.length);
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+    state.applyingHistory = false;
+    editor.focus({ preventScroll: true });
+  }
+
+  function handleCodeKey(button) {
+    const editor = document.getElementById('pg-editor');
+    if (!editor || editor.readOnly) return;
+    const action = button.dataset.wdgaKeyAction;
+    if (action === 'undo' || action === 'redo') {
+      applyEditorHistory(action);
+      return;
+    }
+    if (action === 'tab' || action === 'outdent') {
+      indentEditorSelection(editor, action === 'outdent');
+      return;
+    }
+    if (button.dataset.wdgaWrap != null) {
+      const pair = button.dataset.wdgaWrap;
+      const selected = editor.value.slice(editor.selectionStart, editor.selectionEnd);
+      replaceEditorSelection(pair[0] + selected + pair.slice(1), selected ? pair.length + selected.length : 1);
+      return;
+    }
+    if (button.dataset.wdgaInsert != null) replaceEditorSelection(button.dataset.wdgaInsert);
   }
 
   const toolCatalog = [
@@ -1097,6 +1309,17 @@
   function renderConsole() {
     const body = state.root?.querySelector('[data-wdga-console-body]');
     if (!body) return;
+    const count = state.root.querySelector('[data-wdga-problem-count]');
+    if (count) count.textContent = state.problems.length;
+    if (state.activeConsoleTab === 'problems') {
+      body.innerHTML = state.problems.length ? state.problems.map(item => (
+        '<button type="button" class="wdga-problem ' + item.type + '" data-wdga-problem-file="' + escapeHtml(item.file || '') + '">' +
+          icon(item.type === 'error' ? 'tabler:circle-x' : 'tabler:alert-triangle', 15) +
+          '<span><strong>' + escapeHtml(item.file || ui.problems) + '</strong><small>' + escapeHtml(item.message) + '</small></span>' +
+        '</button>'
+      )).join('') : '<div class="wdga-empty wdga-no-problems">' + icon('tabler:circle-check', 20) + '<span>' + escapeHtml(ui.noIssues) + '</span></div>';
+      return;
+    }
     body.innerHTML = state.logs.length ? state.logs.map(item => (
       '<div class="wdga-log ' + item.type + '"><time>' + nowTime(item.time) + '</time><span class="wdga-log-type">[' + escapeHtml(item.type) + ']</span><span class="wdga-log-message">' + escapeHtml(item.message) + '</span></div>'
     )).join('') : '<div class="wdga-empty">' + ui.empty + '</div>';
@@ -1129,6 +1352,7 @@
     renderProjectSelect();
     renderTabs();
     renderTree();
+    renderProjectSearch();
     renderTools();
     renderSnapshots();
     if (state.activeProject.activeFile && state.activeProject.openFiles?.includes(state.activeProject.activeFile)) {
@@ -1335,6 +1559,10 @@
     state.activeProject = project;
     state.checks = [];
     state.problems = [];
+    state.searchQuery = '';
+    state.searchResults = [];
+    const searchInput = state.root?.querySelector('[data-wdga-project-search]');
+    if (searchInput) searchInput.value = '';
     syncCoreFiles();
     writeJson(META_KEY, { activeProjectId: project.id });
     renderAll();
@@ -1471,16 +1699,16 @@
         try {
           new Function(file.content);
         } catch (error) {
-          problems.push({ type: 'error', message: file.name + ': ' + error.message, time: Date.now() });
+          problems.push({ type: 'error', file: file.name, message: error.message, time: Date.now() });
         }
       }
       if (type === 'css') {
         const opens = (file.content.match(/{/g) || []).length;
         const closes = (file.content.match(/}/g) || []).length;
-        if (opens !== closes) problems.push({ type: 'error', message: file.name + ': CSS braces ' + opens + '/' + closes, time: Date.now() });
+        if (opens !== closes) problems.push({ type: 'error', file: file.name, message: 'CSS braces ' + opens + '/' + closes, time: Date.now() });
       }
       if (type === 'html' && !/<html[\s>]/i.test(file.content)) {
-        problems.push({ type: 'warn', message: file.name + ': ' + (isEnglish ? 'missing <html> root element' : 'нет корневого элемента <html>'), time: Date.now() });
+        problems.push({ type: 'warn', file: file.name, message: isEnglish ? 'Missing <html> root element' : 'Нет корневого элемента <html>', time: Date.now() });
       }
     });
     return problems;
@@ -1523,6 +1751,8 @@
   function validateProject() {
     state.problems = syntaxProblems();
     state.checks = buildChecks();
+    state.activeConsoleTab = 'problems';
+    state.root.querySelectorAll('[data-wdga-console-tab]').forEach(button => button.classList.toggle('active', button.dataset.wdgaConsoleTab === 'problems'));
     renderChecks();
     renderConsole();
     runPreview();
@@ -1621,7 +1851,7 @@
     });
   }
 
-  function runPreview() {
+  function runPreview(options) {
     state.previewReady = true;
     captureEditor();
     syncCoreFiles();
@@ -1657,7 +1887,7 @@
       if (typeof pgFiles !== 'undefined') pgFiles = originalCoreFiles || state.activeProject.files;
     }
     iframe.srcdoc = injectConsoleBridge(documentSource);
-    log('info', ui.started);
+    if (!options?.silent) log('info', ui.started);
     scheduleSave();
   }
 
@@ -2208,21 +2438,42 @@
     if (!state.root) return;
     state.root.classList.toggle('is-explorer-collapsed', state.layout.explorerCollapsed);
     state.root.classList.toggle('is-console-collapsed', state.layout.consoleCollapsed);
+    state.root.classList.toggle('is-focus-mode', state.focusMode);
     state.root.style.setProperty('--wdga-preview-size', Math.max(280, Number(state.layout.previewWidth) || 390) + 'px');
     const playgroundActive = state.section?.classList.contains('active');
     document.body.classList.toggle('wdga-global-sidebar-collapsed', Boolean(playgroundActive && state.layout.globalSidebarCollapsed));
+    document.body.classList.toggle('wdga-focus-open', Boolean(playgroundActive && state.focusMode));
     const globalButton = state.root.querySelector('[data-wdga-global-sidebar]');
     if (globalButton) globalButton.innerHTML = icon(state.layout.globalSidebarCollapsed ? 'tabler:layout-sidebar-left-expand' : 'tabler:layout-sidebar-left-collapse', 17);
     const explorerButton = state.root.querySelector('.wdga-explorer [data-wdga-explorer-toggle]');
     if (explorerButton) explorerButton.innerHTML = icon('tabler:chevrons-left', 16);
     const consoleButton = state.root.querySelector('.wdga-console [data-wdga-console-toggle]');
     if (consoleButton) consoleButton.innerHTML = icon('tabler:chevron-down', 15);
+    const focusButton = state.root.querySelector('[data-wdga-focus-toggle]');
+    if (focusButton) {
+      const label = state.focusMode ? ui.exitFocus : ui.focusMode;
+      focusButton.innerHTML = icon(state.focusMode ? 'tabler:minimize' : 'tabler:maximize', 17);
+      focusButton.title = label;
+      focusButton.setAttribute('aria-label', label);
+      focusButton.setAttribute('aria-pressed', String(state.focusMode));
+    }
+    const liveButton = state.root.querySelector('[data-wdga-live-toggle]');
+    if (liveButton) {
+      liveButton.classList.toggle('is-active', state.layout.livePreview);
+      liveButton.setAttribute('aria-pressed', String(state.layout.livePreview));
+    }
   }
 
   function toggleLayoutPart(part) {
     state.layout[part] = !state.layout[part];
     applyLayout();
     saveLayout();
+  }
+
+  function toggleFocusMode(force) {
+    state.focusMode = typeof force === 'boolean' ? force : !state.focusMode;
+    applyLayout();
+    requestAnimationFrame(() => document.getElementById('pg-editor')?.focus({ preventScroll: true }));
   }
 
   function bindPreviewSplitter() {
@@ -2243,7 +2494,7 @@
       applyLayout();
     };
     splitter.addEventListener('mousedown', event => {
-      if (matchMedia('(max-width: 860px)').matches) return;
+      if (matchMedia('(max-width: 1080px)').matches) return;
       event.preventDefault();
       splitter.classList.add('is-dragging');
       const shield = document.createElement('div');
@@ -2279,6 +2530,22 @@
     const root = state.root;
     root.addEventListener('click', event => {
       const target = event.target;
+      const codeKey = target.closest('[data-wdga-key-action], [data-wdga-wrap], [data-wdga-insert]');
+      if (codeKey) {
+        handleCodeKey(codeKey);
+        return;
+      }
+      if (target.closest('[data-wdga-focus-toggle]')) {
+        toggleFocusMode();
+        return;
+      }
+      if (target.closest('[data-wdga-live-toggle]')) {
+        state.layout.livePreview = !state.layout.livePreview;
+        applyLayout();
+        saveLayout();
+        if (state.layout.livePreview) schedulePreview();
+        return;
+      }
       if (target.closest('[data-wdga-global-sidebar]')) {
         toggleLayoutPart('globalSidebarCollapsed');
         return;
@@ -2304,6 +2571,8 @@
         state.mobilePanel = mobile.dataset.wdgaMobile;
         root.dataset.mobilePanel = state.mobilePanel;
         root.querySelectorAll('[data-wdga-mobile]').forEach(button => button.classList.toggle('active', button === mobile));
+        if (state.mobilePanel === 'preview') runPreview({ silent: true });
+        if (state.mobilePanel === 'editor') requestAnimationFrame(() => document.getElementById('pg-editor')?.focus({ preventScroll: true }));
         return;
       }
       const explorerTab = target.closest('[data-wdga-explorer-tab]');
@@ -2313,6 +2582,12 @@
         root.querySelectorAll('[data-wdga-explorer-view]').forEach(view => {
           view.hidden = view.dataset.wdgaExplorerView !== state.activeExplorerTab;
         });
+        if (state.activeExplorerTab === 'search') requestAnimationFrame(() => root.querySelector('[data-wdga-project-search]')?.focus());
+        return;
+      }
+      const searchResult = target.closest('[data-wdga-search-file]');
+      if (searchResult) {
+        openSearchResult(searchResult);
         return;
       }
       const consoleTab = target.closest('[data-wdga-console-tab]');
@@ -2320,6 +2595,14 @@
         state.activeConsoleTab = consoleTab.dataset.wdgaConsoleTab;
         root.querySelectorAll('[data-wdga-console-tab]').forEach(button => button.classList.toggle('active', button === consoleTab));
         renderConsole();
+        return;
+      }
+      const problem = target.closest('[data-wdga-problem-file]');
+      if (problem?.dataset.wdgaProblemFile) {
+        setActiveFile(problem.dataset.wdgaProblemFile);
+        state.mobilePanel = 'editor';
+        root.dataset.mobilePanel = 'editor';
+        root.querySelectorAll('[data-wdga-mobile]').forEach(button => button.classList.toggle('active', button.dataset.wdgaMobile === 'editor'));
         return;
       }
       const fileTab = target.closest('[data-wdga-file]');
@@ -2440,6 +2723,8 @@
     };
     root.addEventListener('input', updateOpenTool);
     root.addEventListener('change', updateOpenTool);
+    root.querySelector('[data-wdga-code-keys]').addEventListener('pointerdown', event => event.preventDefault());
+    root.querySelector('[data-wdga-project-search]').addEventListener('input', event => searchProject(event.target.value));
 
     root.querySelector('[data-wdga-project]').addEventListener('change', event => activateProject(event.target.value));
     root.querySelector('[data-wdga-create-form]').addEventListener('submit', event => {
@@ -2468,10 +2753,10 @@
     });
     const editor = document.getElementById('pg-editor');
     editor.addEventListener('input', () => {
-      captureEditor();
-      renderLineNumbers();
+      recordEditorHistory(editor.value);
+      scheduleEditorRefresh();
       scheduleSave();
-      updateEmmetSuggestion();
+      schedulePreview();
     });
     editor.addEventListener('scroll', () => {
       root.querySelector('[data-wdga-lines]').scrollTop = editor.scrollTop;
@@ -2518,6 +2803,9 @@
       }
     });
     updateEmmetStatus();
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.focusMode && !event.defaultPrevented) toggleFocusMode(false);
+    });
   }
 
   function installCompatibility() {
