@@ -1020,7 +1020,16 @@ body.wdg-modern .wdgr-ai-message-stage .ai-msg { padding: 12px 0; }
 .wdgr-ai-minimized .wdgr-ai-topbar { pointer-events: auto; }
 .wdgr-ai-maximized { inset: 62px 12px 12px 225px !important; width: auto !important; height: auto !important; max-width: none !important; max-height: none !important; resize: none !important; }
 body.wdg-modern .wdgr-ai-message-stage .ai-msg-image img { display: block; width: min(100%, 520px); max-height: 420px; object-fit: contain; margin-bottom: 8px; border: 1px solid var(--wdgr-line); border-radius: 6px; background: #050a11; }
-body.wdg-modern .wdgr-ai-message-stage .ai-msg-image span { color: var(--wdgr-muted); font-size: 10px; }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-caption { min-width: 0; overflow: hidden; color: var(--wdgr-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-download { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 6px; min-height: 30px; padding: 6px 9px; border: 1px solid var(--wdgr-line-strong); border-radius: 6px; background: var(--wdgr-surface-2); color: var(--wdgr-text); font: inherit; font-size: 10px; cursor: pointer; }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-download:hover { border-color: var(--wdgr-accent); color: var(--wdgr-accent); }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-download:focus-visible { outline: 2px solid var(--wdgr-accent); outline-offset: 2px; }
+body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-download:disabled { cursor: wait; opacity: .58; }
+@media (max-width: 560px) {
+  body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-actions { align-items: stretch; flex-direction: column; }
+  body.wdg-modern .wdgr-ai-message-stage .ai-msg-image .ai-image-download { width: 100%; }
+}
 .wdgr-ai-capability-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
 .wdgr-ai-capability-card { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 11px; padding: 14px; border: 1px solid var(--wdgr-line); border-radius: 7px; background: var(--wdgr-surface); }
 .wdgr-ai-capability-card > iconify-icon { color: var(--wdgr-accent); }

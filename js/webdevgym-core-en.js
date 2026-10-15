@@ -8917,7 +8917,12 @@ async function aiSend() {
     if (imageMode) {
       const endpoint = baseUrl + '/images/generations';
       const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + customCfg.apiKey };
-      const request = { model: customCfg.imageModel || customCfg.model, prompt: text, size: '1024x1024' };
+      const request = {
+        model: customCfg.imageModel || customCfg.model,
+        prompt: text,
+        size: '1024x1024',
+        response_format: 'b64_json'
+      };
       let response = await fetch(endpoint, {
         method: 'POST',
         headers,
@@ -9146,6 +9151,68 @@ function aiAddMsg(role, text, attachments = []) {
   aiScrollBottom();
 }
 
+function aiGeneratedImageFilename(type) {
+  const extensions = {
+    'image/jpeg': 'jpg',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/avif': 'avif'
+  };
+  const extension = extensions[String(type || '').toLowerCase()] || 'png';
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  return `webdevgym-ai-${stamp}.${extension}`;
+}
+
+function aiSaveGeneratedImageBlob(blob) {
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = aiGeneratedImageFilename(blob.type);
+  link.hidden = true;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
+async function aiDownloadGeneratedImage(source, button) {
+  const safeSource = String(source || '');
+  if (!/^https:\/\//i.test(safeSource) && !/^data:image\//i.test(safeSource)) return;
+  if (button) {
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+  }
+  try {
+    const response = await fetch(safeSource, {
+      cache: 'no-store',
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer'
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    if (!String(blob.type || '').startsWith('image/')) throw new Error('The response is not an image');
+    aiSaveGeneratedImageBlob(blob);
+    showToast('Image downloaded');
+  } catch (error) {
+    if (/^https:\/\//i.test(safeSource)) {
+      const fallback = document.createElement('a');
+      fallback.href = safeSource;
+      fallback.download = aiGeneratedImageFilename('image/png');
+      fallback.target = '_blank';
+      fallback.rel = 'noopener noreferrer';
+      fallback.click();
+      showToast('Image opened for saving');
+    } else {
+      showToast(`Could not download image: ${error.message}`);
+    }
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+    }
+  }
+}
+
 function aiAddImageMsg(source, caption) {
   const container = document.getElementById('aiMsgs');
   if (!container) return;
@@ -9162,9 +9229,20 @@ function aiAddImageMsg(source, caption) {
   image.src = safeSource;
   image.alt = caption || "Generated image";
   image.loading = 'lazy';
+  const actions = document.createElement('div');
+  actions.className = 'ai-image-actions';
   const label = document.createElement('span');
+  label.className = 'ai-image-caption';
   label.textContent = caption || "Generated image";
-  bubble.append(image, label);
+  const downloadButton = document.createElement('button');
+  downloadButton.type = 'button';
+  downloadButton.className = 'ai-image-download';
+  downloadButton.title = 'Download image';
+  downloadButton.setAttribute('aria-label', 'Download image');
+  downloadButton.innerHTML = '<iconify-icon icon="lucide:download" width="15" height="15"></iconify-icon><span>Download</span>';
+  downloadButton.addEventListener('click', () => void aiDownloadGeneratedImage(safeSource, downloadButton));
+  actions.append(label, downloadButton);
+  bubble.append(image, actions);
   el.append(avatar, bubble);
   container.appendChild(el);
   aiScrollBottom();
