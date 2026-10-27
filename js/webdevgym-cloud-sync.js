@@ -9,6 +9,8 @@
 
   const CLIENT_KEY = 'wdg_cloud_sync_client_v1';
   const META_PREFIX = 'wdg_cloud_sync_meta_v1:';
+  const ONBOARDING_KEY = 'wdg_cloud_onboarding_v1';
+  const LEARNING_PRIORITY_KEY = 'wdgn_learning_priority_v1';
   const LOCAL_SYNC_DELAY = 180;
   const MAX_VALUE_LENGTH = 1024 * 1024;
   const isEnglish = document.documentElement.lang === 'en' || /index-en\.html$/i.test(location.pathname);
@@ -24,6 +26,18 @@
     passwordPlaceholder: 'At least 6 characters',
     signIn: 'Sign in',
     signUp: 'Create account',
+    onboardingTitle: 'Keep your progress safe',
+    onboardingSubtitle: 'Create an account now or continue locally and connect it later.',
+    onboardingIntro: 'One account keeps your learning progress, notes and settings available across devices and in both RU and EN.',
+    benefitDevices: 'Continue on another computer or phone',
+    benefitRecovery: 'Restore progress after clearing browser data',
+    benefitLanguages: 'Use the same account in RU and EN',
+    continueWith: 'Continue with',
+    orEmail: 'or use email',
+    github: 'GitHub',
+    google: 'Google',
+    later: 'Continue without an account',
+    laterHint: 'Everything will stay in this browser. You can connect an account later from the cloud button.',
     signedIn: 'Cloud sync is active',
     syncing: 'Syncing...',
     synced: 'Synced',
@@ -49,6 +63,18 @@
     passwordPlaceholder: 'Минимум 6 символов',
     signIn: 'Войти',
     signUp: 'Создать аккаунт',
+    onboardingTitle: 'Не потеряй свой прогресс',
+    onboardingSubtitle: 'Создай аккаунт сейчас или продолжи локально и подключи его позже.',
+    onboardingIntro: 'Один аккаунт сохранит прогресс обучения, заметки и настройки на разных устройствах и в версиях RU и EN.',
+    benefitDevices: 'Продолжай на другом компьютере или телефоне',
+    benefitRecovery: 'Восстанови прогресс после очистки браузера',
+    benefitLanguages: 'Используй один аккаунт в RU и EN',
+    continueWith: 'Продолжить через',
+    orEmail: 'или используй email',
+    github: 'GitHub',
+    google: 'Google',
+    later: 'Продолжить без аккаунта',
+    laterHint: 'Всё останется в этом браузере. Аккаунт можно подключить позже через кнопку облака.',
     signedIn: 'Облачная синхронизация активна',
     syncing: 'Синхронизация...',
     synced: 'Синхронизировано',
@@ -79,6 +105,7 @@
     session: null,
     syncing: false,
     modalOpen: false,
+    onboarding: false,
     lastSyncAt: 0,
     error: '',
     notice: '',
@@ -88,6 +115,7 @@
   };
 
   let localSyncTimer = 0;
+  let onboardingTimer = 0;
 
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -323,7 +351,12 @@
       cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/><path d="m12 12-2 2 2 2M10 14h6"/>',
       close: '<path d="M18 6 6 18M6 6l12 12"/>',
       shield: '<path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3v8Z"/><path d="m9 12 2 2 4-4"/>',
-      refresh: '<path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/>'
+      refresh: '<path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 9M5.5 15A7 7 0 0 0 18 17.5l2-2.5"/>',
+      device: '<rect width="14" height="10" x="3" y="3" rx="2"/><path d="M7 21h10M12 13v8M17 17h4v-7h-4"/>',
+      restore: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+      languages: '<path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/>',
+      github: '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a13.4 13.4 0 0 0-7 0C4.8.1 3.7.5 3.7.5A5 5 0 0 0 3.6 4a5.4 5.4 0 0 0-1.4 3.5c0 5.4 3.5 6.6 6.8 7A4.8 4.8 0 0 0 8 18v4"/><path d="M8 19c-3 .9-3-1.5-4-2"/>',
+      google: '<path d="M21.4 12.2c0-.7-.1-1.4-.2-2.2H12v4h5.3a4.5 4.5 0 0 1-2 2.9v2.6h3.3c1.9-1.8 2.8-4.4 2.8-7.3Z"/><path d="M12 22c2.7 0 5-.9 6.6-2.5l-3.3-2.6c-.9.6-2 1-3.3 1-2.6 0-4.8-1.8-5.6-4.2H3v2.7A10 10 0 0 0 12 22Z"/><path d="M6.4 13.7A6 6 0 0 1 6.1 12c0-.6.1-1.2.3-1.7V7.6H3A10 10 0 0 0 2 12c0 1.6.4 3.1 1 4.4l3.4-2.7Z"/><path d="M12 6.1c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.8 9.8 0 0 0 12 2a10 10 0 0 0-9 5.6l3.4 2.7C7.2 7.9 9.4 6.1 12 6.1Z"/>'
     };
     return `<svg class="wdg-device-sync-icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.cloud}</svg>`;
   }
@@ -338,7 +371,7 @@
       <section class="wdg-device-sync-dialog" role="dialog" aria-modal="true" aria-labelledby="wdgCloudSyncTitle">
         <header>
           <div class="wdg-device-sync-mark">${icon('cloud', 22)}</div>
-          <div><h2 id="wdgCloudSyncTitle">${copy.title}</h2><p>${copy.subtitle}</p></div>
+          <div><h2 id="wdgCloudSyncTitle" data-cloud-title>${copy.title}</h2><p data-cloud-subtitle>${copy.subtitle}</p></div>
           <button type="button" class="wdg-device-sync-close" data-cloud-close title="${copy.close}">${icon('close')}</button>
         </header>
         <div class="wdg-device-sync-content" data-cloud-content></div>
@@ -355,11 +388,29 @@
   function render() {
     const content = document.querySelector('[data-cloud-content]');
     if (!content) return;
+    const title = document.querySelector('[data-cloud-title]');
+    const subtitle = document.querySelector('[data-cloud-subtitle]');
+    if (title) title.textContent = state.onboarding ? copy.onboardingTitle : copy.title;
+    if (subtitle) subtitle.textContent = state.onboarding ? copy.onboardingSubtitle : copy.subtitle;
 
     if (!state.session) {
       content.innerHTML = `
-        <div class="wdg-device-sync-status offline"><i></i><strong>${copy.signedOut}</strong><span>Supabase</span></div>
-        <p class="wdg-cloud-sync-hint">${copy.signedOutHint}</p>
+        ${state.onboarding ? `
+          <div class="wdg-cloud-onboarding-intro">
+            <p>${copy.onboardingIntro}</p>
+            <ul>
+              <li>${icon('device', 16)}<span>${copy.benefitDevices}</span></li>
+              <li>${icon('restore', 16)}<span>${copy.benefitRecovery}</span></li>
+              <li>${icon('languages', 16)}<span>${copy.benefitLanguages}</span></li>
+            </ul>
+          </div>` : `
+          <div class="wdg-device-sync-status offline"><i></i><strong>${copy.signedOut}</strong><span>Supabase</span></div>
+          <p class="wdg-cloud-sync-hint">${copy.signedOutHint}</p>`}
+        <div class="wdg-cloud-provider-grid" aria-label="${copy.continueWith}">
+          <button type="button" class="wdg-cloud-provider github" data-cloud-provider="github">${icon('github', 18)}<span>${copy.continueWith} ${copy.github}</span></button>
+          <button type="button" class="wdg-cloud-provider google" data-cloud-provider="google">${icon('google', 18)}<span>${copy.continueWith} ${copy.google}</span></button>
+        </div>
+        <div class="wdg-cloud-auth-divider"><span>${copy.orEmail}</span></div>
         <form class="wdg-cloud-auth-form" data-cloud-auth-form>
           <label>${copy.email}<input type="email" name="email" autocomplete="email" placeholder="${copy.emailPlaceholder}" required></label>
           <label>${copy.password}<input type="password" name="password" autocomplete="current-password" minlength="6" placeholder="${copy.passwordPlaceholder}" required></label>
@@ -370,6 +421,7 @@
         </form>
         ${state.notice ? `<p class="wdg-cloud-sync-notice">${escapeHtml(state.notice)}</p>` : ''}
         ${state.error ? `<p class="wdg-device-sync-error">${escapeHtml(state.error)}</p>` : ''}
+        ${state.onboarding ? `<button type="button" class="wdg-cloud-later" data-cloud-later>${copy.later}</button><p class="wdg-cloud-later-hint">${copy.laterHint}</p>` : ''}
         <p class="wdg-device-sync-protected">${icon('shield', 16)}${copy.protected}</p>`;
 
       const form = content.querySelector('[data-cloud-auth-form]');
@@ -383,6 +435,10 @@
         const formData = new FormData(form);
         await authenticate('signUp', String(formData.get('email') || ''), String(formData.get('password') || ''));
       });
+      content.querySelectorAll('[data-cloud-provider]').forEach(button => {
+        button.addEventListener('click', () => void authenticateWithProvider(button.dataset.cloudProvider));
+      });
+      content.querySelector('[data-cloud-later]')?.addEventListener('click', dismissOnboarding);
       return;
     }
 
@@ -429,6 +485,42 @@
     render();
   }
 
+  async function authenticateWithProvider(provider) {
+    if (!['github', 'google'].includes(provider)) return;
+    state.error = '';
+    state.notice = '';
+    try {
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: location.origin }
+      });
+      if (error) throw error;
+      localStorage.setItem(ONBOARDING_KEY, 'account');
+    } catch (error) {
+      state.error = error?.message || copy.authError;
+      render();
+    }
+  }
+
+  function dismissOnboarding() {
+    localStorage.setItem(ONBOARDING_KEY, 'later');
+    state.onboarding = false;
+    close();
+  }
+
+  function scheduleOnboarding() {
+    global.clearTimeout(onboardingTimer);
+    const tryOpen = () => {
+      if (state.session || localStorage.getItem(ONBOARDING_KEY)) return;
+      if (!localStorage.getItem(LEARNING_PRIORITY_KEY) || document.querySelector('.wdgn-priority-picker')) {
+        onboardingTimer = global.setTimeout(tryOpen, 250);
+        return;
+      }
+      openOnboarding();
+    };
+    onboardingTimer = global.setTimeout(tryOpen, 650);
+  }
+
   function attach() {
     const buttons = [document.getElementById('wdgDeviceSyncButton'), document.getElementById('wdgDeviceSyncMobileButton')].filter(Boolean);
     const status = state.session ? (state.syncing ? 'ready' : 'paired') : 'offline';
@@ -441,6 +533,7 @@
 
   function open() {
     ensureUi();
+    state.onboarding = false;
     state.modalOpen = true;
     document.getElementById('wdgCloudSyncModal')?.classList.add('open');
     document.body.classList.add('wdg-device-sync-open');
@@ -448,7 +541,18 @@
     if (state.session) void sync();
   }
 
+  function openOnboarding() {
+    ensureUi();
+    state.onboarding = true;
+    state.modalOpen = true;
+    document.getElementById('wdgCloudSyncModal')?.classList.add('open');
+    document.body.classList.add('wdg-device-sync-open');
+    render();
+  }
+
   function close() {
+    if (state.onboarding && !state.session) localStorage.setItem(ONBOARDING_KEY, 'later');
+    state.onboarding = false;
     state.modalOpen = false;
     document.getElementById('wdgCloudSyncModal')?.classList.remove('open');
     document.body.classList.remove('wdg-device-sync-open');
@@ -478,6 +582,7 @@
 
   async function handleSession(session) {
     state.session = session;
+    if (session) localStorage.setItem(ONBOARDING_KEY, 'account');
     state.error = '';
     state.notice = '';
     await subscribeToChanges();
@@ -496,6 +601,8 @@
     if (error) state.error = copy.unavailable;
     await handleSession(data?.session || null);
 
+    if (!data?.session && !localStorage.getItem(ONBOARDING_KEY)) scheduleOnboarding();
+
     client.auth.onAuthStateChange((_event, session) => {
       global.setTimeout(() => void handleSession(session), 0);
     });
@@ -511,6 +618,7 @@
   global.WebDevGymCloudSync = Object.freeze({
     start,
     open,
+    openOnboarding,
     close,
     sync,
     attach,

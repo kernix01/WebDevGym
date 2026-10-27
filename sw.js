@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-10-27-v149';
+const CACHE_NAME = 'webdevgym-shell-2026-10-27-v150';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -49,7 +49,7 @@ const APP_SHELL = [
   './css/webdevgym-comfort.css?v=20260913-5',
   './css/webdevgym-scrollbars.css?v=20260928-1',
   './css/webdevgym-device-sync.css?v=20261001-2',
-  './css/webdevgym-cloud-sync.css?v=20261027-1',
+  './css/webdevgym-cloud-sync.css?v=20261027-2',
   './css/webdevgym-local-first.css?v=20260906-1',
   './data/curriculum-ru.js',
   './data/curriculum-en.js',
@@ -111,7 +111,7 @@ const APP_SHELL = [
   './js/webdevgym-transitions.js?v=20260913-5',
   './js/webdevgym-local-first.js?v=20260906-1',
   './js/webdevgym-supabase-config.js?v=20261027-1',
-  './js/webdevgym-cloud-sync.js?v=20261027-1',
+  './js/webdevgym-cloud-sync.js?v=20261027-2',
   './js/webdevgym-device-sync.js?v=20261027-7'
 ];
 
