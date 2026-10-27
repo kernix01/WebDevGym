@@ -75,8 +75,8 @@
     const local = location.hostname === '127.0.0.1' || location.hostname === 'localhost' || location.protocol === 'file:';
     const ru = document.querySelector('.wdg-lang a:first-of-type');
     const en = document.querySelector('.wdg-lang a:last-of-type');
-    if (ru) ru.href = local ? 'index.html' : 'https://kernix01.github.io/WebDevGym/';
-    if (en) en.href = local ? 'index-en.html' : 'https://kernix01.github.io/WebDevGym-EN/';
+    if (ru) ru.href = local ? 'index.html' : 'https://webdevgym.vercel.app/';
+    if (en) en.href = local ? 'index-en.html' : 'https://webdevgym-en.vercel.app/';
   }
 
   function buildFooter() {

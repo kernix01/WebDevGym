@@ -10537,8 +10537,8 @@ function wdgTranslateStaticText(root = document.body) {
 }
 
 function setMainLanguage(lang) {
-  if (lang === 'ru') location.href = 'https://kernix01.github.io/WebDevGym/';
-  else location.href = 'https://kernix01.github.io/WebDevGym-EN/';
+  if (lang === 'ru') location.href = 'https://webdevgym.vercel.app/';
+  else location.href = 'https://webdevgym-en.vercel.app/';
 }
 
 function applyMainLanguage() {
