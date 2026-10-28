@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090d14">
+  <title>Политика конфиденциальности - WebDevGym</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #e8edf5; background: #090d14; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #090d14; }
+    header, main, footer { width: min(880px, calc(100% - 32px)); margin-inline: auto; }
+    header { display: flex; align-items: center; justify-content: space-between; min-height: 72px; border-bottom: 1px solid #253044; }
+    .brand { color: #f6f8fb; font-weight: 800; text-decoration: none; }
+    .brand span, .eyebrow { color: #c26cff; }
+    .back { color: #aeb9ca; text-decoration: none; font-size: 14px; }
+    main { padding: 72px 0 56px; }
+    .eyebrow { margin: 0 0 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 720px; font-size: clamp(36px, 7vw, 64px); line-height: 1.02; letter-spacing: 0; }
+    .lead { max-width: 680px; margin: 22px 0 52px; color: #aeb9ca; font-size: 17px; line-height: 1.7; }
+    section { padding: 26px 0; border-top: 1px solid #253044; }
+    h2 { margin: 0 0 12px; font-size: 20px; }
+    p, li { color: #b8c2d1; line-height: 1.7; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    a { color: #d49aff; }
+    footer { padding: 24px 0 40px; border-top: 1px solid #253044; color: #7f8da3; font-size: 13px; }
+    @media (max-width: 560px) { main { padding-top: 44px; } header { min-height: 64px; } .back { font-size: 0; } .back::after { content: "Назад"; font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/">WebDev<span>Gym</span></a>
+    <a class="back" href="/">Вернуться в приложение</a>
+  </header>
+  <main>
+    <p class="eyebrow">Конфиденциальность</p>
+    <h1>Ваши данные остаются под вашим контролем.</h1>
+    <p class="lead">WebDevGym использует только те данные, которые нужны для входа, синхронизации учебного прогресса и работы выбранных функций.</p>
+
+    <section>
+      <h2>Какие данные обрабатываются</h2>
+      <ul>
+        <li>при входе через Google или GitHub: идентификатор аккаунта, имя, адрес электронной почты и аватар, если провайдер их передаёт;</li>
+        <li>учебный прогресс, настройки и данные профиля, которые вы сохраняете в WebDevGym;</li>
+        <li>данные, созданные локальными инструментами, могут оставаться только в браузере на вашем устройстве.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Для чего используются данные</h2>
+      <p>Для авторизации, восстановления вашей сессии, синхронизации прогресса между устройствами и отображения вашего профиля. WebDevGym не продаёт персональные данные и не использует их для рекламного профилирования.</p>
+    </section>
+
+    <section>
+      <h2>Хранение и сторонние сервисы</h2>
+      <p>Авторизация и облачное хранение работают через Supabase. Вход через Google и GitHub регулируется политиками этих сервисов. Сайт размещён на Vercel. Каждый сервис обрабатывает данные в пределах своей роли.</p>
+    </section>
+
+    <section>
+      <h2>Удаление данных</h2>
+      <p>Вы можете выйти из аккаунта и продолжить работать локально. Чтобы запросить удаление облачного аккаунта и связанных данных, создайте обращение в <a href="https://github.com/kernix01/WebDevGym/issues" target="_blank" rel="noopener">репозитории WebDevGym</a>.</p>
+    </section>
+
+    <section>
+      <h2>Обновления политики</h2>
+      <p>При изменении способов обработки данных эта страница будет обновлена. Последнее обновление: 28 октября 2026 года.</p>
+    </section>
+  </main>
+  <footer>WebDevGym © 2026</footer>
+</body>
+</html>

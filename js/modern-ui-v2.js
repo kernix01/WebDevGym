@@ -85,7 +85,7 @@
     const footer = document.createElement('footer');
     footer.className = 'wdg-license-footer';
     footer.innerHTML = '<span><strong>WebDevGym</strong> © ' + new Date().getFullYear() + ' · ' + ui.license + '</span>' +
-      '<span><a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU GPL v3</a></span>';
+      '<span><a href="privacy.html">' + (isEnglish ? 'Privacy' : 'Конфиденциальность') + '</a> · <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU GPL v3</a></span>';
     wrap.appendChild(footer);
   }
 
