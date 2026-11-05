@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-10-27-v150';
+const CACHE_NAME = 'webdevgym-shell-2026-11-05-v151';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -7,6 +7,7 @@ const APP_SHELL = [
   './css/modern-language-fixes.css',
   './css/webdevgym-base-ru.css',
   './css/webdevgym-base-en.css',
+  './css/webdevgym-completions.css?v=20261105-1',
   './css/modern-ui.css',
   './css/modern-ui-fixes.css',
   './css/modern-ui-v2.css',
@@ -100,7 +101,7 @@ const APP_SHELL = [
   './js/webdevgym-nexus-v3.js?v=20260911-2',
   './js/webdevgym-learning-workspace.js?v=20260913-3',
   './js/vendor/emmet-browser.min.js?v=2.4.11',
-  './js/webdevgym-code-editor.js?v=20260914-2',
+  './js/webdevgym-code-editor.js?v=20261105-1',
   './js/webdevgym-playground-atlas.js?v=20260930-2',
   './js/webdevgym-usability.js',
   './js/webdevgym-project-mode.js',

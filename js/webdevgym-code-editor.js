@@ -4,31 +4,32 @@
   const INDENT = '  ';
   const OPEN_PAIRS = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
   const CLOSE_PAIRS = new Set([')', ']', '}', '"', "'", '`']);
-  const COMPLETIONS = {
-    javascript: [
-      ['console.log', 'console.log()', 12, 'function'], ['const', 'const ', 6, 'keyword'],
-      ['let', 'let ', 4, 'keyword'], ['function', 'function name() {\n  \n}', 9, 'keyword'],
-      ['return', 'return ', 7, 'keyword'], ['document.querySelector', 'document.querySelector("")', 24, 'DOM'],
-      ['addEventListener', 'addEventListener("click", () => {\n  \n})', 18, 'DOM'],
-      ['forEach', 'forEach((item) => {\n  \n})', 18, 'array'], ['map', 'map((item) => item)', 18, 'array'],
-      ['filter', 'filter((item) => )', 17, 'array'], ['JSON.parse', 'JSON.parse()', 11, 'function'],
-      ['JSON.stringify', 'JSON.stringify()', 15, 'function'], ['localStorage.getItem', 'localStorage.getItem("")', 22, 'storage'],
-      ['localStorage.setItem', 'localStorage.setItem("", "")', 22, 'storage']
-    ],
-    html: [
-      ['div', 'div', 3, 'tag'], ['section', 'section', 7, 'tag'], ['main', 'main', 4, 'tag'],
-      ['header', 'header', 6, 'tag'], ['button', 'button', 6, 'tag'], ['input', 'input', 5, 'tag'],
-      ['class', 'class=""', 7, 'attribute'], ['id', 'id=""', 4, 'attribute'],
-      ['aria-label', 'aria-label=""', 12, 'attribute']
-    ],
-    css: [
-      ['display', 'display: ;', 9, 'property'], ['position', 'position: ;', 10, 'property'],
-      ['background', 'background: ;', 12, 'property'], ['color', 'color: ;', 7, 'property'],
-      ['padding', 'padding: ;', 9, 'property'], ['margin', 'margin: ;', 8, 'property'],
-      ['grid-template-columns', 'grid-template-columns: ;', 23, 'property'],
-      ['align-items', 'align-items: center;', 20, 'property'], ['justify-content', 'justify-content: center;', 24, 'property']
-    ]
-  };
+  const WORDS = values => values.split(/\s+/).filter(Boolean);
+  const makeItems = (values, kind, detail = '') => WORDS(values).map(label => ({ label, insert: label, kind, detail }));
+  const HTML_TAGS = makeItems('a abbr address article aside audio b blockquote body br button canvas caption code col data datalist dd details div dl dt em fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hr html i iframe img input label legend li link main meta nav ol option p picture pre script section select small source span strong style summary table tbody td textarea tfoot th thead tr title ul video', 'tag', 'HTML element');
+  const HTML_ATTRIBUTES = makeItems('accept action alt aria-label aria-labelledby autocomplete autofocus checked class colspan content controls data-* disabled for height href id lang loading max maxlength method min name placeholder rel required role selected src srcset step style target title type value width', 'attribute', 'HTML attribute');
+  const CSS_PROPERTIES = makeItems('align-content align-items align-self animation appearance aspect-ratio background background-color background-image border border-radius bottom box-shadow box-sizing color column-gap cursor display flex flex-basis flex-direction flex-grow flex-shrink flex-wrap font font-family font-size font-style font-weight gap grid grid-template-columns grid-template-rows height justify-content left line-height margin margin-bottom margin-left margin-right margin-top max-height max-width min-height min-width object-fit opacity overflow padding padding-bottom padding-left padding-right padding-top place-content place-items position right text-align text-decoration text-overflow text-transform top transform transition user-select vertical-align visibility white-space width z-index', 'property', 'CSS property');
+  const JS_KEYWORDS = makeItems('async await break case catch class const continue debugger default delete do else export extends finally for from function get if import in instanceof let new of return set static super switch this throw try typeof var void while with yield', 'keyword', 'JavaScript keyword');
+  const JS_GLOBALS = makeItems('Array Boolean Date Error Intl JSON Map Math Number Object Promise RegExp Set String Symbol WeakMap WeakSet console document window localStorage sessionStorage fetch setInterval setTimeout clearInterval clearTimeout URL URLSearchParams', 'variable', 'JavaScript API');
+  const JS_SNIPPETS = [
+    { label: 'console.log()', insert: 'console.log()', caret: 12, kind: 'function', detail: 'console.log(...data)', description: 'Print values to the developer console.' },
+    { label: 'addEventListener()', insert: 'addEventListener("click", (event) => {\n  \n})', caret: 38, kind: 'method', detail: 'EventTarget.addEventListener(type, listener)', description: 'Register a handler for a DOM event.' },
+    { label: 'document.querySelector()', insert: 'document.querySelector("")', caret: 24, kind: 'method', detail: 'Document.querySelector(selectors)', description: 'Select the first matching element.' },
+    { label: 'document.querySelectorAll()', insert: 'document.querySelectorAll("")', caret: 27, kind: 'method', detail: 'Document.querySelectorAll(selectors)', description: 'Select every matching element.' },
+    { label: 'forEach()', insert: 'forEach((item) => {\n  \n})', caret: 17, kind: 'method', detail: 'Array.forEach(callback)', description: 'Run a callback once for each array item.' },
+    { label: 'map()', insert: 'map((item) => item)', caret: 17, kind: 'method', detail: 'Array.map(callback)', description: 'Create a new array from callback results.' },
+    { label: 'filter()', insert: 'filter((item) => )', caret: 16, kind: 'method', detail: 'Array.filter(callback)', description: 'Keep items that pass a test.' },
+    { label: 'fetch()', insert: 'fetch("")', caret: 7, kind: 'method', detail: 'fetch(input, options)', description: 'Request a resource and return a Promise.' },
+    { label: 'JSON.parse()', insert: 'JSON.parse()', caret: 11, kind: 'method', detail: 'JSON.parse(text)', description: 'Parse JSON text into a JavaScript value.' },
+    { label: 'JSON.stringify()', insert: 'JSON.stringify()', caret: 15, kind: 'method', detail: 'JSON.stringify(value)', description: 'Serialize a JavaScript value as JSON.' },
+    { label: 'localStorage.getItem()', insert: 'localStorage.getItem("")', caret: 22, kind: 'method', detail: 'Storage.getItem(key)', description: 'Read a value saved in local storage.' },
+    { label: 'localStorage.setItem()', insert: 'localStorage.setItem("", "")', caret: 22, kind: 'method', detail: 'Storage.setItem(key, value)', description: 'Save a string in local storage.' },
+    { label: 'if', insert: 'if () {\n  \n}', caret: 4, kind: 'snippet', detail: 'if (condition) { … }', description: 'Conditional statement.' },
+    { label: 'function', insert: 'function name() {\n  \n}', caret: 9, kind: 'snippet', detail: 'function name() { … }', description: 'Declare a function.' },
+    { label: 'try/catch', insert: 'try {\n  \n} catch (error) {\n  console.error(error);\n}', caret: 8, kind: 'snippet', detail: 'try { … } catch (error) { … }', description: 'Handle an exception.' }
+  ];
+  const CSS_VALUES = makeItems('absolute auto block border-box center column flex flex-start flex-end grid hidden inline inline-block inline-flex inline-grid inherit initial fixed none normal relative repeat(2, 1fr) space-between space-around space-evenly sticky transparent unset visible wrap nowrap 100% 100vh 100vw 1fr', 'value', 'CSS value');
+  const COMPLETIONS = { html: [...HTML_TAGS, ...HTML_ATTRIBUTES], css: CSS_PROPERTIES, javascript: [...JS_KEYWORDS, ...JS_GLOBALS, ...JS_SNIPPETS] };
 
   function isMarkupFile(fileName) {
     return /\.(html?|xhtml|jsx|tsx|vue|svelte|astro)$/i.test(String(fileName || ''));
@@ -146,11 +147,47 @@
     return '';
   }
 
-  function completionPrefix(editor, language) {
+  function completionContext(editor, language) {
     const before = editor.value.slice(0, editor.selectionStart);
-    if (language === 'html') return (before.match(/[a-zA-Z][\w:-]*$/) || [''])[0];
-    if (language === 'javascript') return (before.match(/[a-zA-Z_$][\w$]*(?:\.[\w$]*)?$/) || [''])[0];
-    return (before.match(/[a-zA-Z-]+$/) || [''])[0];
+    const word = before.match(/[\w$-]+$/)?.[0] || '';
+    if (language === 'html') {
+      const tagStart = before.lastIndexOf('<');
+      const tagEnd = before.lastIndexOf('>');
+      if (tagStart > tagEnd) {
+        const tagText = before.slice(tagStart + 1);
+        if (!/^[!/]/.test(tagText) && /^\S+\s+/.test(tagText)) return { before, prefix: word, mode: 'attribute', from: editor.selectionStart - word.length };
+        if (!/^[!/]/.test(tagText)) return { before, prefix: tagText.match(/[\w-]*$/)?.[0] || '', mode: 'tag', from: editor.selectionStart - (tagText.match(/[\w-]*$/)?.[0] || '').length };
+        return null;
+      }
+      return null;
+    }
+    if (language === 'css') {
+      const lastOpen = Math.max(before.lastIndexOf('{'), before.lastIndexOf(';'), before.lastIndexOf('}'));
+      const declaration = before.slice(lastOpen + 1);
+      if (declaration.includes(':')) return { before, prefix: word, mode: 'value', from: editor.selectionStart - word.length };
+      return { before, prefix: word, mode: 'property', from: editor.selectionStart - word.length };
+    }
+    const member = before.match(/([\w$]+)\.([\w$]*)$/);
+    if (member) return { before, prefix: member[2], mode: 'member', object: member[1], from: editor.selectionStart - member[2].length };
+    return { before, prefix: (before.match(/[a-zA-Z_$][\w$]*$/) || [''])[0], mode: 'word', from: editor.selectionStart - ((before.match(/[a-zA-Z_$][\w$]*$/) || [''])[0].length) };
+  }
+
+  function emmetCompletion(editor, language, context) {
+    if (!['html', 'css'].includes(language) || !context?.prefix || context.mode !== 'tag' && context.mode !== 'property') return null;
+    const engine = global.WebDevGymEmmet;
+    if (!engine || typeof engine.extract !== 'function' || typeof engine.expand !== 'function') return null;
+    try {
+      const type = language === 'html' ? 'markup' : 'stylesheet';
+      const extracted = engine.extract(editor.value, editor.selectionStart, { type });
+      const abbreviation = extracted?.abbreviation || '';
+      if (abbreviation.toLowerCase() !== context.prefix.toLowerCase()) return null;
+      const syntax = language === 'html' ? 'html' : 'css';
+      const insert = engine.expand(abbreviation, { syntax, type, options: { 'output.indent': INDENT } });
+      if (!insert || insert.trim() === abbreviation.trim()) return null;
+      return { label: abbreviation, insert, kind: 'emmet', detail: 'Emmet Abbreviation', description: insert.split('\n').slice(0, 5).join('\n'), from: extracted.start };
+    } catch {
+      return null;
+    }
   }
 
   function attachAutocomplete(editor, options = {}) {
@@ -162,35 +199,95 @@
     editor.parentElement.appendChild(popup);
     let items = [];
     let selectedIndex = 0;
-    let prefix = '';
+    let context = null;
 
     const fileName = () => typeof options.fileName === 'function' ? options.fileName() : options.fileName || '';
     const hide = () => {
       popup.hidden = true;
       popup.replaceChildren();
       items = [];
-      prefix = '';
+      context = null;
     };
     const render = () => {
-      popup.innerHTML = items.map((item, index) => `<button type="button" role="option" class="${index === selectedIndex ? 'active' : ''}" data-completion-index="${index}"><span>${item[0]}</span><small>${item[3]}</small></button>`).join('');
+      const fragment = document.createDocumentFragment();
+      items.forEach((item, index) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.setAttribute('role', 'option');
+        row.setAttribute('aria-selected', String(index === selectedIndex));
+        row.className = index === selectedIndex ? 'active' : '';
+        row.dataset.completionIndex = String(index);
+        const icon = document.createElement('span');
+        icon.className = `wdg-completion-icon is-${item.kind}`;
+        icon.textContent = ({ tag: '<>', attribute: 'a', property: 'P', value: 'v', keyword: 'K', variable: 'x', function: 'ƒ', method: 'm', snippet: '▣', emmet: '⌘' })[item.kind] || '•';
+        const main = document.createElement('span');
+        main.className = 'wdg-completion-main';
+        const label = document.createElement('span');
+        label.className = 'wdg-completion-label';
+        label.textContent = item.label;
+        const detail = document.createElement('small');
+        detail.textContent = item.detail || '';
+        main.append(label, detail);
+        const description = document.createElement('span');
+        description.className = 'wdg-completion-description';
+        description.textContent = item.description || item.kind;
+        row.append(icon, main, description);
+        fragment.append(row);
+      });
+      popup.replaceChildren(fragment);
     };
     const refresh = () => {
       if (typeof options.disabled === 'function' && options.disabled()) return hide();
       const language = completionLanguage(fileName());
-      prefix = completionPrefix(editor, language);
-      if (!language || prefix.length < 2 || editor.selectionStart !== editor.selectionEnd) return hide();
-      const lower = prefix.toLowerCase();
-      items = COMPLETIONS[language].filter(item => item[0].toLowerCase().startsWith(lower)).slice(0, 9);
-      if (!items.length || (items.length === 1 && items[0][0] === prefix)) return hide();
+      context = completionContext(editor, language);
+      if (!language || !context || (context.prefix.length < 1 && !/[<.:\s]$/.test(context.before)) || editor.selectionStart !== editor.selectionEnd) return hide();
+      const source = language === 'html'
+        ? context.mode === 'tag' ? HTML_TAGS : HTML_ATTRIBUTES
+        : language === 'css'
+          ? context.mode === 'value' ? CSS_VALUES : CSS_PROPERTIES
+          : context.mode === 'member'
+            ? context.object === 'console' ? makeItems('assert clear count countReset debug dir error group groupCollapsed groupEnd info log table time timeEnd trace warn', 'method', 'Console method')
+              : context.object === 'Math' ? makeItems('abs ceil floor max min pow random round sqrt trunc', 'method', 'Math method')
+                : context.object === 'JSON' ? makeItems('parse stringify', 'method', 'JSON method')
+                  : context.object === 'document' ? makeItems('createElement getElementById querySelector querySelectorAll addEventListener', 'method', 'Document method')
+                    : context.object === 'localStorage' ? makeItems('clear getItem key removeItem setItem', 'method', 'Storage method') : []
+            : COMPLETIONS.javascript;
+      const lower = context.prefix.toLowerCase();
+      const matches = source.filter(item => item.label.toLowerCase().startsWith(lower));
+      items = matches.slice(0, 12).map(item => {
+        if (language === 'html' && context.mode === 'attribute') return { ...item, from: context.from, insert: `${item.label}=""`, caret: item.label.length + 2 };
+        if (language === 'css' && context.mode === 'property') return { ...item, from: context.from, insert: `${item.label}: ;`, caret: item.label.length + 2 };
+        return { ...item, from: context.from, insert: item.insert || item.label, caret: item.caret ?? (item.insert || item.label).length };
+      });
+      const emmet = emmetCompletion(editor, language, context);
+      if (emmet) items.unshift({ ...emmet, caret: emmet.insert.length });
+      if (!items.length || (items.length === 1 && items[0].label === context.prefix && items[0].insert === context.prefix)) return hide();
       selectedIndex = 0;
       render();
       popup.hidden = false;
+      positionPopup();
+    };
+    const positionPopup = () => {
+      const mirror = document.createElement('div');
+      const style = global.getComputedStyle(editor);
+      for (const property of ['font', 'lineHeight', 'letterSpacing', 'padding', 'border', 'boxSizing', 'whiteSpace', 'wordBreak', 'overflowWrap']) mirror.style[property] = style[property];
+      mirror.style.position = 'absolute'; mirror.style.visibility = 'hidden'; mirror.style.width = `${editor.clientWidth}px`; mirror.style.height = 'auto'; mirror.style.overflow = 'hidden';
+      const marker = document.createElement('span');
+      const before = editor.value.slice(0, editor.selectionStart);
+      mirror.textContent = before;
+      marker.textContent = editor.value.slice(editor.selectionStart, editor.selectionStart + 1) || '\u200b';
+      mirror.append(marker);
+      editor.parentElement.append(mirror);
+      const top = editor.offsetTop + marker.offsetTop - editor.scrollTop + parseFloat(style.borderTopWidth || '0');
+      const left = editor.offsetLeft + marker.offsetLeft - editor.scrollLeft;
+      mirror.remove();
+      popup.style.left = `${Math.max(8, Math.min(left, editor.clientWidth - popup.offsetWidth - 8))}px`;
+      popup.style.top = `${top > editor.clientHeight * 0.62 ? Math.max(8, top - popup.offsetHeight - 28) : top + parseFloat(style.lineHeight || '20') + 4}px`;
     };
     const accept = index => {
       const item = items[index];
       if (!item) return false;
-      const start = editor.selectionStart - prefix.length;
-      replaceRange(editor, item[1], start, editor.selectionStart, item[2]);
+      replaceRange(editor, item.insert, item.from, editor.selectionStart, item.caret);
       hide();
       return true;
     };
@@ -214,7 +311,7 @@
       }
       return false;
     };
-    popup.addEventListener('mousedown', event => {
+    popup.addEventListener('pointerdown', event => {
       const button = event.target.closest('[data-completion-index]');
       if (!button) return;
       event.preventDefault();
@@ -223,6 +320,7 @@
     });
     editor.addEventListener('input', refresh);
     editor.addEventListener('click', refresh);
+    editor.addEventListener('scroll', () => { if (!popup.hidden) positionPopup(); }, { passive: true });
     editor.addEventListener('blur', () => window.setTimeout(hide, 120));
     return { handleKeydown, refresh, hide };
   }
