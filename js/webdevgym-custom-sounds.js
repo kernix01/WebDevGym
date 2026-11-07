@@ -17,6 +17,7 @@
     preview: 'Preview',
     remove: 'Delete',
     selected: 'Selected',
+    unavailable: 'This sound is no longer available in local storage',
     local: 'Stored only in this browser',
     aiTitle: 'AI reply',
     aiDescription: 'Play a separate sound when the assistant finishes a reply.',
@@ -42,6 +43,7 @@
     preview: 'Прослушать',
     remove: 'Удалить',
     selected: 'Выбран',
+    unavailable: 'Этот звук больше недоступен в локальном хранилище',
     local: 'Хранится только в этом браузере',
     aiTitle: 'Ответ ИИ',
     aiDescription: 'Отдельный звук, когда помощник закончил отвечать.',
@@ -70,7 +72,8 @@
     : [['glass', 'Стекло'], ['soft', 'Мягкий'], ['pop', 'Щелчок'], ['arcade', 'Аркада']];
   const soundUrls = new Map();
   const originalPlayClickSound = window.playClickSound;
-  let currentAudio = null;
+  let currentClickAudio = null;
+  let currentAiAudio = null;
   let aiAudioContext = null;
   let statusTimer = 0;
 
@@ -347,24 +350,26 @@
     return url;
   }
 
-  async function playStoredSound(id, volume) {
+  async function playStoredSound(id, volume, channel = 'click') {
     const url = await soundUrl(id);
     if (!url) return false;
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+    const previousAudio = channel === 'ai' ? currentAiAudio : currentClickAudio;
+    if (previousAudio) {
+      previousAudio.pause();
+      previousAudio.currentTime = 0;
     }
-    currentAudio = new Audio(url);
-    currentAudio.volume = volume;
-    await currentAudio.play().catch(() => {});
+    const audio = new Audio(url);
+    if (channel === 'ai') currentAiAudio = audio;
+    else currentClickAudio = audio;
+    audio.volume = volume;
+    await audio.play().catch(() => {});
     return true;
   }
 
   async function playCustomSound(id, force = false) {
     if (!force && localStorage.getItem('clickSounds') !== '1') return;
-    if (!await playStoredSound(id, soundVolume())) {
-      localStorage.setItem(SOUND_KEY, 'soft');
-      syncSelection();
+    if (!await playStoredSound(id, soundVolume(), 'click')) {
+      notify(text.unavailable);
     }
   }
 
@@ -408,10 +413,10 @@
     if (aiSoundVolume() === 0) return;
     const selected = selectedAiSound();
     if (selected.startsWith('custom:')) {
-      const played = await playStoredSound(selected.slice(7), aiSoundVolume());
+      const played = await playStoredSound(selected.slice(7), aiSoundVolume(), 'ai');
       if (played) return;
-      localStorage.setItem(AI_SOUND_KEY, 'glass');
-      syncAiControls();
+      notify(text.unavailable);
+      return;
     }
     await playBuiltInAiSound(selectedAiSound());
   }
@@ -643,6 +648,10 @@
       const selected = selectedSound();
       if (selected.startsWith('custom:')) {
         playCustomSound(selected.slice(7));
+        return;
+      }
+      if (window.WebDevGymSoundProfiles?.play) {
+        window.WebDevGymSoundProfiles.play();
         return;
       }
       if (typeof originalPlayClickSound === 'function') originalPlayClickSound();

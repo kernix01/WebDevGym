@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webdevgym-shell-2026-11-05-v151';
+const CACHE_NAME = 'webdevgym-shell-2026-11-07-v152';
 const APP_SHELL = [
   './index.html',
   './index-en.html',
@@ -61,8 +61,8 @@ const APP_SHELL = [
   './data/curriculum-order-2026.js',
   './js/webdevgym-curriculum-renderer.js',
   './js/modern-language-bootstrap-v2.js',
-  './js/webdevgym-core-ru.js?v=20260913-5',
-  './js/webdevgym-core-en.js?v=20260913-5',
+  './js/webdevgym-core-ru.js?v=20261107-1',
+  './js/webdevgym-core-en.js?v=20261107-1',
   './js/modern-ui-bootstrap.js',
   './js/modern-ui.js?v=20260913-3',
   './js/modern-ui-v2.js',
@@ -81,8 +81,8 @@ const APP_SHELL = [
   './js/webdevgym-api-lab.js',
   './js/webdevgym-trainers-v2.js',
   './js/webdevgym-critical-boot.js?v=20260824-2',
-  './js/webdevgym-personalization.js?v=20260824-2',
-  './js/webdevgym-custom-sounds.js',
+  './js/webdevgym-personalization.js?v=20261107-1',
+  './js/webdevgym-custom-sounds.js?v=20261107-1',
   './js/webdevgym-forge.js',
   './js/webdevgym-forge-v2.js?v=20260906-1',
   './js/webdevgym-pwa.js?v=20260913-4',

@@ -6477,7 +6477,6 @@ function toggleClickSounds(row) {
   clickSoundsOn = !clickSoundsOn;
   localStorage.setItem('clickSounds', clickSoundsOn ? '1' : '0');
   document.getElementById('soundToggle').classList.toggle('on', clickSoundsOn);
-  if (clickSoundsOn) playClickSound();
 }
 
 // ===== SETTINGS PANEL =====
@@ -6805,7 +6804,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Click sound on all checkboxes and buttons (delegated)
   document.body.addEventListener('click', (e) => {
-    if (e.target.matches('input[type="checkbox"], button, .item, .tab, .book-lang-btn, .font-lang-btn, .font-filter-btn')) {
+    const clickable = e.target.matches('input[type="checkbox"], button, .item, .tab, .book-lang-btn, .font-lang-btn, .font-filter-btn') ? e.target : null;
+    if (clickable && !clickable.closest('#wdgpSoundSection, #wdgcAiSoundPanel')) {
       playClickSound();
     }
   });
