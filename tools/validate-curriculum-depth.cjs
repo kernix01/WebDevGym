@@ -59,8 +59,8 @@ const enLessons = lessons(en);
 const ruIds = ruLessons.map(lesson => lesson.id);
 const enIds = enLessons.map(lesson => lesson.id);
 
-if (ruLessons.length !== 293 || enLessons.length !== 293) {
-  errors.push(`Expected 293 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
+if (ruLessons.length !== 297 || enLessons.length !== 297) {
+  errors.push(`Expected 297 lessons per locale, got RU ${ruLessons.length}, EN ${enLessons.length}.`);
 }
 
 if (new Set(ruIds).size !== ruIds.length) errors.push('RU contains duplicate lesson ids.');
@@ -101,8 +101,8 @@ const depthLessons = [...ruLessons, ...enLessons].filter(lesson => (
   lesson.html.includes('wdg-depth-lesson')
 ));
 
-if (depthLessons.length !== 112) {
-  errors.push(`Expected 112 localized depth lessons, got ${depthLessons.length}.`);
+if (depthLessons.length !== 120) {
+  errors.push(`Expected 120 localized depth lessons, got ${depthLessons.length}.`);
 }
 
 for (const lesson of depthLessons) {
